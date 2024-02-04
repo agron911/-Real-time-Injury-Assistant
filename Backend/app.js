@@ -1,5 +1,5 @@
 const express = require("express");
-
+const path = require("path");
 const app = express();
 const port = 3000;
 
@@ -7,10 +7,11 @@ const port = 3000;
 
 
 //assume static files is in view
-app.use(express.static('view'));
+app.use(express.static(path.join(__dirname,'..','Frontend/views')));
 app.use(express.json())
 app.set("view engine", "ejs")
-app.use(express.static('public'))
+
+app.set('views', path.join(__dirname,'..', '/Frontend/views'));
 
 
 // Body-Parser

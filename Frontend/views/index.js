@@ -102,7 +102,7 @@ function submitForm(btn){
             } else {
             if (usernameInput && passwordInput) {
                 console.log(usernameInput.value + passwordInput.value)
-                fetch("http://localhost:3000/register", {
+                fetch("/register", {
                     method: "POST",
                     body: JSON.stringify({
                         "username": usernameInput.value,
