@@ -1,5 +1,6 @@
 const express = require("express");
 const path = require("path");
+const collections = require("./dbconfig")
 const app = express();
 const port = 3000;
 
@@ -19,25 +20,39 @@ const body_parser = require("body-parser");
 app.use(body_parser.urlencoded({ extended: false }));
 const router = require("./route/index.js");
 const collection = require("./route/index.js");
-const collections = require("./dbconfig")
+//console.log('test require')
 
 // Mongoose, for mongoDB interactions.
 app.post("/register", async (req, res)=>{
+  let un = req.body.username;
   const data = {
-    username:req.body.username,
-    pasword:req.body.pasword
+    username:un.toLowerCase(),
+    password:req.body.password
   }
+  console.log(data)
   const userExists = await collections.findOne({username: data.username})
+  var status = 0;
+  console.log(userExists)
   if(userExists){
-    res.send("User already exists, try different username")
+    status = 401
+    console.log('401')
   }
-  console.log("here")
-  const userdata = await collections.insertMany(data)
-  console.log(userdata)
+  else{
+    const userdata = await collections.insertMany(data)
+    status = 201
+    console.log('success')
+  }
+  res.status(status).send()
+  
+  console.log(`test`);
+  
+  //res.status(201).json({something: "something"})
+  
 })
 
 // SocketIO
-app.get("/register", (req, res)=>{
+app.get("/", (req, res)=>{
+  //console.log('here')
   res.render("index")
 })
 app.use(router)

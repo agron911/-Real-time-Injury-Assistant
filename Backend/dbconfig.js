@@ -8,12 +8,12 @@ async function connectdb(){
         console.log("db connected")
     }
     catch(error){
-        console.log("some erro has occured")
+        console.log("some error has occured while connecting database")
     }
 }
 connectdb()
 const UserSchema = new mongoose.Schema({
-    userName:{
+    username:{
         type: String,
         required: true
     },
