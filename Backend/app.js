@@ -25,7 +25,7 @@ const collections = require("./dbconfig")
 app.post("/register", async (req, res)=>{
   const data = {
     username:req.body.username,
-    pasword:req.body.pasword
+    password:req.body.password
   }
   const userExists = await collections.findOne({username: data.username})
   if(userExists){
@@ -37,7 +37,7 @@ app.post("/register", async (req, res)=>{
 })
 
 // SocketIO
-app.get("/register", (req, res)=>{
+app.get("/", (req, res)=>{
   res.render("index")
 })
 app.use(router)

@@ -102,7 +102,7 @@ function submitForm(btn){
             } else {
             if (usernameInput && passwordInput) {
                 console.log(usernameInput.value + passwordInput.value)
-                fetch("/register", {
+                fetch("http://localhost:3000/register", {
                     method: "POST",
                     body: JSON.stringify({
                         "username": usernameInput.value,
@@ -113,13 +113,15 @@ function submitForm(btn){
                     }
                 })
                 .then((response) => {
-                    if (response.status == 201) {
+                    console.log("res:" , response)
+                    if (response.status == 200) {
                         alert(`Success! Please login with your new username.`);
                     } else {
                         alert(`Username exist. Please use a different username.`);
                     }
                 })
-                .then((json) => console.log(json));
+                .catch(error => console.log(error))
+                .then((json) => console.log(json))
                 usernameInput.value = '';
                 passwordInput.value = '';
                 }

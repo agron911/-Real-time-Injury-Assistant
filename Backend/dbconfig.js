@@ -13,7 +13,7 @@ async function connectdb(){
 }
 connectdb()
 const UserSchema = new mongoose.Schema({
-    userName:{
+    username:{
         type: String,
         required: true
     },
