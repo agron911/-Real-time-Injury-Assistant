@@ -1,10 +1,14 @@
 const express = require('express')
 const router = express.Router()
 const path = require('path')
+const { default: mongoose } = require('mongoose');
+const { appendFile } = require('fs');
 // const passport = require('passport');
 
 // assuming html files stored in view
 const viewDirectory = path.join(__dirname, '..', 'view');
+
+
 
 router.get("/main", function (req, res) {
     // assuming there's a main html

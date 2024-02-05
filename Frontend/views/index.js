@@ -113,13 +113,19 @@ function submitForm(btn){
                     }
                 })
                 .then((response) => {
+                    console.log(response)
                     if (response.status == 201) {
                         alert(`Success! Please login with your new username.`);
-                    } else {
-                        alert(`Username exist. Please use a different username.`);
+                    }
+                    else if(response.status==401){
+                        alert(`Username exist. Please use a different username.`)
+                    }
+                     else {
+                        alert(`Server experience a problem`);
                     }
                 })
-                .then((json) => console.log(json));
+                .catch(error => console.log(error))
+                .then((json) => console.log(json))
                 usernameInput.value = '';
                 passwordInput.value = '';
                 }
