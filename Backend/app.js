@@ -27,7 +27,7 @@ app.post("/register", async (req, res)=>{
   let un = req.body.username;
   const data = {
     username:un.toLowerCase(),
-    password:req.body.password
+    passsword:req.body.passsword
   }
   console.log(data)
   const userExists = await collections.findOne({username: data.username})
