@@ -4,6 +4,7 @@ const collections = require("./dbconfig")
 const app = express();
 const port = 3000;
 
+const passwordUtils = require("./utils/passwordUtils.js")
 // Managing user sessions;
 
 
@@ -25,9 +26,10 @@ const collection = require("./route/index.js");
 // Mongoose, for mongoDB interactions.
 app.post("/register", async (req, res)=>{
   let un = req.body.username;
+  console.log('lfoka', req.body.username);
   const data = {
     username:un.toLowerCase(),
-    passsword:req.body.passsword
+    password:req.body.password
   }
   console.log(data)
   const userExists = await collections.findOne({username: data.username})
@@ -38,9 +40,14 @@ app.post("/register", async (req, res)=>{
     console.log('401')
   }
   else{
-    const userdata = await collections.insertMany(data)
-    status = 201
-    console.log('success')
+    const hash = await passwordUtils.hashPassword(data.password);
+    if(hash){
+      const userdata = await collections.insertMany({...data, password: hash})
+      status = 201;
+      console.log('success', userdata)  
+    }else{
+      status = 500;
+    }
   }
   res.status(status).send()
   
