@@ -40,21 +40,24 @@ app.post("/register", async (req, res)=>{
     console.log('401')
   }
   else{
-    const hash = await passwordUtils.hashPassword(data.password);
-    if(hash){
-      const userdata = await collections.insertMany({...data, password: hash})
-      status = 201;
-      console.log('success', userdata)  
-    }else{
-      status = 500;
-    }
+    status = 201;
+    console.log('success', data)  
   }
   res.status(status).send()
+
+})
+
+app.post("/registerconfirm", async(req, res)=>{
   
-  console.log(`test`);
-  
-  //res.status(201).json({something: "something"})
-  
+  let un = req.body.username;
+  const data = {
+    username:un.toLowerCase(),
+    password:req.body.password
+  }
+  const hashed_password = await passwordUtils.hashPassword(data.password);
+  const userdata = await collections.insertMany({username:data.username, password: hashed_password})
+  res.status(202).send()
+
 })
 
 // SocketIO

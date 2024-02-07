@@ -1,5 +1,7 @@
 // const socket = io();
 
+//const { response } = require("express");
+
 const usernameInput = document.getElementById('usernameInput');
 const passwordInput = document.getElementById('passwordInput');
 const userHelpBlock = document.getElementById('userHelpBlock');
@@ -67,6 +69,30 @@ function notProhibited(input) {
     return 1
 }
 
+function cancel_user(){
+    usernameInput.value = '';
+    passwordInput.value = '';
+    document.getElementById("acknowlegementmodal").style.display="none"
+
+}
+
+function save_user(){
+    fetch("http://localhost:3000/registerconfirm",{
+        method:"POST",
+        body: JSON.stringify({
+            "username": usernameInput.value,
+            "password": passwordInput.value,
+        }),
+        headers: {
+        "Content-type": "application/json; charset=UTF-8"
+        }
+    })
+    .then((response)=>{
+        document.getElementById("acknowlegementmodal").style.display="none"
+    })
+    .catch(error => console.log(error))
+}
+
 
 function submitForm(btn){
     console.log(`button clicked!`);
@@ -115,7 +141,8 @@ function submitForm(btn){
                 .then((response) => {
                     console.log(response)
                     if (response.status == 201) {
-                        alert(`Success! Please login with your new username.`);
+                        document.getElementById("acknowlegementmodal").style.display="block"
+                        //alert(`Success! Please login with your new username.`);
                     }
                     else if(response.status==401){
                         alert(`Username exist. Please use a different username.`)
@@ -123,11 +150,12 @@ function submitForm(btn){
                      else {
                         alert(`Server experience a problem`);
                     }
+                    //return response.json()
                 })
+                //.then((json) => console.log(json))
                 .catch(error => console.log(error))
-                .then((json) => console.log(json))
-                usernameInput.value = '';
-                passwordInput.value = '';
+                //usernameInput.value = '';
+                //passwordInput.value = '';
                 }
             } 
     }
