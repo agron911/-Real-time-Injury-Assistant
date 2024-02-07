@@ -180,6 +180,7 @@ async function user_acknowledged(){
             }
         });
         if(response.status==200){
+            window.location.replace('/home');
             console.log('closing modal');
             document.getElementById("acknowlegementmodal1").style.display="none"
             usernameInput.value = '';
