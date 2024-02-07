@@ -87,8 +87,13 @@ function save_user(){
         "Content-type": "application/json; charset=UTF-8"
         }
     })
-    .then((response)=>{
-        document.getElementById("acknowlegementmodal").style.display="none"
+    .then(async(response)=>{
+        const {data} = await response.json();
+        // console.log('json', jso);
+        localStorage.setItem("username", data.username);
+        document.getElementById("acknowlegementmodal").style.display="none";
+        //Display acknowlegement modal
+        document.getElementById("acknowlegementmodal1").style.display="block";
     })
     .catch(error => console.log(error))
 }
@@ -144,11 +149,14 @@ function submitForm(btn){
                         document.getElementById("acknowlegementmodal").style.display="block"
                         //alert(`Success! Please login with your new username.`);
                     }
+                    else if (response.status == 205){
+                        //Do nothing
+                    }
                     else if(response.status==401){
                         alert(`Username exist. Please use a different username.`)
                     }
                      else {
-                        alert(`Server experience a problem`);
+                        alert(`Server experienced a problem`);
                     }
                     //return response.json()
                 })
@@ -159,5 +167,30 @@ function submitForm(btn){
                 }
             } 
     }
-    
 }
+
+async function user_acknowledged(){
+    try{
+        const url = "http://localhost:3000/acknowledge"
+        const username = localStorage.getItem("username");
+        console.log('username: ' + username)
+        const response = await fetch(url,{
+            method: "POST",
+            body: JSON.stringify({
+                "username": localStorage.getItem("username"),
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        });
+        if(response.status==200){
+            console.log('closing modal');
+            document.getElementById("acknowlegementmodal1").style.display="none"
+            usernameInput.value = '';
+            passwordInput.value = '';
+        }
+    } catch(error) {
+        console.log(error);
+    }
+}
+

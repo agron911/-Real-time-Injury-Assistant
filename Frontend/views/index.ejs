@@ -28,8 +28,8 @@
                         </div>
                     </div>
                     <div class="d-grid gap-2 col-6 mx-auto">
-                        <button value="login" type="submit" class="btn btn-primary" onclick="submitForm(this)">Login</button>
-                        <button value="register" type="button" class="btn btn-primary" onclick="submitForm(this)">Register</button>
+                        <!-- <button value="login" type="submit" class="btn btn-primary" onclick="submitForm(this)">Login</button> -->
+                        <button value="register" type="button" class="btn btn-primary" onclick="submitForm(this)">JOIN COMMUNITY</button>
                     </div>
                     
                 </form>
@@ -40,17 +40,45 @@
         <div class="modal-dialog" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">Acknowlege user agreement.</h5>
+              <h5 class="modal-title">Create a new user account in ESN.</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
             <div class="modal-body">
-              <p>Status codes go here</p>
+              <p>This will create a new Account in ESN. Click I Agree to continue.</p>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-primary", onclick="save_user()">Acknowledge</button>
+              <button type="button" class="btn btn-primary", onclick="save_user()">I Agree</button>
               <button type="button" class="btn btn-secondary" data-dismiss="modal", onclick="cancel_user()">Refuse</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal" tabindex="-1" role="dialog", id="acknowlegementmodal1">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Acknowlege User agreement</h5>
+              <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button> -->
+            </div>
+            <div class="modal-body" style="width: fit-content;">
+              <div>
+                <div style="width: fit-content;text-wrap: nowrap;">
+                  These are the different statues that you will see on the application!  
+                </div>
+                <div>
+                  <div style="margin-top: 1em; color: green;">Ok: I am OK: I do not need help. </div>
+                  <div style="margin-top: 0.2em; color: yellow;">Help: I need help, but this is not a life threatening emergency. </div>
+                  <div style="margin-top: 0.2em; margin-bottom: 1em; color: red;">Emergency: I need help now: this is a life threatening emergency!</div>
+                </div>
+                <div>Acknowledge that you understand this!</div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary", onclick="user_acknowledged()">I Acknowledge</button>
             </div>
           </div>
         </div>

@@ -3,9 +3,10 @@ const saltRounds = 10;
 
 async function hashPassword(password){
   try {
-    const salt = await bcrypt.genSalt(saltRounds);
-    console.log('password', password, salt)
-    const passwordHash = await bcrypt.hash(password, salt);
+    // const salt = await bcrypt.genSalt(saltRounds);
+    console.log('password', password, 10);
+    const passwordHash = await bcrypt.hash(password, 10);
+    console.log('FINAL ', passwordHash);
     return passwordHash;
   } catch (error) {
     console.log("Hashing error", error);

@@ -21,7 +21,7 @@ router.post("/registerconfirm", async (req, res) => {
     }
     const hashed_password = await hashPassword(data.password);
     const userdata = await collections.insertMany({ username: data.username, password: hashed_password })
-    res.status(202).send()
+    res.status(202).send({data})
 
 })
 
@@ -35,17 +35,43 @@ router.post("/register", async (req, res) => {
     console.log(data)
     const userExists = await collections.findOne({ username: data.username })
     var status = 0;
-    console.log(userExists)
+    
     if (userExists) {
-        status = 401
-        console.log('401')
+        
+        const hashed_password = await hashPassword(data.password);
+        console.log(userExists, userExists.password, data.password, hashed_password);
+        const isPasswordCorrect = await comparePassword(userExists.password, data.password, hashed_password);
+        console.log('is password correct', isPasswordCorrect)
+        if(isPasswordCorrect) {
+            status = 205;
+        } else {
+            status = 401;
+        }
     }
     else {
         status = 201;
-        console.log('success', data)
+        console.log('success', data);
     }
-    res.status(status).send()
+    res.status(status).send();
 
 })
 
+router.post("/acknowledge", async (req, res) => {
+    const username = req.body.username;
+    console.log('khkdofkg', username, req.body)
+    const userExists = await collections.findOne({ username: username })
+    console.log('userExists', userExists)
+    if(userExists){
+        try{
+            await collections.findOneAndUpdate({ username: username},{
+                acknowledged: true,
+            });
+            res.status(200).send('Acknowledged');
+        } catch(err){
+            res.status(500).send('Something went wrong!'); 
+        }
+    } else{
+        res.status(404).send("User does not exist");
+    }
+})
 export default router;
