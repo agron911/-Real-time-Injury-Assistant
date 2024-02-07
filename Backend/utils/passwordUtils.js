@@ -1,28 +1,14 @@
 import bcrypt from 'bcrypt';
 const saltRounds = 10;
 
-async function hashPassword(password){
+async function hashPassword(password) {
   try {
-    // const salt = await bcrypt.genSalt(saltRounds);
-    console.log('password', password, 10);
     const passwordHash = await bcrypt.hash(password, 10);
-    console.log('FINAL ', passwordHash);
     return passwordHash;
   } catch (error) {
     console.log("Hashing error", error);
     return null;
   }
-  bcrypt
-    .genSalt(saltRounds)
-    .then((salt) => {
-      console.log("Salt: ", salt);
-      return bcrypt.hash(password, salt);
-    })
-    .then((hash) => {
-      console.log("Hash: ", hash);
-      return hash;
-    })
-    .catch((err) => console.error(err.message));
 };
 
 async function comparePassword(hash, password) {
@@ -32,17 +18,6 @@ async function comparePassword(hash, password) {
   } catch (error) {
     return false;
   }
-
-  bcrypt
-    .compare(password, hash)
-    .then((res) => {
-      console.log(res); //
-      return true;
-    })
-    .catch((err) => {
-      console.error(err.message);
-      return false;
-    });
 };
 export { hashPassword, comparePassword };
 

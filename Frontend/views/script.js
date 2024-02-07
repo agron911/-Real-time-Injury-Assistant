@@ -89,7 +89,6 @@ function save_user(){
     })
     .then(async(response)=>{
         const {data} = await response.json();
-        // console.log('json', jso);
         localStorage.setItem("username", data.username);
         document.getElementById("acknowlegementmodal").style.display="none";
         //Display acknowlegement modal
@@ -153,17 +152,14 @@ function submitForm(btn){
                         //Do nothing
                     }
                     else if(response.status==401){
-                        alert(`Username exist. Please use a different username.`)
+                        alert(`Username exist. Please re-enter the different username or password.`)
                     }
                      else {
                         alert(`Server experienced a problem`);
                     }
                     //return response.json()
                 })
-                //.then((json) => console.log(json))
                 .catch(error => console.log(error))
-                //usernameInput.value = '';
-                //passwordInput.value = '';
                 }
             } 
     }
