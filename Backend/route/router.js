@@ -4,7 +4,12 @@ import { appendFile } from 'fs';
 import { hashPassword, comparePassword } from "../utils/passwordUtils.js";
 const router = express.Router();
 
-router.get("/", (req, res) => {
+
+router.get("/home", (req, res) => {
+    res.render("home")
+})
+
+router.get("/community", (req, res) => {
     res.render("index")
 })
 
@@ -47,7 +52,7 @@ router.post("/register", async (req, res) => {
         console.log('success', data);
     }
     res.status(status).send();
-
+    
 })
 
 router.post("/acknowledge", async (req, res) => {
