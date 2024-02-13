@@ -1,6 +1,6 @@
 import express from 'express';
 import collections from '../model/User.js';
-import { isValid, getUserByName, createUser } from '../model/user_handler.js'
+import { isValid, getUserByName, createUser } from '../model/User.js'
 import { appendFile } from 'fs';
 import { hashPassword, comparePassword } from "../utils/passwordUtils.js";
 const router = express.Router();
