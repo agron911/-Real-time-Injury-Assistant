@@ -8,14 +8,14 @@ const userHelpBlock = document.getElementById('userHelpBlock');
 const passwordHelpBlock = document.getElementById('passwordHelpBlock');
 
 
-function cancel_user(){
+function cancelUser(){
     usernameInput.value = '';
     passwordInput.value = '';
     document.getElementById("acknowlegementmodal").style.display="none"
 
 }
 
-function save_user(){
+function saveUser(){
     fetch("http://localhost:3000/users/confirmation",{
         method:"POST",
         body: JSON.stringify({
@@ -79,7 +79,7 @@ function submitJoinForm(){
 
 async function userAcknowledged(){
     try{
-        const url = "http://localhost:3000/acknowledge"
+        const url = "http://localhost:3000/users/acknowledgement"
         const username = localStorage.getItem("username");
         console.log('username: ' + username)
         const response = await fetch(url,{

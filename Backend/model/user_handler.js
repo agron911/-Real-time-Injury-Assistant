@@ -1,4 +1,4 @@
-
+import User from './User.js';
 
 // List of prohibited usernames
 const prohibitedUsernames = [
@@ -68,6 +68,16 @@ export function isValid (username, password) {
 
     return 0
 
+}
+
+export async function createUser(username, hashed_password) {
+    const user = await User.insertMany({ username: username, password: hashed_password });
+    return user;
+}
+
+export async function getUserByName(username) {
+    const user = await User.findOne({ username: username });
+    return user;
 }
 
 export default function() { console.log("User model connected!") }

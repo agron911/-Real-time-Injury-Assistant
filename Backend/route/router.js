@@ -1,6 +1,6 @@
 import express from 'express';
 import collections from '../model/User.js';
-import { isValid } from '../model/user_handler.js'
+import { isValid, getUserByName, createUser } from '../model/user_handler.js'
 import { appendFile } from 'fs';
 import { hashPassword, comparePassword } from "../utils/passwordUtils.js";
 const router = express.Router();
@@ -22,7 +22,7 @@ router.post("/users/confirmation", async (req, res) => {
         password: req.body.password
     }
     const hashed_password = await hashPassword(data.password);
-    const userdata = await collections.insertMany({ username: data.username, password: hashed_password })
+    const userdata = await createUser(data.username, hashed_password);
     res.status(202).send({ data })
 
 })
@@ -44,7 +44,8 @@ router.post("/users", async (req, res) => {
     }
 
     // Check existing user
-    const userExists = await collections.findOne({ username: data.username })
+    const userExists = await getUserByName(data.username);
+    console.log(userExists)
 
     if (userExists) {
         const hashed_password = await hashPassword(data.password);
@@ -67,7 +68,7 @@ router.post("/users", async (req, res) => {
 router.post("/users/acknowledgement", async (req, res) => {
     const username = req.body.username;
     console.log('khkdofkg', username, req.body)
-    const userExists = await collections.findOne({ username: username })
+    const userExists = await getUserByName(username)
     console.log('userExists', userExists)
     if (userExists) {
         try {
