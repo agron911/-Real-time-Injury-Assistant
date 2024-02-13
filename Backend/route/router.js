@@ -64,7 +64,7 @@ router.post("/users", async (req, res) => {
 
 })
 
-router.post("/users/acknowledge", async (req, res) => {
+router.post("/users/acknowledgement", async (req, res) => {
     const username = req.body.username;
     console.log('khkdofkg', username, req.body)
     const userExists = await collections.findOne({ username: username })
