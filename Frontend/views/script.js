@@ -77,7 +77,7 @@ function cancel_user(){
 }
 
 function save_user(){
-    fetch("http://localhost:3000/registerconfirm",{
+    fetch("http://localhost:3000/users/confirmation",{
         method:"POST",
         body: JSON.stringify({
             "username": usernameInput.value,
@@ -98,74 +98,47 @@ function save_user(){
 }
 
 
-function submitForm(btn){
+function submitJoinForm(){
     console.log(`button clicked!`);
-    if (checkInput() && notProhibited(usernameInput.value)) {
-        if(btn.value == "login"){
-            // client -> server (login info)
-                console.log(`login button clicked!`);
-                if (usernameInput && passwordInput) {
-                console.log(usernameInput.value + passwordInput.value)
-                fetch("http://localhost:3000/login", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        "username": usernameInput.value,
-                        "password": passwordInput.value,
-                    }),
-                    headers: {
-                    "Content-type": "application/json; charset=UTF-8"
-                    }
-                })
-                .then((response) => {
-                    if (response.status == 200) {
-                        window.location.replace('/chatroom');
-                    } else if (response.status == 403) {
-                        alert(`Access denied. Username or password incorrect.`);
-                    } else {
-                        alert(`Username does not exist. Please register.`);
-                    }
-                })
-                .then((json) => console.log(json));
-                usernameInput.value = '';
-                passwordInput.value = '';
-                }
-            } else {
-            if (usernameInput && passwordInput) {
-                console.log(usernameInput.value + passwordInput.value)
-                fetch("http://localhost:3000/register", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        "username": usernameInput.value,
-                        "password": passwordInput.value,
-                    }),
-                    headers: {
-                        "Content-type": "application/json; charset=UTF-8"
-                    }
-                })
-                .then((response) => {
-                    console.log(response)
-                    if (response.status == 201) {
-                        document.getElementById("acknowlegementmodal").style.display="block"
-                        //alert(`Success! Please login with your new username.`);
-                    }
-                    else if (response.status == 205){
-                        //Do nothing
-                    }
-                    else if(response.status==401){
-                        alert(`Username exist. Please re-enter the different username or password.`)
-                    }
-                     else {
-                        alert(`Server experienced a problem`);
-                    }
-                    //return response.json()
-                })
-                .catch(error => console.log(error))
-                }
-            } 
-    }
-}
 
-async function user_acknowledged(){
+    if (usernameInput && passwordInput) {
+        console.log(usernameInput.value + passwordInput.value)
+        fetch("http://localhost:3000/users", {
+            method: "POST",
+            body: JSON.stringify({
+                "username": usernameInput.value,
+                "password": passwordInput.value,
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        })
+        .then((response) => {
+            console.log(response)
+            if (response.status == 201) {
+                document.getElementById("acknowlegementmodal").style.display="block"
+                //alert(`Success! Please login with your new username.`);
+            } else if (response.status == 205){
+                //Do nothing
+            } else if (response.status == 400){
+                alert(`Username exist. \nPlease re-enter a different username or input correct password.`);
+            } else if (response.status == 401) {
+                alert(`Username must be at least 3 characters long.`);
+            } else if (response.status == 402) {
+                alert(`Your password must be at least 4 characters long. \nPasswords are case sensitive!`);
+            } else if (response.status == 403) {
+                alert(`Your username is prohibited. Try again.`);
+            } else {
+                alert(`Server experienced a problem`);
+            }
+            //return response.json()
+        })
+        .catch(error => console.log(error))
+    }
+} 
+    
+
+async function userAcknowledged(){
     try{
         const url = "http://localhost:3000/acknowledge"
         const username = localStorage.getItem("username");
@@ -180,7 +153,7 @@ async function user_acknowledged(){
             }
         });
         if(response.status==200){
-            window.location.replace('/home');
+            window.location.replace('/');
             console.log('closing modal');
             document.getElementById("acknowlegementmodal1").style.display="none"
             usernameInput.value = '';
