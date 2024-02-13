@@ -15,23 +15,16 @@
                     <div class="mb-3">
                         <label for="usernameInput" class="form-label">Username</label>
                         <input type="text" class="form-control" id="usernameInput" required>
-                        <div id="userHelpBlock" class="form-text d-none" style="color: red;">
-                            Your username must be at least 3 characters long.
-                        </div>
-
                     </div>  
                     <div class="mb-3">
                         <label for="passwordInput" class="form-label">Password</label>
                         <input type="password" class="form-control" id="passwordInput" required>
-                        <div id="passwordHelpBlock" class="form-text d-none" style="color: red;">
-                            Your password must be at least 4 characters long. Passwords are case sensitive! 
-                        </div>
                     </div>
                     <div class="d-grid gap-2 col-6 mx-auto">
                         <!-- <button value="login" type="submit" class="btn btn-primary" onclick="submitForm(this)">Login</button> -->
-                        <button value="register" type="button" class="btn btn-primary" onclick="submitForm(this)">JOIN COMMUNITY</button>
+                        <button value="register" type="button" class="btn btn-primary" onclick="submitJoinForm()">JOIN COMMUNITY</button>
                     </div>
-                    
+
                 </form>
             </div>
         </div>
@@ -49,8 +42,8 @@
               <p>This will create a new Account in ESN. Click I Agree to continue.</p>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-primary", onclick="save_user()">I Agree</button>
-              <button type="button" class="btn btn-secondary" data-dismiss="modal", onclick="cancel_user()">Refuse</button>
+              <button type="button" class="btn btn-primary", onclick="saveUser()">I Agree</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal", onclick="cancelUser()">Refuse</button>
             </div>
           </div>
         </div>
@@ -66,7 +59,7 @@
             </div>
             <div class="modal-body" style="width: fit-content;">
               <div>
-                <div style="width: fit-content;text-wrap: nowrap;">
+                <div style="width: fit-content;">
                   These are the different statues that you will see on the application!  
                 </div>
                 <div>
@@ -78,7 +71,7 @@
               </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-primary", onclick="user_acknowledged()">I Acknowledge</button>
+              <button type="button" class="btn btn-primary", onclick="userAcknowledged()">I Acknowledge</button>
             </div>
           </div>
         </div>
