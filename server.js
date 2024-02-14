@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import router from '../route/router.js';
+import router from './Backend/route/router.js';
 
 const app = express();
 const port = 3000;
@@ -10,11 +10,11 @@ const port = 3000;
 // Serving static files in view
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-app.use(express.static(path.join(__dirname, '..', '..', 'Frontend', 'views')));
+app.use(express.static(path.join(__dirname, 'Frontend', 'views')));
 
 
 // Setting up view engine
-app.set('views', path.join(__dirname, '..', '..', 'Frontend', 'views'));
+app.set('views', path.join(__dirname, 'Frontend', 'views'));
 app.set("view engine", "ejs")
 
 // Body-Parser

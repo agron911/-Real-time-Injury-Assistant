@@ -99,4 +99,7 @@ export async function getUserByName(username) {
 }
 
 
+export async function UpdateAcknowledgement(username) {
+    await User.findOneAndUpdate({ username: username }, { acknowledged: true });
+}
 export default User;
