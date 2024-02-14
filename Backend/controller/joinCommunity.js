@@ -1,5 +1,5 @@
 import User from '../model/User.js';
-import { isValid, getUserByName, createUser } from '../model/User.js'
+import { isValid, getUserByName, createUser, UpdateAcknowledgement } from '../model/User.js'
 import { hashPassword, comparePassword } from "../utils/passwordUtils.js";
 
 
@@ -59,14 +59,14 @@ export const UserAcknowledgement = async (req, res) => {
     const userExists = await getUserByName(username)
     if (userExists) {
         try {
-            await User.findOneAndUpdate({ username: username }, {
-                acknowledged: true,
-            });
+            await UpdateAcknowledgement(username);
             res.status(200).send('Acknowledged');
         } catch (err) {
+            console.log(err);
             res.status(500).send('Something went wrong!');
         }
     } else {
         res.status(404).send("User does not exist");
     }
 };
+
