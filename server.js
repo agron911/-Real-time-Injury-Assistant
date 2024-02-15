@@ -3,6 +3,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import router from './Backend/route/router.js';
+import http from 'http'
+import {setupSocket} from './Backend/utils/setupSocket.js'
+
+
 
 const app = express();
 const port = 3000;
@@ -11,6 +15,10 @@ const port = 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 app.use(express.static(path.join(__dirname, 'Frontend', 'views')));
+
+//setting up socket connection
+const server = http.createServer(app)
+const io = setupSocket(server)
 
 
 // Setting up view engine
@@ -39,10 +47,12 @@ async function connectdb() {
 connectdb()
 
 
-
 app.use(router)
 app.listen(port, function () {
   console.log(`Listening port... ${port}`);
+  
 });
+
+export default io
 
 
