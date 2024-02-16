@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>FSE chatroom</title>
+    <title>ESN message board</title>
     <style>
       body { 
         margin: 0; 
@@ -112,42 +112,57 @@
     <!-- Socket.io cdn & scripts -->
     <script src="https://cdn.socket.io/4.7.3/socket.io.min.js"></script>
     <script>
+      const socket =  io("http://localhost:3000")
       window.onload = async () => {
+        
         try {
+          
           const response = await fetch('/users/info');
 
           if (response.ok) {
             const user = await response.json();
             const username = user.username;
 
-            const socket = io();
+            //const socket = io();
+            
             const message = document.getElementById('messages');
             const messageForm = document.getElementById('messageForm');
             const textInput = document.getElementById('textInput');
             const toggleButton = document.getElementById('toggle-btn');
 
-            const messageInit = await fetch('/messages/initialization');
+            //const messageInit = await fetch('/messages/initialization');
 
             // Listen for initial messages from the server
             socket.on('initMessages', (data) => {
-                data.forEach((msg) => {
+              if (!data.empty){
+                for(var msg of data.archive){
                   const item = document.createElement('li');
                   item.className = 'message';
                   // Change username to 'me' when user matches+
                   if (msg.username == username) {
-                    item.innerHTML = `<strong>Me</strong><span class="timestamp">${msg.timestamp}</span><p>${msg.text}</p>`;
+                    item.innerHTML = `<strong>Me</strong><span class="timestamp">${msg.timestamp}</span><p>${msg.content}</p>`;
                   } else {
-                    item.innerHTML = `<strong>${msg.username}</strong><span class="timestamp">${msg.timestamp}</span><p>${msg.text}</p>`;
+                    item.innerHTML = `<strong>${msg.username}</strong><span class="timestamp">${msg.timestamp}</span><p>${msg.content}</p>`;
                   }
                   messages.appendChild(item);
-                });
+
+                }
+               
+              }
+                
             });
 
             // client -> server (message)
             messageForm.addEventListener('submit', (e) => {
               e.preventDefault();
               if (textInput.value) {
-                socket.emit('chat message', textInput.value, username, (new Date()).toLocaleTimeString());
+                const messageobj = {
+                  username: username,
+                  content: textInput.value,
+
+                }
+                //socket.emit('chat message', textInput.value, username, (new Date()).toLocaleTimeString());
+                socket.emit('chat message', messageobj)
                 textInput.value = '';
               }
             });
@@ -160,13 +175,13 @@
               } 
               });
 
-              socket.on('chat message', (msg, user, timestamp) => {
+              socket.on('chat message', (msg) => {
                   const item = document.createElement('li');
                   item.className = 'message';
-                  if (user == username) {
-                    item.innerHTML = `<strong>Me</strong><span class="timestamp">${timestamp}</span><p>${msg}</p>`;
+                  if ( username== msg.username) {
+                    item.innerHTML = `<strong>Me</strong><span class="timestamp">${msg.timestamp}</span><p>${msg.content}</p>`;
                   } else {
-                    item.innerHTML = `<strong>${user}</strong><span class="timestamp">${timestamp}</span><p>${msg}</p>`;
+                    item.innerHTML = `<strong>${msg.username}</strong><span class="timestamp">${msg.timestamp}</span><p>${msg.content}</p>`;
                   }
                   messages.appendChild(item);
                   window.scrollTo(0, document.body.scrollHeight);

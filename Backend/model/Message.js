@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
-import Date from 'datetime'
+import {v4 as uuidv4} from 'uuid'
+//import Date from 'datetime'
 const messageSchema  = new mongoose.Schema({
     username:{
         type: String,
@@ -11,18 +12,35 @@ const messageSchema  = new mongoose.Schema({
     },
     timestamp:{
         type: Date,
-        required: true
+        default: Date.now
     },
     messageId:{
         type:String,
-        required: true
+        required: false
     }
 })
 const Message = mongoose.model("Message", messageSchema)
 
-export async function storeMessage(username, content, messageid, timestamp){
-    const message = await Message.insertMany({username: username, content:content, messageId: messageid })
+export async function storeMessage(username, content){
+
+    const message = {
+        username: username,
+        content: content,
+        timestamp :Date.now() ,
+        messageId: uuidv4()
+    }
+    try{
+        const m = await Message.insertMany({username: message.username, content:message.content, timestamp: message.timestamp, messageId: message.messageid })
+    }catch(error){
+        console.log(error)
+    }
     return message
+}
+
+export  async function loadMessages(){
+    const messages = await Message.find()
+    console.log(messages)
+    return messages
 }
 
 export default Message

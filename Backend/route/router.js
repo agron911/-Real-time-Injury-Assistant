@@ -1,6 +1,8 @@
 import express from 'express';
 import { HomeView, indexView, UserConfirmation, UserJoin, UserAcknowledgement } from '../controller/joinCommunity.js';
 import { ChatroomView } from '../controller/chatPublicly.js';
+import { loadMessages } from '../model/Message.js'
+import io from '../../server.js'
 const router = express.Router();
 
 router.get("/", HomeView);
@@ -24,17 +26,19 @@ router.get('/users/info', async (req, res) => {
 
 router.get('/messages/initialization', async (req, res) => {
     console.log(`Init previous messages`)
-    // TODO: Socket.io emit archived messages to frontend through "initMessages"
+    // TODO: Socket.io emit archived messages to frontend through "initMessages"   
 
-    // console.log('Initialize chat room msg...');
-    // const allMsg = await Message.find({});
-    // if (!allMsg) {
-    //   console.log(`No existing messages.`);
-    // } else {
-    //   socket.emit('initMessages', allMsg);
+    console.log('Initialize chat room msg...');
+    const allMsg = await loadMessages()
+    if (!allMsg) {
+      console.log(`No existing messages.`);
+    } 
+    //else {
+    //   //socket.emit('initMessages', allMsg);
+    //   pass
     // }
 
-    res.status(200);
+    res.status(200).send(allMsg);
 });
 
 

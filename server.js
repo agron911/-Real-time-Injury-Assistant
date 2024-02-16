@@ -4,8 +4,10 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import router from './Backend/route/router.js';
 import http from 'http'
-import {setupSocket} from './Backend/utils/setupSocket.js'
-
+import {Server} from 'socket.io'
+import { receiveMessage} from './Backend/controller/chatPublicly.js'
+import { loadMessages } from './Backend/model/Message.js'
+import cors from 'cors'
 
 
 const app = express();
@@ -18,7 +20,9 @@ app.use(express.static(path.join(__dirname, 'Frontend', 'views')));
 
 //setting up socket connection
 const server = http.createServer(app)
-const io = setupSocket(server)
+const io = new Server(server)
+export default io
+app.use(cors())
 
 
 // Setting up view engine
@@ -46,13 +50,32 @@ async function connectdb() {
 }
 connectdb()
 
+io.on("connection", async (socket)=>{
+  console.log(socket.id)
+  const msgs = await loadMessages()
+  socket.emit('initMessages', {empty: false, archive:msgs})
+
+  socket.on("chat message", async (data)=>{
+        try{
+          receiveMessage(data, io)
+        }catch(error){
+          console.log(error)
+        }
+    
+  })
+
+
+})
 
 app.use(router)
-app.listen(port, function () {
+server.listen(port, function () {
   console.log(`Listening port... ${port}`);
   
 });
 
-export default io
+
+
+
+
 
 
