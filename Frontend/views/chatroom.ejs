@@ -161,8 +161,6 @@
                   content: textInput.value,
 
                 }
-                //socket.emit('chat message', textInput.value, username, (new Date()).toLocaleTimeString());
-                // socket.emit('chat message', messageobj)
                 fetch('http://localhost:3000/message',{
                   method:"POST",
                   body:JSON.stringify({
