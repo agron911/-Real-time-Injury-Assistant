@@ -1,6 +1,6 @@
 import express from 'express';
 import { HomeView, indexView, UserConfirmation, UserJoin, UserAcknowledgement } from '../controller/joinCommunity.js';
-import { ChatroomView } from '../controller/chatPublicly.js';
+import { ChatroomView, receiveMessage } from '../controller/chatPublicly.js';
 import { loadMessages } from '../model/Message.js'
 import io from '../../server.js'
 const router = express.Router();
@@ -10,6 +10,7 @@ router.get("/community", indexView);
 router.post("/users/confirmation", UserConfirmation);
 router.post("/users", UserJoin);
 router.post("/users/acknowledgement", UserAcknowledgement);
+router.post("/message", receiveMessage);
 
 // New route for iteration 1
 
