@@ -58,6 +58,15 @@ const login = async (username, password) => {
     }
 }
 
+const logout = async() => {
+    try {
+        const response = await fetch(url+"/auth/logout",{});
+        localStorage.setItem("token", null);
+    } catch (e) {
+
+    }
+}
+
 function submitJoinForm(){
     console.log(`button clicked!`);
 
