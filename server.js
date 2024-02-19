@@ -2,7 +2,13 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import passport from 'passport';
+import { Strategy } from 'passport-jwt';
+import { ExtractJwt } from 'passport-jwt';
+import { configDotenv } from 'dotenv';
 import router from './Backend/route/router.js';
+
+configDotenv();
 
 const app = express();
 const port = 3000;
@@ -22,6 +28,17 @@ import body_parser from 'body-parser';
 app.use(body_parser.urlencoded({ extended: false }));
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
+
+//passportjs-auth
+const options = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: process.env.JWT_SECRET,
+}
+passport.use(new Strategy(options, (jwt_payload, done)=>{
+  console.log('Authenticate invoked');
+}))
+app.use(passport.initialize());
+
 
 // MongoDB connection
 import mongoose from 'mongoose';

@@ -94,7 +94,8 @@ export async function createUser(username, hashed_password) {
 }
 
 export async function getUserByName(username) {
-    const user = await User.findOne({ username: username });
+    console.log('usernames', username);
+    const user = await User.findOne({ username: username.toLowerCase() });
     return user;
 }
 
