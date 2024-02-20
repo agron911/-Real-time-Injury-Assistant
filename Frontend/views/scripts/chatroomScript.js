@@ -47,6 +47,7 @@ const updateUserList = (data) => {
         usersListElement.appendChild(userElement);
     }
 }
+
 const logout = async () => {
     try {
         await fetch(url + "/auth/users", {
@@ -93,6 +94,8 @@ window.onload = async () => {
             const messageForm = document.getElementById("messageForm");
             const textInput = document.getElementById("textInput");
             const toggleButton = document.getElementById("toggle-btn");
+            
+            // Load past messages
             const initMessages = (data) => {
                 if (!data.empty) {
                     for (var msg of data.archive) {
@@ -108,20 +111,24 @@ window.onload = async () => {
                     }
                 }
             }
+
+            // When user submit a new message
             messageForm.addEventListener("submit", async (e) => {
                 e.preventDefault();
                 if (textInput.value) {
+                    const inputbuf = textInput.value;
+                    textInput.value = "";
                     await fetch("http://localhost:3000/message", {
                         method: "POST",
                         body: JSON.stringify({
                             username: username,
-                            content: textInput.value,
+                            content: inputbuf,
+                            timestamp: (new Date()).toLocaleTimeString(),
                         }),
                         headers: {
                             "Content-type": "application/json; charset=UTF-8",
                         },
                     });
-                    textInput.value = "";
                 }
             });
             const addMessage = (msg) => {

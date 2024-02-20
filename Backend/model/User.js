@@ -119,7 +119,7 @@ export const setUserOffline = async(username) => {
 }
 
 export const getAllUsers = async() => {
-    const users = await User.find();
+    const users = await User.find().sort({online: -1, username: 1});
     return users;
 }
 

@@ -6,7 +6,7 @@ export const ChatroomView = (req, res) => {
 };
 
 export const receiveMessage = async(req, res)=>{
-    const mess= await storeMessage(req.body.username, req.body.content)
+    const mess = await storeMessage(req.body.username, req.body.content, req.body.timestamp);
     io.emit('chat message', mess)
 }
 
