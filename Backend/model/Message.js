@@ -39,7 +39,6 @@ export async function storeMessage(username, content){
 
 export  async function loadMessages(){
     const messages = await Message.find()
-    console.log(messages)
     return messages
 }
 

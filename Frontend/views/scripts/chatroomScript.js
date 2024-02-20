@@ -1,10 +1,10 @@
 const url = "http://localhost:3000"
 
-const registerSocket = async (username, socketId) =>{
+const registerSocket = async (username, socketId) => {
     try {
-        await fetch(url+"/socket/users/"+username, {
-            method:"POST",
-            body: JSON.stringify({socketId}),  
+        await fetch(url + "/socket/users/" + username, {
+            method: "POST",
+            body: JSON.stringify({ socketId }),
             headers: {
                 "Content-type": "application/json; charset=UTF-8"
             }
@@ -16,7 +16,7 @@ const registerSocket = async (username, socketId) =>{
 
 const connectToSocket = async (initMessages, addMessages) => {
     const socket = io(url);
-    socket.on("connect", async()=>{
+    socket.on("connect", async () => {
         console.log("connection established", socket.id);
         await registerSocket(localStorage.getItem('username'), socket.id);
     })
@@ -26,12 +26,31 @@ const connectToSocket = async (initMessages, addMessages) => {
     socket.on("chat message", (msg) => {
         addMessages(msg);
     });
+    socket.on('updateUserList', (data) => {
+        updateUserList(data)
+    });
+
 }
 
-const logout = async() => {
+const updateUserList = (data) => {
+    const usersListElement = document.getElementById("users");
+    // Check if the user already exists in the list
+    const existUserElement = document.getElementById(`user-${data.username}`);
+    console.log("existUserElement", data);
+    if (existUserElement) {
+        existUserElement.textContent = `${data.username} (${data.online ? 'Online' : 'Offline'})`;
+    } else {
+        // If the user does not exist, add them to the list
+        const userElement = document.createElement("li");
+        userElement.id = `user-${userData.username}`;
+        userElement.textContent = `${data.username} (${data.online ? 'Online' : 'Offline'})`;
+        usersListElement.appendChild(userElement);
+    }
+}
+const logout = async () => {
     try {
-        await fetch(url+"/auth/users",{
-            method:"PATCH",
+        await fetch(url + "/auth/users", {
+            method: "PATCH",
             body: JSON.stringify({
                 isOnline: false,
                 username: localStorage.getItem('username'),
@@ -47,69 +66,91 @@ const logout = async() => {
     }
 }
 
+const fetchInitialUserList = async () => {
+    const response = await fetch(url + "/users");
+    const users = await response.json();
+    displayUsers(users);
+};
+
+const displayUsers = (users) => {
+    const usersListElement = document.getElementById("users");
+    usersListElement.innerHTML = "";
+    console.log("users", users);
+
+    users.users.forEach(user => {
+        const userElement = document.createElement("li");
+        userElement.textContent = `${user.username}  (${user.online ? 'Online' : 'Offline'})`;
+        userElement.id = `user-${user.username}`; 
+        usersListElement.appendChild(userElement);
+    });
+};
+
 window.onload = async () => {
-  try {
-    const username = localStorage.getItem('username');
-    if(username){
-        const message = document.getElementById("messages");
-        const messageForm = document.getElementById("messageForm");
-        const textInput = document.getElementById("textInput");
-        const toggleButton = document.getElementById("toggle-btn");
-        const initMessages = (data) => {
-            if (!data.empty) {
-                for (var msg of data.archive) {
-                  const item = document.createElement("li");
-                  item.className = "message";
-                  // Change username to 'me' when user matches+
-                  if (msg.username == localStorage.getItem("username")) {
-                    item.innerHTML = `<strong>Me</strong><span class="timestamp">${msg.timestamp}</span><p>${msg.content}</p>`;
-                  } else {
-                    item.innerHTML = `<strong>${msg.username}</strong><span class="timestamp">${msg.timestamp}</span><p>${msg.content}</p>`;
-                  }
-                  message.appendChild(item);
+    try {
+        const username = localStorage.getItem('username');
+        if (username) {
+            const message = document.getElementById("messages");
+            const messageForm = document.getElementById("messageForm");
+            const textInput = document.getElementById("textInput");
+            const toggleButton = document.getElementById("toggle-btn");
+            const initMessages = (data) => {
+                if (!data.empty) {
+                    for (var msg of data.archive) {
+                        const item = document.createElement("li");
+                        item.className = "message";
+                        // Change username to 'me' when user matches+
+                        if (msg.username == localStorage.getItem("username")) {
+                            item.innerHTML = `<strong>Me</strong><span class="timestamp">${msg.timestamp}</span><p>${msg.content}</p>`;
+                        } else {
+                            item.innerHTML = `<strong>${msg.username}</strong><span class="timestamp">${msg.timestamp}</span><p>${msg.content}</p>`;
+                        }
+                        message.appendChild(item);
+                    }
                 }
             }
-        }
-        messageForm.addEventListener("submit", async(e) => {
-            e.preventDefault();
-            if (textInput.value) {
-              await fetch("http://localhost:3000/message", {
-                method: "POST",
-                body: JSON.stringify({
-                  username: username,
-                  content: textInput.value,
-                }),
-                headers: {
-                  "Content-type": "application/json; charset=UTF-8",
-                },
-              });
-              textInput.value = "";
+            messageForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                if (textInput.value) {
+                    await fetch("http://localhost:3000/message", {
+                        method: "POST",
+                        body: JSON.stringify({
+                            username: username,
+                            content: textInput.value,
+                        }),
+                        headers: {
+                            "Content-type": "application/json; charset=UTF-8",
+                        },
+                    });
+                    textInput.value = "";
+                }
+            });
+            const addMessage = (msg) => {
+                const item = document.createElement("li");
+                item.className = "message";
+                if (username == msg.username) {
+                    item.innerHTML = `<strong>Me</strong><span class="timestamp">${msg.timestamp}</span><p>${msg.content}</p>`;
+                } else {
+                    item.innerHTML = `<strong>${msg.username}</strong><span class="timestamp">${msg.timestamp}</span><p>${msg.content}</p>`;
+                }
+                messages.appendChild(item);
+                window.scrollTo(0, document.body.scrollHeight);
             }
-        });
-        const addMessage = (msg) => {
-            const item = document.createElement("li");
-            item.className = "message";
-            if (username == msg.username) {
-                item.innerHTML = `<strong>Me</strong><span class="timestamp">${msg.timestamp}</span><p>${msg.content}</p>`;
-            } else {
-                item.innerHTML = `<strong>${msg.username}</strong><span class="timestamp">${msg.timestamp}</span><p>${msg.content}</p>`;
-            }
-            messages.appendChild(item);
-            window.scrollTo(0, document.body.scrollHeight);
+            await connectToSocket(initMessages, addMessage);
+
+            toggleButton.addEventListener("click", async (e) => {
+                e.preventDefault();
+                await logout();
+                window.location.replace('/');
+            });
+
+            fetchInitialUserList();
+
         }
-        await connectToSocket(initMessages, addMessage);
-        
-        toggleButton.addEventListener("click", async(e) => {
-            e.preventDefault();
-            await logout();
-            window.location.replace('/');
-        }); 
-    }   
-  } catch (err) {
-    console.log("err", err);
-    // alert(
-    //   `Failed to load chatroom for user ${err?.message || "Unknown error."}`
-    // );
-    // window.location.href = "/";
-  }
+    } catch (err) {
+        console.log("err", err);
+        // alert(
+        //   `Failed to load chatroom for user ${err?.message || "Unknown error."}`
+        // );
+        // window.location.href = "/";
+    }
 };
