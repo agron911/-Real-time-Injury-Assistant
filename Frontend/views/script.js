@@ -7,6 +7,7 @@ const passwordInput = document.getElementById('passwordInput');
 const userHelpBlock = document.getElementById('userHelpBlock');
 const passwordHelpBlock = document.getElementById('passwordHelpBlock');
 
+const url = "http://localhost:3000"
 
 function cancelUser(){
     usernameInput.value = '';
@@ -16,7 +17,7 @@ function cancelUser(){
 }
 
 function saveUser(){
-    fetch("http://localhost:3000/users/confirmation",{
+    fetch(url+"/users/confirmation",{
         method:"POST",
         body: JSON.stringify({
             "username": usernameInput.value,
@@ -36,13 +37,38 @@ function saveUser(){
     .catch(error => console.log(error))
 }
 
+const login = async (username, password) => {
+    try {    
+        const response = await fetch(url+"/auth/users",{
+            method:"PATCH",
+            body: JSON.stringify({
+                username, 
+                password,
+                isOnline: true
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        })
+        if (response.status==200) {
+            const data = await response.json();
+            console.log("data", data);
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("username", username);
+            // await connectToSocket();
+            window.location.replace("/chatroom");
+        }
+    } catch (e) {
+        console.log("login error", e);
+    }
+}
 
 function submitJoinForm(){
     console.log(`button clicked!`);
 
     if (usernameInput && passwordInput) {
         console.log(usernameInput.value + passwordInput.value)
-        fetch("http://localhost:3000/users", {
+        fetch(url+"/users", {
             method: "POST",
             body: JSON.stringify({
                 "username": usernameInput.value,
@@ -58,7 +84,7 @@ function submitJoinForm(){
                 document.getElementById("acknowlegementmodal").style.display="block"
                 //alert(`Success! Please login with your new username.`);
             } else if (response.status == 205){
-                //Do nothing
+                login(usernameInput.value, passwordInput.value)
             } else if (response.status == 400){
                 alert(`Username exist. \nPlease re-enter a different username or input correct password.`);
             } else if (response.status == 401) {

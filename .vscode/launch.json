@@ -9,13 +9,6 @@
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}\\server.js"
-        },
-        {
-            "type": "node-terminal",
-            "name": "Run Script: start",
-            "request": "launch",
-            "command": "npm run start",
-            "cwd": "${workspaceFolder}"
         }
     ]
 }

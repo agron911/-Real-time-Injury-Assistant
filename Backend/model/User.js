@@ -12,7 +12,12 @@ const UserSchema = new mongoose.Schema({
     acknowledged:{
         type: Boolean,
         required: false,
+    },
+    online: {
+        type: Boolean,
+        required: false,
     }
+
 })
 
 const User = new mongoose.model("User", UserSchema);
@@ -94,7 +99,8 @@ export async function createUser(username, hashed_password) {
 }
 
 export async function getUserByName(username) {
-    const user = await User.findOne({ username: username });
+    console.log('usernames', username);
+    const user = await User.findOne({ username: username.toLowerCase() });
     return user;
 }
 
@@ -102,4 +108,14 @@ export async function getUserByName(username) {
 export async function UpdateAcknowledgement(username) {
     await User.findOneAndUpdate({ username: username }, { acknowledged: true });
 }
+
+export const setUserOnline = async(username) => {
+    await User.findOneAndUpdate({ username: username }, { online: true });
+}
+
+export const setUserOffline = async(username) => {
+    const user = await User.findOneAndUpdate({ username: username }, { online: false });
+    console.log("user offline", user);
+}
+
 export default User;

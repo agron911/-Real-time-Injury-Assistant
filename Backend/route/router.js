@@ -1,20 +1,23 @@
 import express from 'express';
 import { HomeView, indexView, UserConfirmation, UserJoin, UserAcknowledgement } from '../controller/joinCommunity.js';
+import { loginOrLogout, registerUserSocket } from '../controller/loginController.js';
 import { ChatroomView, receiveMessage } from '../controller/chatPublicly.js';
 import { loadMessages } from '../model/Message.js'
-import io from '../../server.js'
 const router = express.Router();
 
 router.get("/", HomeView);
 router.get("/community", indexView);
 router.post("/users/confirmation", UserConfirmation);
 router.post("/users", UserJoin);
+router.patch("/auth/users", loginOrLogout); 
 router.post("/users/acknowledgement", UserAcknowledgement);
+router.post("/socket/users/:username", registerUserSocket );
 router.post("/message", receiveMessage);
 
 // New route for iteration 1
 
 router.get("/chatroom", ChatroomView);
+
 
 // Provide username info to chatroom frontend
 router.get('/users/info', async (req, res) => {
