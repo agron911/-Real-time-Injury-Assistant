@@ -1,4 +1,3 @@
-import User from '../model/User.js';
 import { isValid, getUserByName, createUser, UpdateAcknowledgement } from '../model/User.js'
 import { hashPassword, comparePassword } from "../utils/passwordUtils.js";
 

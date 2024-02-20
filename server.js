@@ -9,8 +9,13 @@ import { ExtractJwt } from 'passport-jwt';
 import { configDotenv } from 'dotenv';
 import { setupSocket } from './Backend/utils/socketSetup.js';
 import router from './Backend/route/router.js';
+import { receiveMessage} from './Backend/controller/chatPublicly.js'
+import { loadMessages } from './Backend/model/Message.js'
+import cors from 'cors'
 
 configDotenv();
+
+
 
 const app = express();
 const httpServer = createServer(app);
@@ -20,6 +25,8 @@ const port = 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 app.use(express.static(path.join(__dirname, 'Frontend', 'views')));
+
+app.use(cors())
 
 
 // Setting up view engine
@@ -67,6 +74,12 @@ app.get('/just', (req, res)=>{
 })
 httpServer.listen(port, function () {
   console.log(`Listening port... ${port}`);
+  
 });
+
+
+
+
+
 
 
