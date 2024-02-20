@@ -12,21 +12,30 @@ export const HomeView = (req, res) => {
 export const indexView = (req, res) => {
     res.render("index");
 };
+ 
 
 export const UserConfirmation = async (req, res) => {
-    let un = req.body.username;
-    const data = {
-        username: un.toLowerCase(),
-        password: req.body.password
-    };
-    const hashed_password = await hashPassword(data.password);
-    const userdata = await createUser(data.username, hashed_password);
-    res.status(202).send({ data });
+    
+    const userExists = await getUserByName(req.body.username);
+    if (!userExists) {
+        let un = req.body.username;
+        const data = {
+            username: un.toLowerCase(),
+            password: req.body.password
+        };
+        const hashed_password = await hashPassword(data.password);
+        const userdata = await createUser(data.username, hashed_password);
+        res.status(202).send({ data });
+    } else {
+        res.status(400).send({message: "User exists!"});
+    }
+
+    
 };
 
 export const UserJoin = async (req, res) => {
     const data = {
-        username: req.body.username.toLowerCase(),
+        username: req.body.username,
         password: req.body.password
     };
 
