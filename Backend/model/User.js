@@ -114,7 +114,8 @@ export const setUserOnline = async(username) => {
 }
 
 export const setUserOffline = async(username) => {
-    await User.findOneAndUpdate({ username: username }, { online: false });
+    const user = await User.findOneAndUpdate({ username: username }, { online: false });
+    console.log("user offline", user);
 }
 
 export default User;

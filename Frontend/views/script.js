@@ -37,13 +37,39 @@ function saveUser(){
     .catch(error => console.log(error))
 }
 
+const registerSocket = async (username, socketId) =>{
+    try {
+        await fetch(url+"/socket/users/"+username, {
+            method:"POST",
+            body: JSON.stringify({socketId}),  
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        })
+    } catch (e) {
+        console.log("socket registration error", e);
+    }
+}
+
+const connectToSocket = async () => {
+    const socket = io(url);
+    socket.on("connect", async()=>{
+        console.log("connection established", socket.id);
+        await registerSocket(localStorage.getItem('username'), socket.id);
+    })
+    socket.on("details", ()=>{
+        console.log("details");
+    })
+}
+
 const login = async (username, password) => {
     try {    
         const response = await fetch(url+"/auth/users",{
             method:"PATCH",
             body: JSON.stringify({
                 username, 
-                password
+                password,
+                isOnline: true
             }),
             headers: {
                 "Content-type": "application/json; charset=UTF-8"
@@ -51,7 +77,11 @@ const login = async (username, password) => {
         })
         if (response.status==200) {
             const data = await response.json();
+            console.log("data", data);
             localStorage.setItem("token", data.token);
+            localStorage.setItem("username", username);
+            await connectToSocket();
+            // window.location.replace("/chatroom");
         }
     } catch (e) {
         console.log("login error", e);
@@ -60,7 +90,15 @@ const login = async (username, password) => {
 
 const logout = async() => {
     try {
-        const response = await fetch(url+"/auth/logout",{});
+        await fetch(url+"/auth/users",{
+            method:"PATCH",
+            body: JSON.stringify({
+                isOnline: false,
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        });
         localStorage.setItem("token", null);
     } catch (e) {
 

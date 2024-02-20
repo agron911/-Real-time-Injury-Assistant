@@ -1,16 +1,19 @@
 import express from 'express';
 import path from 'path';
+import { createServer } from "http";
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import passport from 'passport';
 import { Strategy } from 'passport-jwt';
 import { ExtractJwt } from 'passport-jwt';
 import { configDotenv } from 'dotenv';
+import { setupSocket } from './Backend/utils/socketSetup.js';
 import router from './Backend/route/router.js';
 
 configDotenv();
 
 const app = express();
+const httpServer = createServer(app);
 const port = 3000;
 
 // Serving static files in view
@@ -54,11 +57,15 @@ async function connectdb() {
   }
 }
 connectdb()
-
+const io = setupSocket(httpServer);
 
 
 app.use(router)
-app.listen(port, function () {
+app.get('/just', (req, res)=>{
+  io.emit('details');
+  res.send({})
+})
+httpServer.listen(port, function () {
   console.log(`Listening port... ${port}`);
 });
 
