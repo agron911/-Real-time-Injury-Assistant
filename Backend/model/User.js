@@ -94,7 +94,7 @@ export function isValid (username, password) {
 }
 
 export async function createUser(username, hashed_password) {
-    const user = await User.insertMany({ username: username, password: hashed_password });
+    const user = await User.insertMany({ username: username, password: hashed_password, acknowledged: false, online: false});
     return user;
 }
 
