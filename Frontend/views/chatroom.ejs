@@ -1,116 +1,111 @@
+
 <!doctype html>
 <html>
-  <head>
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>ESN message board</title>
-    <style>
-      body { 
-        margin: 0; 
-        padding-bottom: 3rem; 
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-      }
 
-      header {
-        background-color: rgb(168,196,244);
-        padding: 5px;
-        display: flex;
-        justify-content: space-between;
-        height: 3rem;
-        font-weight: bold;
-        font-size: large;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-      }
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ESN message board</title>
+  <!-- Include Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-      button {
-        padding: 5px 10px;
-        font-size: 13px;
-        margin: 2px;
-        cursor: pointer;
-        border: solid black;
-        border-radius: 5px;
-        width: 100px; /* Set a fixed width for both buttons */
-        background-color: rgb(245, 155, 95);
-        font-weight: bold;
-      }
+  <style>
+    body {
+      padding-bottom: 3rem; /* Adjusted to avoid overlap with fixed elements */
+    }
 
-      #messageForm { 
-        background: rgb(168,196,244); 
-        padding: 0.25rem; 
-        position: fixed; 
-        bottom: 0; 
-        left: 0; 
-        right: 0; 
-        display: flex; 
-        height: 3rem; 
-        box-sizing: border-box; 
-        backdrop-filter: blur(10px); 
-      }
+    header, #messageForm {
+      background-color: rgb(168, 196, 244);
+      backdrop-filter: blur(10px);
+    }
 
-      input { 
-        border: none; 
-        padding: 0 1rem; 
-        flex-grow: 1; 
-        border-radius: 2rem; 
-        margin: 0.25rem; 
-        width: 10px;
-      }
+    #messageForm {
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
 
-      #messages {
-        list-style: none;
-        margin-top: 4rem;
-        margin-right: 3.5rem;
-      }
+    .message {
+      border: 1px solid #ddd;
+      margin-bottom: 10px;
+      overflow-y: auto;
+    }
 
-      .message {
-        border: 1px solid #ddd;
-        padding: 10px;
-        margin-bottom: 10px;
-      }
+    .message .timestamp {
+      color: #888;
+    }
 
-      .message strong {
-        font-weight: bold;
-      }
-
-      .message .timestamp {
-        float: right;
-        color: #888;
-      }
-
-      footer {
-        background-color: rgb(168,196,244);
-        padding: 10px;
-        position: sticky;
-        bottom: 0;
-        text-align: center;
-      }
-
-    </style>
-  </head>
-  <body>
-
-    <header>
-      <p>FSE Chat Room<p>
-      <button id="toggle-btn">Logout</button>
-    </header>
+    .dot {
+      height: 8px;
+      width: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 5px;
+    }
+    .online { background-color: rgb(19, 117, 19); }
+    .offline { background-color: rgb(251, 58, 58); }
 
 
-    <!-- Message area -->
-    <div id="messageBox" style="display: block">
-      <!-- unordered list of display messages -->
-      <ul id="messages"></ul>
-      <form id="messageForm" action="">
-        <input id="textInput" autocomplete="off" placeholder="Type your message..."/>
-        <button>Post</button>
-        
-      </form>
+
+  </style>
+</head>
+
+<body>
+
+  <header class="navbar navbar-expand-lg navbar-light fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">FSE Chat Room</a>
+      <button class="btn btn-outline-primary my-2 my-sm-0" id="toggle-btn">Logout</button>
     </div>
-    
+  </header>
 
-    <!-- Socket.io cdn & scripts -->
-    <script src="https://cdn.socket.io/4.7.3/socket.io.min.js"></script>
-    <script src="scripts/chatroomScript.js"></script>
-  </body>
+  <div class="container-fluid" style="padding-top: 56px;"> <!-- Adjust top padding to avoid overlap with fixed navbar -->
+    <div class="row">
+      <aside class="col-md-2">
+        <br>
+        <div id="chatroom" class="card">
+          <div class="card-header text-center">
+            Users
+          </div>
+        <ul id="users" class="list-group"></ul>
+        </div>
+      </aside>
+      <div class="col-md-9">
+        <br>
+        <div id="chatroom" class="card">
+          <div class="card-header text-center">
+            Chatroom
+          </div>
+          <div id="elect-form" class="card-body text-center">
+            <h5 class="card-title">Post on Public wall</h5>
+            <p class="card-text">Click to elect to chat publicly</p>
+            <a class="btn btn-primary" onclick="electPost()">Elect</a>
+          </div>
+
+          <div id="public-wall" style="display: none;">
+            <ul id="messages" class="list-unstyled"></ul>
+            <form id="messageForm" class="fixed-bottom bg-light p-3">
+              <div class="input-group">
+                <input id="textInput" type="text" class="form-control" autocomplete="off" placeholder="Type your message...">
+                <div class="input-group-append">
+                  <button class="btn btn-primary" type="submit">Post</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+        <br>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS, Popper.js, and jQuery -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+  <!-- Socket.io cdn & scripts -->
+  <script src="https://cdn.socket.io/4.7.3/socket.io.min.js"></script>
+  <script src="scripts/chatroomScript.js"></script>
+</body>
+
 </html>

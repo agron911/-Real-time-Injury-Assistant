@@ -1,49 +1,25 @@
 import express from 'express';
 import { HomeView, indexView, UserConfirmation, UserJoin, UserAcknowledgement } from '../controller/joinCommunity.js';
-import { loginOrLogout, registerUserSocket } from '../controller/loginController.js';
+import { loginOrLogout, registerUserSocket, getUsers } from '../controller/loginController.js';
 import { ChatroomView, receiveMessage } from '../controller/chatPublicly.js';
 import { loadMessages } from '../model/Message.js'
 const router = express.Router();
 
 router.get("/", HomeView);
 router.get("/community", indexView);
-router.post("/users/confirmation", UserConfirmation);
-router.post("/users", UserJoin);
-router.patch("/auth/users", loginOrLogout); 
-router.post("/users/acknowledgement", UserAcknowledgement);
-router.post("/socket/users/:username", registerUserSocket );
-router.post("/message", receiveMessage);
-
-// New route for iteration 1
-
 router.get("/chatroom", ChatroomView);
 
+router.get("/users", getUsers);
+router.post("/users", UserJoin);
+router.post("/users/confirmation", UserConfirmation);
+router.post("/users/acknowledgement", UserAcknowledgement);
 
-// Provide username info to chatroom frontend
-router.get('/users/info', async (req, res) => {
-    console.log(`Init user`)
-    const data = {
-        username: 'Dummy',
-    };
-    res.status(200).send(data);
-});
+router.patch("/auth/users", loginOrLogout); 
+router.post("/socket/users/:username", registerUserSocket );
 
-router.get('/messages/initialization', async (req, res) => {
-    console.log(`Init previous messages`)
-    // TODO: Socket.io emit archived messages to frontend through "initMessages"   
+router.post("/message", receiveMessage);
 
-    console.log('Initialize chat room msg...');
-    const allMsg = await loadMessages()
-    if (!allMsg) {
-      console.log(`No existing messages.`);
-    } 
-    //else {
-    //   //socket.emit('initMessages', allMsg);
-    //   pass
-    // }
 
-    res.status(200).send(allMsg);
-});
 
 
 export default router;

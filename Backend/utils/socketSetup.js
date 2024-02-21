@@ -17,7 +17,7 @@ export const setupSocket = (server) => {
       await deregisterUserSocket(socket.id);
       console.log("Socket disconnected", socket.id);
     });
-
+    
 
     socket.on("chat message", async (data)=>{
           try{
@@ -27,6 +27,8 @@ export const setupSocket = (server) => {
           }
 
     })
+
+
   });
   // io.on("disconnect", () =>)
   return io;

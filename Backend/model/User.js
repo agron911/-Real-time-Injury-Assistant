@@ -118,4 +118,9 @@ export const setUserOffline = async(username) => {
     console.log("user offline", user);
 }
 
+export const getAllUsers = async() => {
+    const users = await User.find().sort({online: -1, username: 1});
+    return users;
+}
+
 export default User;
