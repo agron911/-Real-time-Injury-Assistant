@@ -1,5 +1,76 @@
 const url = "http://localhost:3000"
 
+function electPost() {
+    document.getElementById("elect-form").style.display = "none";
+    document.getElementById("public-wall").style.display = "block";
+}
+// Create usercard for 'users' ul
+function createUserCard (user) {
+    var listItem = document.createElement("li");
+    listItem.className = "list-group-item";
+
+
+    var cardBody = document.createElement("div");
+    cardBody.className = "card-body";
+
+    var title = document.createElement("h5");
+    title.className = "card-title";
+    title.textContent = user.username;
+
+    var dot = document.createElement("span");
+    dot.className = "dot";
+    dot.classList.add(user.online ? "online" : "offline");
+
+    var statusText = document.createTextNode(user.online ? "Online" : "Offline");
+
+    cardBody.appendChild(title);
+    cardBody.appendChild(dot);
+    cardBody.appendChild(statusText);
+
+    listItem.appendChild(cardBody);
+    return listItem;
+}
+
+function createMsgCard (msg) {
+    var listItem = document.createElement("li");
+    listItem.className = "list-group-item";
+
+    var card = document.createElement("div");
+    card.className = "card mx-3 my-3";
+    card.style = "max-width: 36rem;";
+
+    var cardBody = document.createElement("div");
+    cardBody.className = "card-body";
+
+    var title = document.createElement("h5");
+    title.className = "card-title fw-bold";
+
+    if (msg.username == localStorage.getItem("username")) {
+        card.className = "card ms-auto my-3 mx-3";
+        title.textContent = "Me";
+    } else {
+        title.textContent = msg.username;
+    }
+
+    var text = document.createElement("p");
+    text.className = "card-text";
+    text.textContent = msg.content;
+
+    var timestamp = document.createElement("p");
+    timestamp.className = "card-text text-end";
+    var time = document.createElement("small");
+    time.className = "text-body-secondary";
+    time.textContent = msg.timestamp;
+    timestamp.appendChild(time);
+
+    cardBody.appendChild(title);
+    cardBody.appendChild(text);
+    cardBody.appendChild(timestamp);
+    card.appendChild(cardBody);
+    listItem.appendChild(card);
+    return listItem;
+}
+
 const registerSocket = async (username, socketId) => {
     try {
         await fetch(url + "/socket/users/" + username, {
@@ -39,10 +110,8 @@ const updateUserList = (data) => {
     usersListElement.innerHTML = "";
 
     data.forEach(user => {
-        const userElement = document.createElement("li");
-        userElement.textContent = `${user.username}  (${user.online ? 'Online' : 'Offline'})`;
-        userElement.id = `user-${user.username}`; 
-        usersListElement.appendChild(userElement);
+        var userCard = createUserCard(user);
+        usersListElement.appendChild(userCard);
     });
 }
 
@@ -77,10 +146,8 @@ const displayUsers = (users) => {
     console.log("users", users);
 
     users.users.forEach(user => {
-        const userElement = document.createElement("li");
-        userElement.textContent = `${user.username}  (${user.online ? 'Online' : 'Offline'})`;
-        userElement.id = `user-${user.username}`; 
-        usersListElement.appendChild(userElement);
+        var userCard = createUserCard(user);
+        usersListElement.appendChild(userCard);
     });
 };
 
@@ -88,7 +155,7 @@ window.onload = async () => {
     try {
         const username = localStorage.getItem('username');
         if (username) {
-            const message = document.getElementById("messages");
+            const messages = document.getElementById("messages");
             const messageForm = document.getElementById("messageForm");
             const textInput = document.getElementById("textInput");
             const toggleButton = document.getElementById("toggle-btn");
@@ -97,15 +164,9 @@ window.onload = async () => {
             const initMessages = (data) => {
                 if (!data.empty) {
                     for (var msg of data.archive) {
-                        const item = document.createElement("li");
-                        item.className = "message";
-                        // Change username to 'me' when user matches+
-                        if (msg.username == localStorage.getItem("username")) {
-                            item.innerHTML = `<strong>Me</strong><span class="timestamp">${msg.timestamp}</span><p>${msg.content}</p>`;
-                        } else {
-                            item.innerHTML = `<strong>${msg.username}</strong><span class="timestamp">${msg.timestamp}</span><p>${msg.content}</p>`;
-                        }
-                        message.appendChild(item);
+                        var msgCard = createMsgCard(msg);
+                        messages.appendChild(msgCard);
+
                     }
                 }
             }
@@ -121,7 +182,7 @@ window.onload = async () => {
                         body: JSON.stringify({
                             username: username,
                             content: inputbuf,
-                            timestamp: (new Date()).toLocaleTimeString(),
+                            timestamp: (new Date()).toString(),
                         }),
                         headers: {
                             "Content-type": "application/json; charset=UTF-8",
@@ -130,14 +191,8 @@ window.onload = async () => {
                 }
             });
             const addMessage = (msg) => {
-                const item = document.createElement("li");
-                item.className = "message";
-                if (username == msg.username) {
-                    item.innerHTML = `<strong>Me</strong><span class="timestamp">${msg.timestamp}</span><p>${msg.content}</p>`;
-                } else {
-                    item.innerHTML = `<strong>${msg.username}</strong><span class="timestamp">${msg.timestamp}</span><p>${msg.content}</p>`;
-                }
-                messages.appendChild(item);
+                var msgCard = createMsgCard(msg);
+                messages.appendChild(msgCard);
                 window.scrollTo(0, document.body.scrollHeight);
             }
             await connectToSocket(initMessages, addMessage);

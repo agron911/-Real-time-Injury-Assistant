@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ESN message board</title>
   <!-- Include Bootstrap CSS -->
-  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
@@ -26,10 +26,6 @@
       right: 0;
     }
 
-    #messages {
-      margin-top: 4rem; /* Adjusted for header */
-    }
-
     .message {
       border: 1px solid #ddd;
       margin-bottom: 10px;
@@ -39,6 +35,19 @@
     .message .timestamp {
       color: #888;
     }
+
+    .dot {
+      height: 8px;
+      width: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 5px;
+    }
+    .online { background-color: rgb(19, 117, 19); }
+    .offline { background-color: rgb(251, 58, 58); }
+
+
+
   </style>
 </head>
 
@@ -53,28 +62,47 @@
 
   <div class="container-fluid" style="padding-top: 56px;"> <!-- Adjust top padding to avoid overlap with fixed navbar -->
     <div class="row">
-      <aside class="col-md-3">
-        <h3>Users List</h3>
+      <aside class="col-md-2">
+        <br>
+        <div id="chatroom" class="card">
+          <div class="card-header text-center">
+            Users
+          </div>
         <ul id="users" class="list-group"></ul>
+        </div>
       </aside>
       <div class="col-md-9">
-        <ul id="messages" class="list-unstyled"></ul>
-        <form id="messageForm" class="fixed-bottom bg-light p-3">
-          <div class="input-group">
-            <input id="textInput" type="text" class="form-control" autocomplete="off" placeholder="Type your message...">
-            <div class="input-group-append">
-              <button class="btn btn-primary" type="submit">Post</button>
-            </div>
+        <br>
+        <div id="chatroom" class="card">
+          <div class="card-header text-center">
+            Chatroom
           </div>
-        </form>
+          <div id="elect-form" class="card-body text-center">
+            <h5 class="card-title">Post on Public wall</h5>
+            <p class="card-text">Click to elect to chat publicly</p>
+            <a class="btn btn-primary" onclick="electPost()">Elect</a>
+          </div>
+
+          <div id="public-wall" style="display: none;">
+            <ul id="messages" class="list-unstyled"></ul>
+            <form id="messageForm" class="fixed-bottom bg-light p-3">
+              <div class="input-group">
+                <input id="textInput" type="text" class="form-control" autocomplete="off" placeholder="Type your message...">
+                <div class="input-group-append">
+                  <button class="btn btn-primary" type="submit">Post</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+        <br>
+
       </div>
     </div>
   </div>
 
   <!-- Bootstrap JS, Popper.js, and jQuery -->
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
   <!-- Socket.io cdn & scripts -->
   <script src="https://cdn.socket.io/4.7.3/socket.io.min.js"></script>
   <script src="scripts/chatroomScript.js"></script>

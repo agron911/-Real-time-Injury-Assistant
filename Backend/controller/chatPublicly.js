@@ -1,5 +1,5 @@
 
-import { loadMessages, storeMessage} from "../model/Message.js"
+import { loadMessages, storeMessage } from "../model/Message.js"
 import { io } from "../utils/socketSetup.js";
 export const ChatroomView = (req, res) => {
     res.render("chatroom");
@@ -14,11 +14,6 @@ export const getMessages = async() => {
     return await loadMessages();
 }
 
-
-// export async function getMessages(){
-//   const messages = await loadMessages()
-//   return messages
-// }
     
 
   
