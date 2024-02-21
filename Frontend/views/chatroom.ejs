@@ -1,131 +1,80 @@
+
 <!doctype html>
 <html>
 
 <head>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ESN message board</title>
+  <!-- Include Bootstrap CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <style>
     body {
-      margin: 0;
-      padding-bottom: 3rem;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding-bottom: 3rem; /* Adjusted to avoid overlap with fixed elements */
     }
 
-    header {
+    header, #messageForm {
       background-color: rgb(168, 196, 244);
-      padding: 5px;
-      display: flex;
-      justify-content: space-between;
-      height: 3rem;
-      font-weight: bold;
-      font-size: large;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-    }
-
-    button {
-      padding: 5px 10px;
-      font-size: 13px;
-      margin: 2px;
-      cursor: pointer;
-      border: solid black;
-      border-radius: 5px;
-      width: 100px;
-      /* Set a fixed width for both buttons */
-      background-color: rgb(245, 155, 95);
-      font-weight: bold;
-    }
-
-    #messageForm {
-      background: rgb(168, 196, 244);
-      padding: 0.25rem;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      display: flex;
-      height: 3rem;
-      box-sizing: border-box;
       backdrop-filter: blur(10px);
     }
 
-    input {
-      border: none;
-      padding: 0 1rem;
-      flex-grow: 1;
-      border-radius: 2rem;
-      margin: 0.25rem;
-      width: 10px;
+    #messageForm {
+      bottom: 0;
+      left: 0;
+      right: 0;
     }
 
     #messages {
-      list-style: none;
-      margin-top: 4rem;
-      margin-right: 3.5rem;
+      margin-top: 4rem; /* Adjusted for header */
     }
 
     .message {
       border: 1px solid #ddd;
-      padding: 10px;
       margin-bottom: 10px;
       overflow-y: auto;
-
-    }
-
-    .message strong {
-      font-weight: bold;
     }
 
     .message .timestamp {
-      float: right;
       color: #888;
     }
-
-    footer {
-      background-color: rgb(168, 196, 244);
-      padding: 10px;
-      position: sticky;
-      bottom: 0;
-      text-align: center;
-    }
-    #chatContainer {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 3rem;
-    }
-    
-
   </style>
 </head>
 
 <body>
 
-  <header>
-    <p>FSE Chat Room
-    <p>
-      <button id="toggle-btn">Logout</button>
+  <header class="navbar navbar-expand-lg navbar-light fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">FSE Chat Room</a>
+      <button class="btn btn-outline-primary my-2 my-sm-0" id="toggle-btn">Logout</button>
+    </div>
   </header>
 
-  <div id="chatContainer" style="display: flex; ">
-
-    <aside id="usersList" style="width: 200px;">
-      <h3>Users List</h3>
-      <ul id="users"></ul>
-    </aside>
-    <!-- Message area -->
-    <div id="messageBox" >
-      <!-- unordered list of display messages -->
-      <ul id="messages"></ul>
-      <form id="messageForm" action="">
-        <input id="textInput" autocomplete="off" placeholder="Type your message..." />
-        <button>Post</button>
-
-      </form>
+  <div class="container-fluid" style="padding-top: 56px;"> <!-- Adjust top padding to avoid overlap with fixed navbar -->
+    <div class="row">
+      <aside class="col-md-3">
+        <h3>Users List</h3>
+        <ul id="users" class="list-group"></ul>
+      </aside>
+      <div class="col-md-9">
+        <ul id="messages" class="list-unstyled"></ul>
+        <form id="messageForm" class="fixed-bottom bg-light p-3">
+          <div class="input-group">
+            <input id="textInput" type="text" class="form-control" autocomplete="off" placeholder="Type your message...">
+            <div class="input-group-append">
+              <button class="btn btn-primary" type="submit">Post</button>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
+  <!-- Bootstrap JS, Popper.js, and jQuery -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <!-- Socket.io cdn & scripts -->
   <script src="https://cdn.socket.io/4.7.3/socket.io.min.js"></script>
   <script src="scripts/chatroomScript.js"></script>

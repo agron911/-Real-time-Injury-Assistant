@@ -1,11 +1,132 @@
-<!DOCTYPE html>
-<html lang="en">
+<!-- <!doctype html>
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>ESN message board</title>
+  <style>
+    body {
+      margin: 0;
+      padding-bottom: 3rem;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    header {
+      background-color: rgb(168, 196, 244);
+      padding: 5px;
+      display: flex;
+      justify-content: space-between;
+      height: 3rem;
+      font-weight: bold;
+      font-size: large;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+    }
+
+    button {
+      padding: 5px 10px;
+      font-size: 13px;
+      margin: 2px;
+      cursor: pointer;
+      border: solid black;
+      border-radius: 5px;
+      width: 100px;
+      /* Set a fixed width for both buttons */
+      background-color: rgb(245, 155, 95);
+      font-weight: bold;
+    }
+
+    #messageForm {
+      background: rgb(168, 196, 244);
+      padding: 0.25rem;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      height: 3rem;
+      box-sizing: border-box;
+      backdrop-filter: blur(10px);
+    }
+
+    input {
+      border: none;
+      padding: 0 1rem;
+      flex-grow: 1;
+      border-radius: 2rem;
+      margin: 0.25rem;
+      width: 10px;
+    }
+
+    #messages {
+      list-style: none;
+      margin-top: 4rem;
+      margin-right: 3.5rem;
+    }
+
+    .message {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+      overflow-y: auto;
+
+    }
+
+    .message strong {
+      font-weight: bold;
+    }
+
+    .message .timestamp {
+      float: right;
+      color: #888;
+    }
+
+    footer {
+      background-color: rgb(168, 196, 244);
+      padding: 10px;
+      position: sticky;
+      bottom: 0;
+      text-align: center;
+    }
+    #chatContainer {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 3rem;
+    }
+    
+
+  </style>
 </head>
+
 <body>
-    <script src="script.js"></script>
+
+  <header>
+    <p>FSE Chat Room
+    <p>
+      <button id="toggle-btn">Logout</button>
+  </header>
+
+  <div id="chatContainer" style="display: flex; ">
+
+    <aside id="usersList" style="width: 200px;">
+      <h3>Users List</h3>
+      <ul id="users"></ul>
+    </aside>
+    <div id="messageBox" >
+      <ul id="messages"></ul>
+      <form id="messageForm" action="">
+        <input id="textInput" autocomplete="off" placeholder="Type your message..." />
+        <button>Post</button>
+
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.3/socket.io.min.js"></script>
+  <script src="scripts/chatroomScript.js"></script>
 </body>
-</html>
+
+</html> -->
+
