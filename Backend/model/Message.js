@@ -14,6 +14,10 @@ const messageSchema  = new mongoose.Schema({
         type: String,
         required: true
     },
+    status:{
+        type: String,
+        required: true
+    },
     messageId:{
         type:String,
         required: false
@@ -27,10 +31,11 @@ export async function storeMessage(username, content, timestamp){
         username: username,
         content: content,
         timestamp: timestamp,
+        status: "placeholder",
         messageId: uuidv4()
     }
     try{
-        const m = await Message.insertMany({username: message.username, content:message.content, timestamp: message.timestamp, messageId: message.messageid })
+        const m = await Message.insertMany({username: message.username, content:message.content, timestamp: message.timestamp, messageId: message.messageid, status: message.status })
     }catch(error){
         console.log(error)
     }

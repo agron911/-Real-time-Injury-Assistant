@@ -45,6 +45,13 @@ function createMsgCard (msg) {
     var title = document.createElement("h5");
     title.className = "card-title fw-bold";
 
+    var status = document.createElement("p");
+    status.className = "card-text";
+    var txt = document.createElement("small");
+    txt.className = "text-body-secondary";
+    txt.textContent = msg.status;
+    status.appendChild(txt);
+
     if (msg.username == localStorage.getItem("username")) {
         card.className = "card ms-auto my-3 mx-3";
         title.textContent = "Me";
@@ -64,6 +71,7 @@ function createMsgCard (msg) {
     timestamp.appendChild(time);
 
     cardBody.appendChild(title);
+    cardBody.appendChild(status);
     cardBody.appendChild(text);
     cardBody.appendChild(timestamp);
     card.appendChild(cardBody);
