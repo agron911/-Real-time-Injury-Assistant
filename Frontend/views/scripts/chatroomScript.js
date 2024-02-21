@@ -81,7 +81,7 @@ function createMsgCard (msg) {
 
 const registerSocket = async (username, socketId) => {
     try {
-        await fetch(url + "/socket/users/" + username, {
+        await fetch(url + "/sockets/users/" + username, {
             method: "POST",
             body: JSON.stringify({ socketId }),
             headers: {
@@ -185,7 +185,7 @@ window.onload = async () => {
                 if (textInput.value) {
                     const inputbuf = textInput.value;
                     textInput.value = "";
-                    await fetch("http://localhost:3000/message", {
+                    await fetch("http://localhost:3000/messages", {
                         method: "POST",
                         body: JSON.stringify({
                             username: username,

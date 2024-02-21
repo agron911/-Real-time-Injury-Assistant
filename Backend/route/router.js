@@ -15,9 +15,9 @@ router.post("/users/confirmation", UserConfirmation);
 router.post("/users/acknowledgement", UserAcknowledgement);
 
 router.patch("/auth/users", loginOrLogout); 
-router.post("/socket/users/:username", registerUserSocket );
+router.post("/sockets/users/:username", registerUserSocket );
 
-router.post("/message", receiveMessage);
+router.post("/messages", receiveMessage);
 
 
 
