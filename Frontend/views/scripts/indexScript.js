@@ -17,7 +17,7 @@ function cancelUser(){
 }
 
 function saveUser(){
-    fetch(url+"/users/confirmation",{
+    fetch(url+"/users",{
         method:"POST",
         body: JSON.stringify({
             "username": usernameInput.value,
@@ -68,7 +68,7 @@ function submitJoinForm(){
 
     if (usernameInput && passwordInput) {
         console.log(usernameInput.value + passwordInput.value)
-        fetch(url+"/users", {
+        fetch(url+"/users/verification", {
             method: "POST",
             body: JSON.stringify({
                 "username": usernameInput.value,
