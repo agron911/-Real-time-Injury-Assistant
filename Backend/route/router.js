@@ -10,8 +10,8 @@ router.get("/community", indexView);
 router.get("/chatroom", ChatroomView);
 
 router.get("/users", getUsers);
-router.post("/users", UserJoin);
-router.post("/users/confirmation", UserConfirmation);
+router.post("/users/verification", UserJoin);
+router.post("/users/", UserConfirmation);
 router.post("/users/acknowledgement", UserAcknowledgement);
 
 router.patch("/auth/users", loginOrLogout); 
