@@ -118,7 +118,7 @@ async function userAcknowledged(){
             }
         });
         if(response.status==200){
-            window.location.replace('/');
+            window.location.replace('/chatroom');
             console.log('closing modal');
             document.getElementById("acknowlegementmodal1").style.display="none"
             usernameInput.value = '';
