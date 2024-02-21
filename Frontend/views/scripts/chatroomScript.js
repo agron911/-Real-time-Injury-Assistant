@@ -27,6 +27,8 @@ const connectToSocket = async (initMessages, addMessages) => {
         addMessages(msg);
     });
     socket.on('updateUserList', (data) => {
+        console.log("users123", data);
+
         updateUserList(data)
     });
 
@@ -34,18 +36,14 @@ const connectToSocket = async (initMessages, addMessages) => {
 
 const updateUserList = (data) => {
     const usersListElement = document.getElementById("users");
-    // Check if the user already exists in the list
-    const existUserElement = document.getElementById(`user-${data.username}`);
-    console.log("existUserElement", data);
-    if (existUserElement) {
-        existUserElement.textContent = `${data.username} (${data.online ? 'Online' : 'Offline'})`;
-    } else {
-        // If the user does not exist, add them to the list
+    usersListElement.innerHTML = "";
+
+    data.forEach(user => {
         const userElement = document.createElement("li");
-        userElement.id = `user-${userData.username}`;
-        userElement.textContent = `${data.username} (${data.online ? 'Online' : 'Offline'})`;
+        userElement.textContent = `${user.username}  (${user.online ? 'Online' : 'Offline'})`;
+        userElement.id = `user-${user.username}`; 
         usersListElement.appendChild(userElement);
-    }
+    });
 }
 
 const logout = async () => {
