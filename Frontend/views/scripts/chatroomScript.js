@@ -105,10 +105,10 @@ const connectToSocket = async (initMessages, addMessages) => {
     socket.on("chat message", (msg) => {
         addMessages(msg);
     });
+
     socket.on('updateUserList', (data) => {
         console.log("users123", data);
-
-        updateUserList(data)
+        updateUserList(data);
     });
 
 }
@@ -211,7 +211,7 @@ window.onload = async () => {
                 window.location.replace('/');
             });
 
-            fetchInitialUserList();
+            setTimeout(fetchInitialUserList,1000) ;
 
         }
     } catch (err) {

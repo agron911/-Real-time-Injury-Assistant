@@ -43,7 +43,10 @@ export const registerUserSocket = async (req, res) => {
     const username = req.params.username;
     const user = await getUserByName(username);
     if (user) {
-        await addActiveUser(username, req.body.socketId)
+        await addActiveUser(username, req.body.socketId);
+        await setUserOnline(username);
+        const users = await getAllUsers();
+        io.emit('updateUserList', users );
         res.status(200).send({});
     } else {
         res.status(404).send({ message: 'User not found' });
