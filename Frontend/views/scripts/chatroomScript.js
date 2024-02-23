@@ -94,7 +94,7 @@ const registerSocket = async (username, socketId) => {
 }
 
 const connectToSocket = async (initMessages, addMessages) => {
-    const socket = io(url);
+    const socket = await io(url);
     socket.on("connect", async () => {
         console.log("connection established", socket.id);
         await registerSocket(localStorage.getItem('username'), socket.id);
@@ -211,7 +211,7 @@ window.onload = async () => {
                 window.location.replace('/');
             });
 
-            setTimeout(fetchInitialUserList,1000) ;
+            fetchInitialUserList() ;
 
         }
     } catch (err) {
