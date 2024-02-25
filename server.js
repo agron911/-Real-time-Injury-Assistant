@@ -10,7 +10,6 @@ import { configDotenv } from 'dotenv';
 import { setupSocket } from './Backend/utils/socketSetup.js';
 import router from './Backend/route/router.js';
 import { receiveMessage} from './Backend/controller/chatPublicly.js'
-import { loadMessages } from './Backend/model/Message.js'
 import cors from 'cors'
 
 configDotenv();

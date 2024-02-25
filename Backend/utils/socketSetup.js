@@ -9,9 +9,9 @@ export const setupSocket = (server) => {
   io.on("connection", async(socket) => {
     console.log("Socket connected!", socket.id);
     
-    const msgs = await getMessages();
+    //const msgs = await getMessages();
 
-    socket.emit('initMessages', {empty: false, archive:msgs})
+    //socket.emit('initMessages', {empty: false, archive:msgs})
 
     socket.on("disconnect", async() => {
       await deregisterUserSocket(socket.id);

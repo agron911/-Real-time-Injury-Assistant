@@ -31,11 +31,11 @@
       margin-bottom: 10px;
       overflow-y: auto;
     }
-
+    
     .message .timestamp {
       color: #888;
     }
-
+    
     .dot {
       height: 8px;
       width: 8px;
@@ -52,7 +52,14 @@
 </head>
 
 <body>
-
+  <style>
+     #messages{
+      overflow: hidden;
+    }
+      #users{
+      overflow: hidden;
+    }
+  </style>
   <header class="navbar navbar-expand-lg navbar-light fixed-top">
     <div class="container-fluid">
       <a class="navbar-brand" href="#">FSE Chat Room</a>
@@ -83,7 +90,7 @@
             <a class="btn btn-primary" onclick="electPost()">Elect</a>
           </div>
 
-          <div id="public-wall" style="display: none;">
+          <div id="public-wall" style="display: none;", class="public-wall">
             <ul id="messages" class="list-unstyled"></ul>
             <form id="messageForm" class="fixed-bottom bg-light p-3">
               <div class="input-group">
