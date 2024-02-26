@@ -9,8 +9,7 @@ import { ExtractJwt } from 'passport-jwt';
 import { configDotenv } from 'dotenv';
 import { setupSocket } from './Backend/utils/socketSetup.js';
 import router from './Backend/route/router.js';
-import { receiveMessage} from './Backend/controller/chatPublicly.js'
-import { loadMessages } from './Backend/model/Message.js'
+import { DAO } from './Backend/model/dao.js';
 import cors from 'cors'
 
 configDotenv();
@@ -35,6 +34,7 @@ app.set("view engine", "ejs")
 
 // Body-Parser
 import body_parser from 'body-parser';
+import { DAO } from './Backend/model/dao.js';
 app.use(body_parser.urlencoded({ extended: false }));
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
@@ -51,19 +51,11 @@ app.use(passport.initialize());
 
 
 // MongoDB connection
-import mongoose from 'mongoose';
-const dburi = "mongodb+srv://daniilturpitka:Letoosen228@cluster0.1fayqt0.mongodb.net/?retryWrites=true&w=majority"
+const dao = DAO("mongodb+srv://daniilturpitka:Letoosen228@cluster0.1fayqt0.mongodb.net/?retryWrites=true&w=majority");
 
-async function connectdb() {
-  try {
-    await mongoose.connect(dburi)
-    console.log("db connected")
-  }
-  catch (error) {
-    console.log("some error has occured while connecting database")
-  }
-}
-connectdb()
+
+// Socket io connection
+
 const io = setupSocket(httpServer);
 
 
