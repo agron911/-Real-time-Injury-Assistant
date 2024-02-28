@@ -10,6 +10,9 @@ router.get("/community", indexView);
 router.get("/chatroom", ChatroomView);
 
 router.get("/users", getUsers);
+router.get("/messages", loadMessages);
+router.post("/messages", receiveMessage);
+
 router.post("/users/verification", UserJoin);
 router.post("/users/", UserConfirmation);
 router.post("/users/acknowledgement", UserAcknowledgement);
@@ -17,7 +20,6 @@ router.post("/users/acknowledgement", UserAcknowledgement);
 router.patch("/auth/users", loginOrLogout); 
 router.post("/sockets/users/:username", registerUserSocket );
 
-router.post("/messages", receiveMessage);
 
 
 

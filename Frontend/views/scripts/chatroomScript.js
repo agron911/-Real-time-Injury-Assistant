@@ -106,22 +106,12 @@ const connectToSocket = async (initMessages, addMessages) => {
         addMessages(msg);
     });
 
-    socket.on('updateUserList', (data) => {
-        console.log("users123", data);
-        updateUserList(data);
+    socket.on("updateUserList", async() => {
+        await fetchInitialUserList()
     });
 
 }
 
-const updateUserList = (data) => {
-    const usersListElement = document.getElementById("users");
-    usersListElement.innerHTML = "";
-
-    data.forEach(user => {
-        var userCard = createUserCard(user);
-        usersListElement.appendChild(userCard);
-    });
-}
 
 const logout = async () => {
     try {
@@ -143,6 +133,7 @@ const logout = async () => {
 }
 
 const fetchInitialUserList = async () => {
+    console.log("fetching users");
     const response = await fetch(url + "/users");
     const users = await response.json();
     displayUsers(users);
@@ -174,7 +165,6 @@ window.onload = async () => {
                     for (var msg of data.archive) {
                         var msgCard = createMsgCard(msg);
                         messages.appendChild(msgCard);
-
                     }
                 }
             }
@@ -185,7 +175,7 @@ window.onload = async () => {
                 if (textInput.value) {
                     const inputbuf = textInput.value;
                     textInput.value = "";
-                    await fetch("http://localhost:3000/messages", {
+                    await fetch(url + "/messages", {
                         method: "POST",
                         body: JSON.stringify({
                             username: username,

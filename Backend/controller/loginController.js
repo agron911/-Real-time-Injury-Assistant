@@ -17,8 +17,7 @@ export const login = async (req, res) => {
     if (user) {
         const jwtToken = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET, { expiresIn: '1h' });
         await setUserOnline(user.username);
-        const users = await getAllUsers();
-        io.emit('updateUserList', users);
+        io.emit('updateUserList');
         res.status(200).send({ token: "Bearer " + jwtToken });
     } else {
         res.status(404).send({ message: 'User not found' });
@@ -31,8 +30,7 @@ export const logout = async (req, res) => {
     if (user) {
         await setUserOffline(user.username);
         await deActivateUser(user.username);
-        const users = await getAllUsers();
-        io.emit('updateUserList', users );
+        io.emit('updateUserList');
         res.status(200).send({});
     } else {
         res.status(404).send({ message: 'User not found' });
@@ -46,7 +44,7 @@ export const registerUserSocket = async (req, res) => {
         await addActiveUser(username, req.body.socketId);
         await setUserOnline(username);
         const users = await getAllUsers();
-        io.emit('updateUserList', users );
+        io.emit('updateUserList');
         res.status(200).send({});
     } else {
         res.status(404).send({ message: 'User not found' });
@@ -59,9 +57,8 @@ export const deregisterUserSocket = async (socketId) => {
     const username = await removeSocketAndgetUserName(socketId);
     const isUserActiveCurrently = await isUserActive(username);
     if (!isUserActiveCurrently) {
-        setUserOffline(username);
-        const users = await getAllUsers();
-        io.emit('updateUserList', users);
+        await setUserOffline(username);
+        io.emit('updateUserList');
     }
 }
 

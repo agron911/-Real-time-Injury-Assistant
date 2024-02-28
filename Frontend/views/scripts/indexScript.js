@@ -106,10 +106,9 @@ function submitJoinForm(){
 
 async function userAcknowledged(){
     try{
-        const url = "http://localhost:3000/users/acknowledgement"
         const username = localStorage.getItem("username");
         console.log('username: ' + username)
-        const response = await fetch(url,{
+        const response = await fetch(url + "/users/acknowledgement",{
             method: "POST",
             body: JSON.stringify({
                 "username": localStorage.getItem("username"),
