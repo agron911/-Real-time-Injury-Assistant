@@ -1,4 +1,4 @@
-const url = "http://localhost:3000"
+const url = "http://localhost:3000";
 
 function electPost() {
     
@@ -21,25 +21,50 @@ function electPost() {
     })
 }
 // Create usercard for 'users' ul
-function createUserCard (user) {
+function createUserCard(user) {
+
+    user = {...user,status:"ok"}; //TODO: remove this after backend is implemented.
+
     var listItem = document.createElement("li");
     listItem.className = "list-group-item";
-
 
     var cardBody = document.createElement("div");
     cardBody.className = "card-body";
 
-    var title = document.createElement("h5");
+    let cardHeader = document.createElement("div");
+    cardHeader.className = "card-header";
+
+    const iconElement = document.createElement("i");
+    iconElement.classList.add("las");
+
+    if (user.status === "ok") {
+        iconElement.classList.add("la-check-circle");
+        iconElement.classList.add("check-icon");
+    } else if (user.status === "help") {
+        iconElement.classList.add("la-exclamation-circle");
+        iconElement.classList.add("danger-icon");
+    } else if (user.status === "emergency") {
+        iconElement.classList.add("la-plus-square");
+        iconElement.classList.add("plus-icon");
+    } 
+
+    let title = document.createElement("h5");
     title.className = "card-title";
     title.textContent = user.username;
+
+
+    cardHeader.appendChild(title);
+    cardHeader.appendChild(iconElement);
+
 
     var dot = document.createElement("span");
     dot.className = "dot";
     dot.classList.add(user.online ? "online" : "offline");
 
     var statusText = document.createTextNode(user.online ? "Online" : "Offline");
-
-    cardBody.appendChild(title);
+    
+    
+    cardBody.appendChild(cardHeader);
     cardBody.appendChild(dot);
     cardBody.appendChild(statusText);
 
@@ -47,7 +72,7 @@ function createUserCard (user) {
     return listItem;
 }
 
-function createMsgCard (msg) {
+function createMsgCard(msg) {
     var listItem = document.createElement("li");
     listItem.className = "list-group-item";
 
@@ -61,12 +86,19 @@ function createMsgCard (msg) {
     var title = document.createElement("h5");
     title.className = "card-title fw-bold";
 
-    var status = document.createElement("p");
-    status.className = "card-text";
-    var txt = document.createElement("small");
-    txt.className = "text-body-secondary";
-    txt.textContent = msg.status;
-    status.appendChild(txt);
+    // var status = document.createElement("p");
+    // status.className = "card-text";
+
+    const iconElement = document.createElement("i");
+    iconElement.classList.add("las");
+    iconElement.id = "user-status-icon-"+username;
+
+    setIconClass(msg.status, iconElement);
+
+    // var txt = document.createElement("small");
+    // txt.className = "text-body-secondary";
+    // txt.textContent = msg.status;
+    // status.appendChild(txt);
 
     if (msg.username == localStorage.getItem("username")) {
         card.className = "card ms-auto my-3 mx-3";
@@ -87,12 +119,38 @@ function createMsgCard (msg) {
     timestamp.appendChild(time);
 
     cardBody.appendChild(title);
-    cardBody.appendChild(status);
+    cardBody.appendChild(iconElement);
     cardBody.appendChild(text);
     cardBody.appendChild(timestamp);
     card.appendChild(cardBody);
     listItem.appendChild(card);
     return listItem;
+}
+
+const setIconClass = (status, iconElement) => {
+
+    iconElement.remove("la-check-circle");
+    iconElement.remove("la-exclamation-circle");
+    iconElement.remove("la-plus-square");
+    iconElement.remove("check-icon");
+    iconElement.remove("danger-icon");
+    iconElement.remove("plus-icon");
+    
+    if (status === "ok") {
+        iconElement.classList.add("la-check-circle");
+        iconElement.classList.add("check-icon");
+    } else if (status === "help") {
+        iconElement.classList.add("la-exclamation-circle");
+        iconElement.classList.add("danger-icon");
+    } else if (status === "emergency") {
+        iconElement.classList.add("la-plus-square");
+        iconElement.classList.add("plus-icon");
+    }
+} 
+
+const updateUserStatusIconEverywhere = (status, username)=>{
+    const icon = document.getElementById("user-status-icon-"+username);
+    setIconClass(status, icon);
 }
 
 const registerSocket = async (username, socketId) => {
@@ -101,13 +159,13 @@ const registerSocket = async (username, socketId) => {
             method: "POST",
             body: JSON.stringify({ socketId }),
             headers: {
-                "Content-type": "application/json; charset=UTF-8"
-            }
-        })
+                "Content-type": "application/json; charset=UTF-8",
+            },
+        });
     } catch (e) {
         console.log("socket registration error", e);
     }
-}
+};
 
 const connectToSocket = async ( addMessages) => {
     const socket = await io(url);
@@ -122,12 +180,55 @@ const connectToSocket = async ( addMessages) => {
         addMessages(msg);
     });
 
-    socket.on("updateUserList", async() => {
-        await fetchInitialUserList()
+    socket.on("updateUserList", async () => {
+        await fetchInitialUserList();
     });
 
-}
+    socket.on("status-update", (status, username) => {
+        updateUserStatusIconEverywhere(status, username);
+    })
+};
 
+const getStatus = async (username) => {
+    try {
+        const res = await fetch(url + "/user/status/" + username, {
+            method: "GET",
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+            },
+        });
+        const { status } = await res.json();
+        return status;
+    } catch (e) {
+        console.log("error fetching status");
+    }
+};
+
+const setStatusButtonUI = (status) => {
+    const statusElement = document.getElementById("status-button");
+    if (status === "ok") {
+        statusElement.innerHTML = '<i class="las la-check-circle check-icon">';
+    } else if (status === "help") {
+        statusElement.innerHTML =
+            '<i class="las la-exclamation-circle danger-icon"></i>';
+    } else if (status === "emergency") {
+        statusElement.innerHTML = '<i class="las la-plus-square plus-icon"></i>';
+    }
+};
+
+const changeStatus = async (status) => {
+    try {
+        const username = localStorage.getItem("username");
+        const res = await fetch(url + "/user/status/" + username, {
+            method: "PUT",
+            body: JSON.stringify({ status }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+            },
+        });
+        setStatusButtonUI(status);
+    } catch (err) { }
+};
 
 const logout = async () => {
     try {
@@ -135,18 +236,16 @@ const logout = async () => {
             method: "PATCH",
             body: JSON.stringify({
                 isOnline: false,
-                username: localStorage.getItem('username'),
+                username: localStorage.getItem("username"),
             }),
             headers: {
-                "Content-type": "application/json; charset=UTF-8"
-            }
+                "Content-type": "application/json; charset=UTF-8",
+            },
         });
         localStorage.setItem("token", null);
         localStorage.setItem("username", null);
-    } catch (e) {
-
-    }
-}
+    } catch (e) { }
+};
 
 const fetchInitialUserList = async () => {
     console.log("fetching users");
@@ -160,7 +259,7 @@ const displayUsers = (users) => {
     usersListElement.innerHTML = "";
     console.log("users", users);
 
-    users.users.forEach(user => {
+    users.users.forEach((user) => {
         var userCard = createUserCard(user);
         usersListElement.appendChild(userCard);
     });
@@ -168,14 +267,15 @@ const displayUsers = (users) => {
 
 window.onload = async () => {
     try {
-        const username = localStorage.getItem('username');
+        const username = localStorage.getItem("username");
         if (username) {
+            
+            const status = getStatus(username);
+            if (status) setStatusButtonUI(status);
             const messages = document.getElementById("messages");
             const messageForm = document.getElementById("messageForm");
             const textInput = document.getElementById("textInput");
             const toggleButton = document.getElementById("toggle-btn");
-            // Load past messages
-    
             // When user submit a new message
             messageForm.addEventListener("submit", async (e) => {
                 e.preventDefault();
@@ -187,7 +287,7 @@ window.onload = async () => {
                         body: JSON.stringify({
                             username: username,
                             content: inputbuf,
-                            timestamp: (new Date()).toString(),
+                            timestamp: new Date().toString(),
                         }),
                         headers: {
                             "Content-type": "application/json; charset=UTF-8",
@@ -205,11 +305,10 @@ window.onload = async () => {
             toggleButton.addEventListener("click", async (e) => {
                 e.preventDefault();
                 await logout();
-                window.location.replace('/');
+                window.location.replace("/");
             });
 
-            fetchInitialUserList() ;
-
+            fetchInitialUserList();
         }
     } catch (err) {
         console.log("err", err);
