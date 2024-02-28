@@ -11,7 +11,7 @@ export const receiveMessage = async(req, res)=>{
     io.emit('chat message', mess.obj)
 }
 
-export const getMessages = async(req, res) => {
+export const loadMessages = async(req, res) => {
     const messages = await MessageObj.loadArchive();
     res.send({archive:messages})
 }

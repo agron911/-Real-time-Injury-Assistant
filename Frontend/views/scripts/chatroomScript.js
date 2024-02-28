@@ -4,7 +4,7 @@ function electPost() {
     
     document.getElementById("elect-form").style.display = "none";
     document.getElementById("public-wall").style.display = "block";
-    fetch (url+'/messagearchive', {
+    fetch (url+'/messages', {
         method: "GET",
         headers: {
             "Content-type": "application/json; charset=UTF-8",
@@ -122,22 +122,12 @@ const connectToSocket = async ( addMessages) => {
         addMessages(msg);
     });
 
-    socket.on('updateUserList', (data) => {
-        console.log("users123", data);
-        updateUserList(data);
+    socket.on("updateUserList", async() => {
+        await fetchInitialUserList()
     });
 
 }
 
-const updateUserList = (data) => {
-    const usersListElement = document.getElementById("users");
-    usersListElement.innerHTML = "";
-
-    data.forEach(user => {
-        var userCard = createUserCard(user);
-        usersListElement.appendChild(userCard);
-    });
-}
 
 const logout = async () => {
     try {
@@ -159,6 +149,7 @@ const logout = async () => {
 }
 
 const fetchInitialUserList = async () => {
+    console.log("fetching users");
     const response = await fetch(url + "/users");
     const users = await response.json();
     displayUsers(users);
@@ -191,7 +182,7 @@ window.onload = async () => {
                 if (textInput.value) {
                     const inputbuf = textInput.value;
                     textInput.value = "";
-                    await fetch("http://localhost:3000/messages", {
+                    await fetch(url + "/messages", {
                         method: "POST",
                         body: JSON.stringify({
                             username: username,

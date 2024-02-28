@@ -1,6 +1,6 @@
 import { Server } from "socket.io";
 import { deregisterUserSocket } from "../controller/loginController.js";
-import { getMessages } from "../controller/chatPublicly.js";
+import { loadMessages } from "../controller/chatPublicly.js";
 
 export let io = {};
 
