@@ -1,8 +1,7 @@
 import express from 'express';
 import { HomeView, indexView, UserConfirmation, UserJoin, UserAcknowledgement } from '../controller/joinCommunity.js';
 import { loginOrLogout, registerUserSocket, getUsers } from '../controller/loginController.js';
-import { ChatroomView, receiveMessage } from '../controller/chatPublicly.js';
-import { loadMessages } from '../model/Message.js'
+import { ChatroomView, receiveMessage, loadMessages} from '../controller/chatPublicly.js';
 const router = express.Router();
 
 router.get("/", HomeView);

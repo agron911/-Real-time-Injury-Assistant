@@ -1,8 +1,24 @@
 const url = "http://localhost:3000"
 
 function electPost() {
+    
     document.getElementById("elect-form").style.display = "none";
     document.getElementById("public-wall").style.display = "block";
+    fetch (url+'/messages', {
+        method: "GET",
+        headers: {
+            "Content-type": "application/json; charset=UTF-8",
+        }
+    }).then(async (response)=>{
+        data = await response.json()
+        if (!data.empty) {
+            for (var msg of data.archive) {
+                var msgCard = createMsgCard(msg);
+                messages.appendChild(msgCard);
+
+            }
+        }
+    })
 }
 // Create usercard for 'users' ul
 function createUserCard (user) {
@@ -93,15 +109,15 @@ const registerSocket = async (username, socketId) => {
     }
 }
 
-const connectToSocket = async (initMessages, addMessages) => {
+const connectToSocket = async ( addMessages) => {
     const socket = await io(url);
     socket.on("connect", async () => {
         console.log("connection established", socket.id);
         await registerSocket(localStorage.getItem('username'), socket.id);
     })
-    socket.on("initMessages", (data) => {
-        initMessages(data);
-    });
+    // socket.on("initMessages", (data) => {
+    //     initMessages(data);
+    // });
     socket.on("chat message", (msg) => {
         addMessages(msg);
     });
@@ -158,17 +174,8 @@ window.onload = async () => {
             const messageForm = document.getElementById("messageForm");
             const textInput = document.getElementById("textInput");
             const toggleButton = document.getElementById("toggle-btn");
-            
             // Load past messages
-            const initMessages = (data) => {
-                if (!data.empty) {
-                    for (var msg of data.archive) {
-                        var msgCard = createMsgCard(msg);
-                        messages.appendChild(msgCard);
-                    }
-                }
-            }
-
+    
             // When user submit a new message
             messageForm.addEventListener("submit", async (e) => {
                 e.preventDefault();
@@ -193,7 +200,7 @@ window.onload = async () => {
                 messages.appendChild(msgCard);
                 window.scrollTo(0, document.body.scrollHeight);
             }
-            await connectToSocket(initMessages, addMessage);
+            await connectToSocket( addMessage);
 
             toggleButton.addEventListener("click", async (e) => {
                 e.preventDefault();
