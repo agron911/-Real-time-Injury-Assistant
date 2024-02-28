@@ -9,7 +9,7 @@ import { ExtractJwt } from 'passport-jwt';
 import { configDotenv } from 'dotenv';
 import { setupSocket } from './Backend/utils/socketSetup.js';
 import router from './Backend/route/router.js';
-import { DAO } from './Backend/model/dao.js';
+import DAO from './Backend/model/dao.js';
 import cors from 'cors'
 
 configDotenv();

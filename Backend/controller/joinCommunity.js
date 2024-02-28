@@ -1,5 +1,6 @@
-import { isValid, getUserByName, createUser, UpdateAcknowledgement } from '../model/User.js'
-import { hashPassword, comparePassword } from "../utils/passwordUtils.js";
+import { hashPassword, comparePassword } from "../utils/passwordUtils.js"
+import DAO from "../model/dao.js"
+import User from "../model/user-class.js";
 
 
 // Define the route handler functions
@@ -15,7 +16,7 @@ export const indexView = (req, res) => {
 
 export const UserConfirmation = async (req, res) => {
     
-    const userExists = await getUserByName(req.body.username);
+    const userExists = await DAO.getUserByName(req.body.username);
     if (!userExists) {
         let un = req.body.username;
         const data = {
@@ -23,7 +24,7 @@ export const UserConfirmation = async (req, res) => {
             password: req.body.password
         };
         const hashed_password = await hashPassword(data.password);
-        const userdata = await createUser(data.username, hashed_password);
+        const userdata = await DAO.createUser(data.username, hashed_password, "undefined");
         res.status(202).send({ data });
     } else {
         res.status(400).send({message: "User exists!"});
@@ -40,13 +41,13 @@ export const UserJoin = async (req, res) => {
 
     var status = 0;
 
-    var ruleCheck = isValid(data.username, data.password);
+    var ruleCheck = User.validate(data.username, data.password);
     if (ruleCheck) {
         res.status(400 + ruleCheck).send();
         return;
     }
     
-    const userExists = await getUserByName(data.username);
+    const userExists = await DAO.getUserByName(data.username);
 
     if (userExists) {
         const hashed_password = await hashPassword(data.password);
@@ -64,10 +65,10 @@ export const UserJoin = async (req, res) => {
 
 export const UserAcknowledgement = async (req, res) => {
     const username = req.body.username;
-    const userExists = await getUserByName(username)
+    const userExists = await DAO.getUserByName(username)
     if (userExists) {
         try {
-            await UpdateAcknowledgement(username);
+            await DAO.updateUserAcknowledgement(username);
             res.status(200).send('Acknowledged');
         } catch (err) {
             console.log(err);

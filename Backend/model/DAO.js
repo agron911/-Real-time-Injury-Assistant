@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
+import userCollection from "./user-schema.js"
 
-export class DAO {
+class DAO {
+
     static main_uri = "mongodb+srv://daniilturpitka:Letoosen228@cluster0.1fayqt0.mongodb.net/?retryWrites=true&w=majority";
     static #configured = false; // private
     static _db; // this must implement all IDatabase operations
@@ -31,7 +33,58 @@ export class DAO {
         await DAO.connectDB(uri);
         DAO.#configured = true;
     }
+
+    static async closeDB() {
+        if (!DAO.#configured) {
+            throw new Error("DB not configured!");
+        }
+        await mongoose.connection.dropDatabase();
+        await mongoose.connection.close();
+    }
+
+    static async clearDB() {
+        if (!DAO.#configured) {
+            throw new Error("DB not configured!");
+        }
+        const collections = mongoose.connection.collections;
+
+        for (const key in collections) {
+            const collection = collections[key];
+            await collection.deleteMany();
+        }
+    }
+
+    static createUser = async(username, hashed_password, status) => {
+        const user = await userCollection.insertMany({ username: username, password: hashed_password, acknowledged: false, online: false, status: status});
+        return user;
+    }
+
+    static getUserByName = async(username) => {
+        const user = await userCollection.findOne({ username: username.toLowerCase() });
+        return user;
+    }
+
+
+    static getAllUsers = async() => {
+        const users = await userCollection.find().sort({online: -1, username: 1});
+        return users;
+    }
+
+    static updateUserAcknowledgement = async (username) => {
+        await userCollection.findOneAndUpdate({ username: username }, { acknowledged: true });
+    }
+    
+    static updateUserOnline = async(username) => {
+        await userCollection.findOneAndUpdate({ username: username }, { online: true });
+    }
+    
+    static updateUserOffline = async(username) => {
+        const user = await userCollection.findOneAndUpdate({ username: username }, { online: false });
+        console.log("user offline", user);
+    }
 }
+
+export default DAO;
 
 
 
