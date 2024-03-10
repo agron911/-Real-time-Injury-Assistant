@@ -33,9 +33,10 @@ class MessageObj{
             username: username,
             content: content,
             timestamp: timestamp,
-            status: "placeholder",
+            status: "ok",
             messageId: uuidv4()
         };
+
     }
     async storeMessage(){
         try{
