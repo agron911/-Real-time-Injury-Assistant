@@ -1,0 +1,28 @@
+import { v4 as uuidv4 } from 'uuid'
+
+class MessageObj {
+    constructor(username, content, timestamp, status){
+        this.obj = {
+            username: username,
+            content: content,
+            timestamp: timestamp,
+            status: "ok",
+            messageId: uuidv4()
+        };
+
+    }
+
+    async storeMessage(){
+        try{
+            const m = await Message.insertMany({username: this.obj.username, content:this.obj.content, timestamp: this.obj.timestamp, messageId: this.obj.messageid, status: this.obj.status })
+        }catch(error){
+            console.log(error)
+        }
+    }
+    static async loadArchive(){
+        const messages = await Message.find()
+        return messages
+    };
+}
+
+export default MessageObj;
