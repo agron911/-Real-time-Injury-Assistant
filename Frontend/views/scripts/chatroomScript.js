@@ -91,7 +91,7 @@ function createMsgCard(msg) {
 
     const iconElement = document.createElement("i");
     iconElement.classList.add("las");
-    iconElement.id = "user-status-icon-"+username;
+    iconElement.id = "user-status-icon-" + msg.username;
 
     setIconClass(msg.status, iconElement);
 
@@ -219,6 +219,7 @@ const setStatusButtonUI = (status) => {
 const changeStatus = async (status) => {
     try {
         const username = localStorage.getItem("username");
+        console.log("before fetch ");
         const res = await fetch(url + "/user/status/" + username, {
             method: "PUT",
             body: JSON.stringify({ status }),
@@ -226,7 +227,9 @@ const changeStatus = async (status) => {
                 "Content-type": "application/json; charset=UTF-8",
             },
         });
-        setStatusButtonUI(status);
+        console.log("after  fetch ");
+
+        // setStatusButtonUI(status);
     } catch (err) { }
 };
 

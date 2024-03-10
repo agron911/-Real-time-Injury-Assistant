@@ -2,6 +2,7 @@ import express from 'express';
 import { HomeView, indexView, UserConfirmation, UserJoin, UserAcknowledgement } from '../controller/joinCommunity.js';
 import { loginOrLogout, registerUserSocket, getUsers } from '../controller/loginController.js';
 import { ChatroomView, receiveMessage, loadMessages} from '../controller/chatPublicly.js';
+import { updateUserStatus } from '../controller/shareStatus.js';
 const router = express.Router();
 
 router.get("/", HomeView);
@@ -15,11 +16,10 @@ router.post("/messages", receiveMessage);
 router.post("/users/verification", UserJoin);
 router.post("/users/", UserConfirmation);
 router.post("/users/acknowledgement", UserAcknowledgement);
+router.put("/user/status/:username", updateUserStatus);
 
 router.patch("/auth/users", loginOrLogout); 
 router.post("/sockets/users/:username", registerUserSocket );
-
-
 
 
 
