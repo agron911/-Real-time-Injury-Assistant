@@ -12,8 +12,8 @@ function electPost() {
     }).then(async (response)=>{
         data = await response.json()
         if (!data.empty) {
-            for (var msg of data.archive) {
-                var msgCard = createMsgCard(msg);
+            for (let msg of data.archive) {
+                let msgCard = createMsgCard(msg);
                 messages.appendChild(msgCard);
 
             }
@@ -25,10 +25,10 @@ function createUserCard(user) {
 
     user = {...user,status:"ok"}; //TODO: remove this after backend is implemented.
 
-    var listItem = document.createElement("li");
+    let listItem = document.createElement("li");
     listItem.className = "list-group-item";
 
-    var cardBody = document.createElement("div");
+    let cardBody = document.createElement("div");
     cardBody.className = "card-body";
 
     let cardHeader = document.createElement("div");
@@ -57,11 +57,11 @@ function createUserCard(user) {
     cardHeader.appendChild(iconElement);
 
 
-    var dot = document.createElement("span");
+    let dot = document.createElement("span");
     dot.className = "dot";
     dot.classList.add(user.online ? "online" : "offline");
 
-    var statusText = document.createTextNode(user.online ? "Online" : "Offline");
+    let statusText = document.createTextNode(user.online ? "Online" : "Offline");
     
     
     cardBody.appendChild(cardHeader);
@@ -73,29 +73,31 @@ function createUserCard(user) {
 }
 
 function createMsgCard(msg) {
-    var listItem = document.createElement("li");
+    let listItem = document.createElement("li");
     listItem.className = "list-group-item";
 
-    var card = document.createElement("div");
+    let card = document.createElement("div");
     card.className = "card mx-3 my-3";
     card.style = "max-width: 36rem;";
 
-    var cardBody = document.createElement("div");
+    let cardBody = document.createElement("div");
     cardBody.className = "card-body";
 
-    var title = document.createElement("h5");
+    let title = document.createElement("h5");
     title.className = "card-title fw-bold";
 
-    // var status = document.createElement("p");
+    // let status = document.createElement("p");
     // status.className = "card-text";
 
     const iconElement = document.createElement("i");
     iconElement.classList.add("las");
     iconElement.id = "user-status-icon-" + msg.username;
 
+
+
     setIconClass(msg.status, iconElement);
 
-    // var txt = document.createElement("small");
+    // let txt = document.createElement("small");
     // txt.className = "text-body-secondary";
     // txt.textContent = msg.status;
     // status.appendChild(txt);
@@ -107,13 +109,13 @@ function createMsgCard(msg) {
         title.textContent = msg.username;
     }
 
-    var text = document.createElement("p");
+    let text = document.createElement("p");
     text.className = "card-text";
     text.textContent = msg.content;
 
-    var timestamp = document.createElement("p");
+    let timestamp = document.createElement("p");
     timestamp.className = "card-text text-end";
-    var time = document.createElement("small");
+    let time = document.createElement("small");
     time.className = "text-body-secondary";
     time.textContent = msg.timestamp;
     timestamp.appendChild(time);
@@ -195,7 +197,7 @@ const getStatus = async (username) => {
             method: "GET",
             headers: {
                 "Content-type": "application/json; charset=UTF-8",
-            },
+            }
         });
         const { status } = await res.json();
         return status;
@@ -219,16 +221,16 @@ const setStatusButtonUI = (status) => {
 const changeStatus = async (status) => {
     try {
         const username = localStorage.getItem("username");
-        console.log("before fetch ");
-        const res = await fetch(url + "/user/status/" + username, {
+        const res = await fetch(url + "/user/status/" + username , {
             method: "PUT",
             body: JSON.stringify({ status }),
             headers: {
                 "Content-type": "application/json; charset=UTF-8",
             },
         });
-        console.log("after  fetch ");
-
+        if (!res.ok) {
+            throw new Error(`Error fetching status: ${response.statusText}`);
+        }
         // setStatusButtonUI(status);
     } catch (err) { }
 };
@@ -260,10 +262,9 @@ const fetchInitialUserList = async () => {
 const displayUsers = (users) => {
     const usersListElement = document.getElementById("users");
     usersListElement.innerHTML = "";
-    console.log("users", users);
 
     users.users.forEach((user) => {
-        var userCard = createUserCard(user);
+        let userCard = createUserCard(user);
         usersListElement.appendChild(userCard);
     });
 };
@@ -273,24 +274,28 @@ window.onload = async () => {
         const username = localStorage.getItem("username");
         if (username) {
             
-            const status = getStatus(username);
-            if (status) setStatusButtonUI(status);
+            
             const messages = document.getElementById("messages");
             const messageForm = document.getElementById("messageForm");
             const textInput = document.getElementById("textInput");
             const toggleButton = document.getElementById("toggle-btn");
+            
             // When user submit a new message
             messageForm.addEventListener("submit", async (e) => {
                 e.preventDefault();
                 if (textInput.value) {
                     const inputbuf = textInput.value;
                     textInput.value = "";
+                    const status = await getStatus(username);
+                    console.log("status", status);
+                    if (status) setStatusButtonUI(status);
                     await fetch(url + "/messages", {
                         method: "POST",
                         body: JSON.stringify({
                             username: username,
                             content: inputbuf,
                             timestamp: new Date().toString(),
+                            status : status
                         }),
                         headers: {
                             "Content-type": "application/json; charset=UTF-8",
@@ -299,7 +304,7 @@ window.onload = async () => {
                 }
             });
             const addMessage = (msg) => {
-                var msgCard = createMsgCard(msg);
+                let msgCard = createMsgCard(msg);
                 messages.appendChild(msgCard);
                 window.scrollTo(0, document.body.scrollHeight);
             }

@@ -33,7 +33,7 @@ class MessageObj{
             username: username,
             content: content,
             timestamp: timestamp,
-            status: "ok",
+            status: status,
             messageId: uuidv4()
         };
 

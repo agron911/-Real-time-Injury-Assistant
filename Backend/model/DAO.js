@@ -80,14 +80,12 @@ class DAO {
     
     static updateUserOffline = async(username) => {
         const user = await userCollection.findOneAndUpdate({ username: username }, { online: false });
-        console.log("user offline", user);
     }
 
 
 
     static updateUserStatus = async(username, status) => {
         await userCollection.findOneAndUpdate({ username : username }, { status: status });
-        console.log("status updated");
         console.log(username, status);
     }
 
