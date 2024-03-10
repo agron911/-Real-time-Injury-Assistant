@@ -25,26 +25,50 @@ const messageSchema  = new mongoose.Schema({
 })
 const Message = mongoose.model("Message", messageSchema)
 
-export async function storeMessage(username, content, timestamp){
 
-    const message = {
-        username: username,
-        content: content,
-        timestamp: timestamp,
-        status: "placeholder",
-        messageId: uuidv4()
+
+class MessageObj{
+    constructor(username, content, timestamp, status){
+        this.obj = {
+            username: username,
+            content: content,
+            timestamp: timestamp,
+            status: "ok",
+            messageId: uuidv4()
+        };
+
     }
-    try{
-        const m = await Message.insertMany({username: message.username, content:message.content, timestamp: message.timestamp, messageId: message.messageid, status: message.status })
-    }catch(error){
-        console.log(error)
+    async storeMessage(){
+        try{
+            const m = await Message.insertMany({username: this.obj.username, content:this.obj.content, timestamp: this.obj.timestamp, messageId: this.obj.messageid, status: this.obj.status })
+        }catch(error){
+            console.log(error)
+        }
     }
-    return message
+    static async loadArchive(){
+        const messages = await Message.find()
+        return messages
+    };
 }
+export {MessageObj, Message}
+// export async function storeMessage(username, content, timestamp){
+//     const message = {
+//         username: username,
+//         content: content,
+//         timestamp: timestamp,
+//         status: "placeholder",
+//         messageId: uuidv4()
+//     }
+//     try{
+//         const m = await Message.insertMany({username: message.username, content:message.content, timestamp: message.timestamp, messageId: message.messageid, status: message.status })
+//     }catch(error){
+//         console.log(error)
+//     }
+//     return message
+// }
 
-export  async function loadMessages(){
-    const messages = await Message.find()
-    return messages
-}
+// export  async function loadMessages(){
+//     const messages = await Message.find()
+//     return messages
+// }
 
-export default Message
