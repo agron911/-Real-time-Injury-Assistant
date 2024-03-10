@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import userCollection from "./user-schema.js"
+import messageCollection from "./message-schema.js";
 
 class DAO {
 
@@ -82,13 +83,10 @@ class DAO {
         const user = await userCollection.findOneAndUpdate({ username: username }, { online: false });
     }
 
-
-
     static updateUserStatus = async(username, status) => {
         await userCollection.findOneAndUpdate({ username : username }, { status: status });
         console.log(username, status);
     }
-
 
 }
 
