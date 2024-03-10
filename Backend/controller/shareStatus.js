@@ -9,8 +9,8 @@ export const updateUserStatus = async (req, res) =>{
     const users = await DAO.getAllUsers();
 
     io.emit('updateUserList', users);
-    
-    res.status(200);
+    io.emit('status-update', {username: username, status: status});
+    res.status(200).send({message: "status updated"});
 }
 
 

@@ -231,7 +231,7 @@ const changeStatus = async (status) => {
         if (!res.ok) {
             throw new Error(`Error fetching status: ${response.statusText}`);
         }
-        // setStatusButtonUI(status);
+        setStatusButtonUI(status);
     } catch (err) { }
 };
 

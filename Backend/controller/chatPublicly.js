@@ -11,6 +11,7 @@ export const receiveMessage = async(req, res)=>{
     console.log(mess.obj)
     const message = await mess.storeMessage()
     io.emit('chat message', mess.obj)
+    res.send({message: "message received"})
 }
 
 export const loadMessages = async(req, res) => {
