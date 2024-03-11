@@ -53,7 +53,6 @@ const login = async (username, password) => {
         })
         if (response.status==200) {
             const data = await response.json();
-            console.log("data", data);
             localStorage.setItem("token", data.token);
             localStorage.setItem("username", username);
             // await connectToSocket();
@@ -65,10 +64,8 @@ const login = async (username, password) => {
 }
 
 function submitJoinForm(){
-    console.log(`button clicked!`);
 
     if (usernameInput && passwordInput) {
-        console.log(usernameInput.value + passwordInput.value)
         fetch(url+"/users/verification", {
             method: "POST",
             body: JSON.stringify({
@@ -80,7 +77,6 @@ function submitJoinForm(){
             }
         })
         .then((response) => {
-            console.log(response)
             if (response.status == 201) {
                 document.getElementById("acknowlegementmodal").style.display="block"
                 //alert(`Success! Please login with your new username.`);
@@ -107,7 +103,6 @@ function submitJoinForm(){
 async function userAcknowledged(){
     try{
         const username = localStorage.getItem("username");
-        console.log('username: ' + username)
         const response = await fetch(url + "/users/acknowledgement",{
             method: "POST",
             body: JSON.stringify({

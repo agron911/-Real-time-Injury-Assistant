@@ -36,12 +36,10 @@ function createUserCard(user) {
     const iconElement = document.createElement("i");
     iconElement.classList.add("las");
     iconElement.id = "user-status-icon-" + user.username;
-    console.log("user status123", user.username, user.status);
     if (user.status === "ok") {
         iconElement.classList.add("la-check-circle");
         iconElement.classList.add("check-icon");
     } else if (user.status === "help") {
-        console.log("setting icon class", user.status);
         iconElement.classList.add("la-exclamation-circle");
         iconElement.classList.add("danger-icon");
     } else if (user.status === "emergency") {
@@ -93,7 +91,9 @@ function createMsgCard(msg) {
     const iconElement = document.createElement("i");
     iconElement.classList.add("las");
 
-
+    console.log("msg status", msg.status);
+    
+    setIconClass(msg.status, iconElement);
 
 
     // let txt = document.createElement("small");
@@ -129,7 +129,7 @@ function createMsgCard(msg) {
 }
 
 const setIconClass = (status, iconElement) => {
-    
+
     iconElement.classList.remove("la-check-circle");
     iconElement.classList.remove("la-exclamation-circle");
     iconElement.classList.remove("la-plus-square");
@@ -142,7 +142,6 @@ const setIconClass = (status, iconElement) => {
         iconElement.classList.add("la-check-circle");
         iconElement.classList.add("check-icon");
     } else if (status === "help") {
-        console.log("setting icon class", status);
         iconElement.classList.add("la-exclamation-circle");
         iconElement.classList.add("danger-icon");
     } else if (status === "emergency") {
@@ -173,7 +172,6 @@ const registerSocket = async (username, socketId) => {
 const connectToSocket = async ( addMessages) => {
     const socket = await io(url);
     socket.on("connect", async () => {
-        console.log("connection established", socket.id);
         await registerSocket(localStorage.getItem('username'), socket.id);
     })
     // socket.on("initMessages", (data) => {
@@ -188,7 +186,6 @@ const connectToSocket = async ( addMessages) => {
     });
 
     socket.on("status-update", (data) => {
-        console.log("status update", data);
         updateUserStatusIconEverywhere(data.status, data.username);
     })
 };
@@ -262,7 +259,6 @@ const fetchInitialUserList = async () => {
 };
 
 const displayUsers = (users) => {
-    console.log("users", users);
     const usersListElement = document.getElementById("users");
     usersListElement.innerHTML = "";
 
@@ -290,7 +286,6 @@ window.onload = async () => {
                     const inputbuf = textInput.value;
                     textInput.value = "";
                     const status = await getStatus(username);
-                    console.log("status", status);
                     if (status) setStatusButtonUI(status);
                     await fetch(url + "/messages", {
                         method: "POST",
