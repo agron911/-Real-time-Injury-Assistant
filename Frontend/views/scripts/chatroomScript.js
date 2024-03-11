@@ -4,7 +4,7 @@ function getArchive() {
     
     document.getElementById("elect-form").style.display = "none";
     document.getElementById("public-wall").style.display = "block";
-    fetch (url+'/messages/publicly', {
+    fetch (url + '/messages/public', {
         method: "GET",
         headers: {
             "Content-type": "application/json; charset=UTF-8",
@@ -287,7 +287,7 @@ window.onload = async () => {
                     textInput.value = "";
                     const status = await getStatus(username);
                     if (status) setStatusButtonUI(status);
-                    await fetch(url + "/messages", {
+                    await fetch(url + "/messages/public", {
                         method: "POST",
                         body: JSON.stringify({
                             username: username,
