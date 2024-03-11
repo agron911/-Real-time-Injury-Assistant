@@ -129,15 +129,13 @@ function createMsgCard(msg) {
 }
 
 const setIconClass = (status, iconElement) => {
-    iconElement.remove("las");
-    // iconElement.remove("la-check-circle");
-    // iconElement.remove("la-exclamation-circle");
-    // iconElement.remove("la-plus-square");
-    // iconElement.remove("check-icon");
-    // iconElement.remove("danger-icon");
-    // iconElement.remove("plus-icon");
-
-    iconElement.classList.add("las");
+    
+    iconElement.classList.remove("la-check-circle");
+    iconElement.classList.remove("la-exclamation-circle");
+    iconElement.classList.remove("la-plus-square");
+    iconElement.classList.remove("check-icon");
+    iconElement.classList.remove("danger-icon");
+    iconElement.classList.remove("plus-icon");
 
     
     if (status === "ok") {
