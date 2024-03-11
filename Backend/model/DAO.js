@@ -104,7 +104,7 @@ class DAO {
               { username: receiver, receiver: username }
             ]
           }).sort({timestamp: 1});
-        // console.log(msgs);
+        console.log(msgs);
         return msgs;
     }
 
