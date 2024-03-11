@@ -20,10 +20,7 @@ export const loadPublicMessages = async(req, res) => {
     res.send({archive:messages})
 }
 
-export const loadPrivateMessages = async(req, res) => {
-    const messages = await DAO.getAllPrivateMessages(req.body.username, req.body.receiver);
-    res.send({archive:messages})
-}
+
 
     
 
