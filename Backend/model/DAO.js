@@ -88,8 +88,8 @@ class DAO {
         console.log(username, status);
     }
     
-    static createMessage = async(username, content, timestamp, status, receiver) => {
-        const msg = await messageCollection.insertMany({username: username, content: content, timestamp: timestamp, status: status, receiver: receiver});
+    static createMessage = async(username, content, timestamp, status, receiver, viewed) => {
+        const msg = await messageCollection.insertMany({username: username, content: content, timestamp: timestamp, status: status, receiver: receiver, viewed: viewed});
         return msg;
     }
 
@@ -105,6 +105,25 @@ class DAO {
             ]
           }).sort({timestamp: 1});
         console.log(msgs);
+        return msgs;
+    }
+
+    static getUnreadMessages = async(username) => {
+        // const msgs = await messageCollection.find({receiver: username, viewed: false}).distinct().sort('_id', -1).limit(1);
+        const msgs = await messageCollection.aggregate([
+            { $match: { receiver: username, viewed: false } },
+            { $sort: { timestamp: -1 }},
+            {
+                $group: {
+                  _id: "$username",
+                  latestMessage: {
+                    $first: "$content"
+                  }
+                }
+              },
+            // { $sort: { _id: -1 }},
+            // { $limit: 1}
+        ]);
         return msgs;
     }
 
