@@ -15,7 +15,7 @@ class User {
 
     static get prohibitedUsernames() {
         return [
-            'about', 'access', 'account', 'accounts', 'add', 'address', 'adm', 'admin', 'administration', 'adult',
+            'all','about', 'access', 'account', 'accounts', 'add', 'address', 'adm', 'admin', 'administration', 'adult',
             'advertising', 'affiliate', 'affiliates', 'ajax', 'analytics','android', 'anon', 'anonymous',
             'api', 'app', 'apps', 'archive', 'atom', 'auth', 'authentication', 'avatar',
             'backup', 'banner', 'banners', 'bin', 'billing', 'blog', 'blogs', 'board', 'bot', 'bots', 'business',

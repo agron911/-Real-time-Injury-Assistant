@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import userCollection from "./user-schema.js"
+import messageCollection from "./message-schema.js";
 
 class DAO {
 
@@ -80,8 +81,35 @@ class DAO {
     
     static updateUserOffline = async(username) => {
         const user = await userCollection.findOneAndUpdate({ username: username }, { online: false });
-        console.log("user offline", user);
     }
+
+    static updateUserStatus = async(username, status) => {
+        await userCollection.findOneAndUpdate({ username : username }, { status: status });
+        console.log(username, status);
+    }
+    
+    static createMessage = async(username, content, timestamp, status, receiver) => {
+        const msg = await messageCollection.insertMany({username: username, content: content, timestamp: timestamp, status: status, receiver: receiver});
+        return msg;
+    }
+
+    static getAllMessages = async(receiver) => {
+        const msgs = await messageCollection.find({receiver: receiver});
+        return msgs;
+    }
+    static getAllPrivateMessages = async(username, receiver) => {
+        const msgs = await messageCollection.find({
+            $or: [
+              { username: username, receiver: receiver },
+              { username: receiver, receiver: username }
+            ]
+          }).sort({timestamp: 1});
+        console.log(msgs);
+        return msgs;
+    }
+
+
+
 }
 
 export default DAO;
