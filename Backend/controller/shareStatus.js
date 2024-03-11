@@ -6,9 +6,7 @@ export const updateUserStatus = async (req, res) =>{
     const status = req.body.status;
 
     await DAO.updateUserStatus(username, status);
-    const users = await DAO.getAllUsers();
-
-    io.emit('updateUserList', users);
+    console.log("123",username, status);
     io.emit('status-update', {username: username, status: status});
     res.status(200).send({message: "status updated"});
 }

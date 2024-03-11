@@ -23,7 +23,6 @@ function electPost() {
 // Create usercard for 'users' ul
 function createUserCard(user) {
 
-    user = {...user,status:"ok"}; //TODO: remove this after backend is implemented.
 
     let listItem = document.createElement("li");
     listItem.className = "list-group-item";
@@ -36,11 +35,13 @@ function createUserCard(user) {
 
     const iconElement = document.createElement("i");
     iconElement.classList.add("las");
-
+    iconElement.id = "user-status-icon-" + user.username;
+    console.log("user status123", user.username, user.status);
     if (user.status === "ok") {
         iconElement.classList.add("la-check-circle");
         iconElement.classList.add("check-icon");
     } else if (user.status === "help") {
+        console.log("setting icon class", user.status);
         iconElement.classList.add("la-exclamation-circle");
         iconElement.classList.add("danger-icon");
     } else if (user.status === "emergency") {
@@ -91,11 +92,9 @@ function createMsgCard(msg) {
 
     const iconElement = document.createElement("i");
     iconElement.classList.add("las");
-    iconElement.id = "user-status-icon-" + msg.username;
 
 
 
-    setIconClass(msg.status, iconElement);
 
     // let txt = document.createElement("small");
     // txt.className = "text-body-secondary";
@@ -130,18 +129,22 @@ function createMsgCard(msg) {
 }
 
 const setIconClass = (status, iconElement) => {
+    iconElement.remove("las");
+    // iconElement.remove("la-check-circle");
+    // iconElement.remove("la-exclamation-circle");
+    // iconElement.remove("la-plus-square");
+    // iconElement.remove("check-icon");
+    // iconElement.remove("danger-icon");
+    // iconElement.remove("plus-icon");
 
-    iconElement.remove("la-check-circle");
-    iconElement.remove("la-exclamation-circle");
-    iconElement.remove("la-plus-square");
-    iconElement.remove("check-icon");
-    iconElement.remove("danger-icon");
-    iconElement.remove("plus-icon");
+    iconElement.classList.add("las");
+
     
     if (status === "ok") {
         iconElement.classList.add("la-check-circle");
         iconElement.classList.add("check-icon");
     } else if (status === "help") {
+        console.log("setting icon class", status);
         iconElement.classList.add("la-exclamation-circle");
         iconElement.classList.add("danger-icon");
     } else if (status === "emergency") {
@@ -186,8 +189,9 @@ const connectToSocket = async ( addMessages) => {
         await fetchInitialUserList();
     });
 
-    socket.on("status-update", (status, username) => {
-        updateUserStatusIconEverywhere(status, username);
+    socket.on("status-update", (data) => {
+        console.log("status update", data);
+        updateUserStatusIconEverywhere(data.status, data.username);
     })
 };
 
@@ -260,6 +264,7 @@ const fetchInitialUserList = async () => {
 };
 
 const displayUsers = (users) => {
+    console.log("users", users);
     const usersListElement = document.getElementById("users");
     usersListElement.innerHTML = "";
 
@@ -316,7 +321,6 @@ window.onload = async () => {
                 window.location.replace("/");
             });
 
-            fetchInitialUserList();
         }
     } catch (err) {
         console.log("err", err);

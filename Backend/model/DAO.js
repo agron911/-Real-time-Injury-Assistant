@@ -87,6 +87,16 @@ class DAO {
         await userCollection.findOneAndUpdate({ username : username }, { status: status });
         console.log(username, status);
     }
+    
+    static createMessage = async(username, content, timestamp, status) => {
+        const msg = await messageCollection.insertMany({username: username, content: content, timestamp: timestamp, status: status});
+        return msg;
+    }
+
+    static getAllMessages = async() => {
+        const msgs = await messageCollection.find();
+        return msgs;
+    }
 
 }
 
