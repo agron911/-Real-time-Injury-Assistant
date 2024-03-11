@@ -1,10 +1,10 @@
 const url = "http://localhost:3000";
 
-function electPost() {
+function getArchive() {
     
     document.getElementById("elect-form").style.display = "none";
     document.getElementById("public-wall").style.display = "block";
-    fetch (url+'/messages', {
+    fetch (url+'/messages/publicly', {
         method: "GET",
         headers: {
             "Content-type": "application/json; charset=UTF-8",
@@ -293,7 +293,8 @@ window.onload = async () => {
                             username: username,
                             content: inputbuf,
                             timestamp: new Date().toString(),
-                            status : status
+                            status : status,
+                            receiver: "all" // to send messages to public wall
                         }),
                         headers: {
                             "Content-type": "application/json; charset=UTF-8",

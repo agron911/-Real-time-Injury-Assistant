@@ -20,6 +20,10 @@ const messageSchema  = new mongoose.Schema({
     messageId:{
         type:String,
         required: false
+    },
+    receiver:{
+        type: String,
+        required: true,
     }
 })
 const messageCollection = new mongoose.model("Message", messageSchema);

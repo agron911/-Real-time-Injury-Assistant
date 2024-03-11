@@ -88,15 +88,27 @@ class DAO {
         console.log(username, status);
     }
     
-    static createMessage = async(username, content, timestamp, status) => {
-        const msg = await messageCollection.insertMany({username: username, content: content, timestamp: timestamp, status: status});
+    static createMessage = async(username, content, timestamp, status, receiver) => {
+        const msg = await messageCollection.insertMany({username: username, content: content, timestamp: timestamp, status: status, receiver: receiver});
         return msg;
     }
 
-    static getAllMessages = async() => {
-        const msgs = await messageCollection.find();
+    static getAllMessages = async(receiver) => {
+        const msgs = await messageCollection.find({receiver: receiver});
         return msgs;
     }
+    static getAllPrivateMessages = async(username, receiver) => {
+        const msgs = await messageCollection.find({
+            $or: [
+              { username: username, receiver: receiver },
+              { username: receiver, receiver: username }
+            ]
+          }).sort({timestamp: 1});
+        // console.log(msgs);
+        return msgs;
+    }
+
+
 
 }
 
