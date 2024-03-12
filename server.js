@@ -52,7 +52,8 @@ app.use(passport.initialize());
 
 // MongoDB connection
 const main_uri ="mongodb+srv://daniilturpitka:Letoosen228@cluster0.1fayqt0.mongodb.net/?retryWrites=true&w=majority";
-DAO.setDB(main_uri);
+const dao = DAO.getInstance();
+dao.setDB(main_uri);
 
 
 // Socket io connection

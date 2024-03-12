@@ -4,7 +4,7 @@ import { io } from "../utils/socketSetup.js";
 import { isUserActive, getSocketIds } from '../model/ActiveUser.js';
 
 export const loadUnreadMessages = async(req, res) => {
-    const messages = await DAO.getUnreadMessages(req.params.username);
+    const messages = await DAO.getInstance().getUnreadMessages(req.params.username);
     res.send({archive:messages})
 }
 
@@ -12,13 +12,13 @@ export const receivePrivateMessage = async(req, res)=>{
     const now = new Date();
     const timestamp = now.toISOString(); // Format as ISO string, e.g., "2021-03-23T18:25:43.511Z"
     new MessageObj(req.body.username, req.body.content, timestamp, req.body.status, req.body.receiver);
-    const mess = await DAO.createMessage(req.body.username, req.body.content, timestamp, req.body.status, req.body.receiver, false);
+    const mess = await DAO.getInstance().createMessage(req.body.username, req.body.content, timestamp, req.body.status, req.body.receiver, false);
     // TODO: Alert the receiver of the message
     // if the user is online, send notification to user through socket
     const userActive = await isUserActive(req.body.receiver);
     if (userActive) {
         const socketIds = await getSocketIds(req.body.receiver);
-        const msg = await DAO.updateMessageById(mess[0]._id, {viewed: true});
+        const msg = await DAO.getInstance().updateMessageById(mess[0]._id, {viewed: true});
         socketIds.forEach(socketId => {
             io.to(socketId).emit('private-message', msg);            
         });
@@ -33,6 +33,6 @@ export const receivePrivateMessage = async(req, res)=>{
 // Retrieve all private messages between two users
 export const loadPrivateMessages = async(req, res) => {
     
-    const messages = await DAO.getAllPrivateMessages(req.query.username1, req.query.username2);
+    const messages = await DAO.getInstance().getAllPrivateMessages(req.query.username1, req.query.username2);
     res.send({archive:messages})
 }
