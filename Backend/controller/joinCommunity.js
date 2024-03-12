@@ -23,18 +23,18 @@ export async function loginRegister(user_data){
         };
         const hashed_password = await hashPassword(data.password);
         const userdata = await DAO.createUser(data.username, hashed_password, "undefined");
-        //res.status(202).send({ data });
-        return 1
+        // res.status(202).send({ data });
+        return data;
     } else {
         //res.status(400).send({message: "User exists!"});
-        return 0
+        return null
     }
 }
 
 export const UserConfirmation = async (req, res) => { 
     var user_confirmation_result = await loginRegister(req.body)
-    if(user_confirmation_result == 1){
-        res.status(202).send({message: "User created!"});
+    if(user_confirmation_result != null){
+        res.status(202).send({data: user_confirmation_result});
     }
     else{
         res.status(400).send({message: "User already exists!"});
