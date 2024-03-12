@@ -2,7 +2,7 @@ import { connect, closeDatabase, clearDatabase } from './db-handler';
 import User from '../model/user-class';
 import { hashPassword, comparePassword } from "../utils/passwordUtils.js"
 import DAO from '../model/dao.js';
-import { UserConfirmation } from '../controller/joinCommunity.js';
+import { loginRegister } from '../controller/joinCommunity.js';
 
 
 /**
@@ -64,11 +64,22 @@ test('Test existing user password match', async function(){
     })
 })
 test('Test existing user password mismatch', async function(){
-    var new_user = new User('daniel', await hashPassword('1234'), 'ok');
-    new_user.save();
+    var hashedpasssword = await hashPassword('1234')
+    var new_user = await DAO.createUser('daniel', hashedpasssword, 'ok')
     var passwordresult =  await comparePassword(new_user.password, '12345')
     return User.retrieve('daniel').then((user) => {
         expect(passwordresult).toBe(false);
     })
 })
 
+test('Duplicate Username', async function(){
+    var new_user = await DAO.createUser('daniel', await hashPassword('1234'), 'ok')
+    var new_user_atempt = await loginRegister({username:'daniel', password:'12345ok'})
+    expect(new_user_atempt).toBe(0)
+})
+
+test('New Username', async function(){
+    var new_user = await DAO.createUser('daniel', await hashPassword('1234'), 'ok')
+    var new_user_atempt = await loginRegister({username:'daniel54', password:'1234'})
+    expect(new_user_atempt).toBe(1)
+})
