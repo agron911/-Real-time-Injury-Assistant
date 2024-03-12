@@ -14,8 +14,7 @@ export const indexView = (req, res) => {
 };
  
 
-export const UserConfirmation = async (req, res) => {
-    
+export const UserConfirmation = async (req, res) => { 
     const userExists = await DAO.getUserByName(req.body.username);
     if (!userExists) {
         let un = req.body.username;
@@ -26,8 +25,10 @@ export const UserConfirmation = async (req, res) => {
         const hashed_password = await hashPassword(data.password);
         const userdata = await DAO.createUser(data.username, hashed_password, "undefined");
         res.status(202).send({ data });
+        return 1
     } else {
         res.status(400).send({message: "User exists!"});
+        return 0
     }
 
     
