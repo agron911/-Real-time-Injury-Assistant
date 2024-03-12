@@ -86,10 +86,13 @@ const showPrivateMessage = async (otherUsername) => {
     document.getElementById("elect-form").style.display = "none";
     document.getElementById("wall").style.display = "flex";
 
+    const chatroomTypeTitleElement = document.getElementById("chatroom-type-title");
+    
     const msgs = await getPrivateMessages(otherUsername);
     const messageContainer = document.getElementById("messages");
     console.log("msgs", msgs);
     messageContainer.innerHTML = "";
+    chatroomTypeTitleElement.innerHTML = otherUsername+" Chatroom";
     if (!msgs.empty) {
         for (let msg of msgs) {
             addMessages(msg);

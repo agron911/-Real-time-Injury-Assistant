@@ -1,7 +1,7 @@
 import DAO from "../model/dao.js"
 import MessageObj from "../model/message-class.js";
 import { io } from "../utils/socketSetup.js";
-import { isUserActive, getSocketId } from '../model/ActiveUser.js';
+import { isUserActive, getSocketIds } from '../model/ActiveUser.js';
 
 export const loadUnreadMessages = async(req, res) => {
     const messages = await DAO.getUnreadMessages(req.params.username);
@@ -17,9 +17,11 @@ export const receivePrivateMessage = async(req, res)=>{
     // if the user is online, send notification to user through socket
     const userActive = await isUserActive(req.body.receiver);
     if (userActive) {
-        const socketId = await getSocketId(req.body.receiver);
+        const socketIds = await getSocketIds(req.body.receiver);
         const msg = await DAO.updateMessageById(mess[0]._id, {viewed: true});
-        io.to(socketId).emit('private-message', msg);
+        socketIds.forEach(socketId => {
+            io.to(socketId).emit('private-message', msg);            
+        });
     }
     // if the user is offline, update some parameter to notify the user of the message
 

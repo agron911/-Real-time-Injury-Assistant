@@ -133,8 +133,9 @@
         display: flex;
         justify-content: space-between;
         width: 100%;
+        
         background-color: transparent;
-        padding: 0;
+        padding: 2px;
         border: 0;
       }
       .message-container {
@@ -183,12 +184,17 @@
       .live-alert-placeholder{
         margin-top: 1em; 
       }
+      .chatroom-type-title{
+        padding: 0.5em;
+        background-color: aqua;
+        justify-content: center;
+      }
     </style>
   </head>
   <body>
     <header class="navbar navbar-expand-lg navbar-light">
       <div class="container-fluid nav-bar-container">
-        <a class="navbar-brand" href="#">FSE Chat Room</a>
+        <a class="navbar-brand" href="/chatroom" >FSE Chat Room</a>
 
         <div class="options-container">
           <div class="dropdown dropdown-fse dropstart">
@@ -256,14 +262,14 @@
       <div class="row">
         <div class="col-md-3">
           <div id="chatroom" class="card">
-            <div class="card-header text-center">Users</div>
+            <div class="card-header text-center chatroom-type-title">Users</div>
             <ul id="users" class="list-group"></ul>
           </div>
         </div>
         <div class="col-md-9 chatroom-container">
           <!-- <br /> -->
           <div id="chatroom" class="card">
-            <div class="card-header text-center">Public Chatroom</div>
+            <div class="card-header text-center chatroom-type-title" id="chatroom-type-title">Public Chatroom</div>
             <div id="elect-form" class="card-body text-center">
               <h5 class="card-title">Post on Public wall</h5>
               <p class="card-text">Click to elect to chat publicly</p>
