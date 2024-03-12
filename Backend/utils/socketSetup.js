@@ -25,7 +25,6 @@ export const setupSocket = (server) => {
           }catch(error){
             console.log(error)
           }
-
     })
 
 

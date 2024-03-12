@@ -13,22 +13,47 @@ export const indexView = (req, res) => {
     res.render("index");
 };
  
-
-export const UserConfirmation = async (req, res) => {
-    
-    const userExists = await DAO.getUserByName(req.body.username);
+export async function loginRegister(user_data){
+    const userExists = await DAO.getUserByName(user_data.username);
     if (!userExists) {
-        let un = req.body.username;
+        let un = user_data.username;
         const data = {
             username: un.toLowerCase(),
-            password: req.body.password
+            password: user_data.password
         };
         const hashed_password = await hashPassword(data.password);
         const userdata = await DAO.createUser(data.username, hashed_password, "undefined");
-        res.status(202).send({ data });
+        //res.status(202).send({ data });
+        return 1
     } else {
-        res.status(400).send({message: "User exists!"});
+        //res.status(400).send({message: "User exists!"});
+        return 0
     }
+}
+
+export const UserConfirmation = async (req, res) => { 
+    var user_confirmation_result = await loginRegister(req.body)
+    if(user_confirmation_result == 1){
+        res.status(202).send({message: "User created!"});
+    }
+    else{
+        res.status(400).send({message: "User already exists!"});
+    }
+    // const userExists = await DAO.getUserByName(req.body.username);
+    // if (!userExists) {
+    //     let un = req.body.username;
+    //     const data = {
+    //         username: un.toLowerCase(),
+    //         password: req.body.password
+    //     };
+    //     const hashed_password = await hashPassword(data.password);
+    //     const userdata = await DAO.createUser(data.username, hashed_password, "undefined");
+    //     res.status(202).send({ data });
+    //     return 1
+    // } else {
+    //     res.status(400).send({message: "User exists!"});
+    //     return 0
+    // }
 
     
 };
