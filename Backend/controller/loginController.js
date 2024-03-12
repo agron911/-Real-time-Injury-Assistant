@@ -33,7 +33,6 @@ export const logout = async (req, res) => {
         await deActivateUser(user.username);
         const users = await DAO.getAllUsers();
         io.emit('updateUserList', users );
-
         res.status(200).send({});
     } else {
         res.status(404).send({ message: 'User not found' });
