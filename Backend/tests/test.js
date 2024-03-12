@@ -72,19 +72,3 @@ test('Test existing user password mismatch', async function(){
     })
 })
 
-// test('Add user', async function() {
-//     var new_user = new User('Taige', await hashPassword('1234'), 'ok');
-//     new_user.save();
-//     var new_user_id = new_user._id
-//     return User.all().then((users) => {
-//         expect(users[0]).toContainEqual({
-//             __v:0,
-//             //_id: new_user_id,
-//             acknowledged: false,
-//             online: false,
-//             username: 'Taige',
-//             password: '$2b$10$j3pQrHc7ZHoythXsmbhSLOjfxR9uRebxSfpaeL4wm2GJUn/gevGT6',
-//             status: 'ok',
-//         })
-//     })
-// })
