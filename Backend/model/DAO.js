@@ -4,15 +4,28 @@ import messageCollection from "./message-schema.js";
 
 class DAO {
 
-    static main_uri = "mongodb+srv://daniilturpitka:Letoosen228@cluster0.1fayqt0.mongodb.net/?retryWrites=true&w=majority";
-    static #configured = false; // private
-    static _db; // this must implement all IDatabase operations
-    
+    #configured = false; // private
+    _db; // this must implement all IDatabase operations    
+    static instance;
 
-    static async connectDB(uri) {
+    constructor(){
+        if(DAO.instance != null){
+            throw new TypeError("Attempted to create a second instance");
+        }
+        this.me = 1;
+    }
+
+    static getInstance(){
+        if(DAO.instance == null){
+            DAO.instance = new DAO();
+        }
+        return DAO.instance;
+    }
+
+    async connectDB(uri) {
         try {
             await mongoose.connect(uri);
-            DAO.#configured = true;
+            this.#configured = true;
             console.log("Database connected\n");
         } catch (error) {
             console.log("Unable to connect to Database\n");
@@ -20,31 +33,31 @@ class DAO {
         }
     }
 
-    static async getDB() {
-        if (!DAO.#configured) {
+    async getDB() {
+        if (!this.#configured) {
             throw new Error("DB not configured!");
         }
-        return DAO._db;
+        return this._db;
     }
 
-    static async setDB(uri) {
-        if (DAO.#configured) {
+    async setDB(uri) {
+        if (this.#configured) {
             throw new Error("DB already configured!");
         }
-        await DAO.connectDB(uri);
-        DAO.#configured = true;
+        await this.connectDB(uri);
+        this.#configured = true;
     }
 
-    static async closeDB() {
-        if (!DAO.#configured) {
+    async closeDB() {
+        if (!this.#configured) {
             throw new Error("DB not configured!");
         }
         await mongoose.connection.dropDatabase();
         await mongoose.connection.close();
     }
 
-    static async clearDB() {
-        if (!DAO.#configured) {
+    async clearDB() {
+        if (!this.#configured) {
             throw new Error("DB not configured!");
         }
         const collections = mongoose.connection.collections;
@@ -55,45 +68,45 @@ class DAO {
         }
     }
 
-    static createUser = async(username, hashed_password, status) => {
+    createUser = async(username, hashed_password, status) => {
         const user = await userCollection.insertMany({ username: username, password: hashed_password, acknowledged: false, online: false, status: status});
         return user;
     }
 
-    static getUserByName = async(username) => {
+    getUserByName = async(username) => {
         const user = await userCollection.findOne({ username: username.toLowerCase() });
         return user;
     }
 
 
-    static getAllUsers = async() => {
+    getAllUsers = async() => {
         const users = await userCollection.find().sort({online: -1, username: 1});
         return users;
     }
 
-    static updateUserAcknowledgement = async (username) => {
+    updateUserAcknowledgement = async (username) => {
         await userCollection.findOneAndUpdate({ username: username }, { acknowledged: true });
     }
     
-    static updateUserOnline = async(username) => {
+    updateUserOnline = async(username) => {
         await userCollection.findOneAndUpdate({ username: username }, { online: true });
     }
     
-    static updateUserOffline = async(username) => {
+    updateUserOffline = async(username) => {
         const user = await userCollection.findOneAndUpdate({ username: username }, { online: false });
     }
 
-    static updateUserStatus = async(username, status) => {
+    updateUserStatus = async(username, status) => {
         await userCollection.findOneAndUpdate({ username : username }, { status: status });
         console.log(username, status);
     }
     
-    static createMessage = async(username, content, timestamp, status, receiver, viewed) => {
+    createMessage = async(username, content, timestamp, status, receiver, viewed) => {
         const msg = await messageCollection.insertMany({username: username, content: content, timestamp: timestamp, status: status, receiver: receiver, viewed: viewed});
         return msg;
     }
 
-    static updateMessageById = async (id, updateData) => {
+    updateMessageById = async (id, updateData) => {
         try {
         const  updatedDocument = await messageCollection.findByIdAndUpdate(
             id,
@@ -112,11 +125,11 @@ class DAO {
 
     
 
-    static getAllMessages = async(receiver) => {
+    getAllMessages = async(receiver) => {
         const msgs = await messageCollection.find({receiver: receiver});
         return msgs;
     }
-    static getAllPrivateMessages = async(username, receiver) => {
+    getAllPrivateMessages = async(username, receiver) => {
         const msgs = await messageCollection.find({
             $or: [
               { username: username, receiver: receiver },
@@ -127,7 +140,7 @@ class DAO {
         return msgs;
     }
 
-    static getUnreadMessages = async(username) => {
+    getUnreadMessages = async(username) => {
         const msgs = await messageCollection.find({receiver: username, viewed: false});
         // const msgs = await messageCollection.aggregate([
         //     { $match: { receiver: username, viewed: false } },

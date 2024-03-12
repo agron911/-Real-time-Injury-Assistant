@@ -84,15 +84,15 @@ class User {
     }
 
     save() {
-        return DAO.createUser(this.username, this.password, this.status);
+        return DAO.getInstance().createUser(this.username, this.password, this.status);
     }
 
     static retrieve(username) {
-        return DAO.getUserByName(username);
+        return DAO.getInstance().getUserByName(username);
     }
 
     static all() {
-        return DAO.getAllUsers();
+        return DAO.getInstance().getAllUsers();
     }
 }
 

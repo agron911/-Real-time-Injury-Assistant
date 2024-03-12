@@ -11,14 +11,16 @@ const mongod = new MongoMemoryServer();
 export async function connect() {
     await mongod.start();
     const mongoUri = mongod.getUri();
-    await DAO.setDB(mongoUri);
+    const dao = DAO.getInstance();
+    await dao.setDB(mongoUri);
 }
 
 /**
  * Drop database, close the connection and stop mongod.
  */
 export async function closeDatabase() {
-    await DAO.closeDB();
+    const dao = DAO.getInstance();
+    dao.closeDB();
     await mongod.stop();
 }
 
@@ -26,5 +28,6 @@ export async function closeDatabase() {
  * Remove all the data for all db collections.
  */
 export async function clearDatabase() {
-    await DAO.clearDB();
+    const dao = DAO.getInstance();
+    await dao.clearDB();
 }

@@ -46,8 +46,8 @@ test('Username is good', function(){
 })
 test('Case Sensitivity', async function(){
     //var new_user = new User('daniel', await hashPassword('1234'), 'ok');
-    var newuser = await DAO.createUser('daniel', await hashPassword('1234'), 'ok')
-    var user = await DAO.getUserByName('Daniel')
+    var newuser = await DAO.getInstance().createUser('daniel', await hashPassword('1234'), 'ok')
+    var user = await DAO.getInstance().getUserByName('Daniel')
     var check = 1
     if(user){
         check = 1
@@ -57,7 +57,7 @@ test('Case Sensitivity', async function(){
 
 test('Test existing user password match', async function(){
     var hashedpasssword = await hashPassword('1234')
-    var new_user = await DAO.createUser('daniel', hashedpasssword, 'ok')
+    var new_user = await DAO.getInstance().createUser('daniel', hashedpasssword, 'ok')
     var passwordresult =  await comparePassword(new_user[0].password, '1234')
     return User.retrieve('daniel').then((user) => {
         expect(passwordresult).toBe(true);
@@ -65,7 +65,7 @@ test('Test existing user password match', async function(){
 })
 test('Test existing user password mismatch', async function(){
     var hashedpasssword = await hashPassword('1234')
-    var new_user = await DAO.createUser('daniel', hashedpasssword, 'ok')
+    var new_user = await DAO.getInstance().createUser('daniel', hashedpasssword, 'ok')
     var passwordresult =  await comparePassword(new_user.password, '12345')
     return User.retrieve('daniel').then((user) => {
         expect(passwordresult).toBe(false);
@@ -73,13 +73,13 @@ test('Test existing user password mismatch', async function(){
 })
 
 test('Duplicate Username', async function(){
-    var new_user = await DAO.createUser('daniel', await hashPassword('1234'), 'ok')
+    var new_user = await DAO.getInstance().createUser('daniel', await hashPassword('1234'), 'ok')
     var new_user_atempt = await loginRegister({username:'daniel', password:'12345ok'})
     expect(new_user_atempt).toBe(0)
 })
 
 test('New Username', async function(){
-    var new_user = await DAO.createUser('daniel', await hashPassword('1234'), 'ok')
+    var new_user = await DAO.getInstance().createUser('daniel', await hashPassword('1234'), 'ok')
     var new_user_atempt = await loginRegister({username:'daniel54', password:'1234'})
     expect(new_user_atempt).toBe(1)
 })
