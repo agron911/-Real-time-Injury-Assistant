@@ -7,7 +7,7 @@ class MessageObj {
             content: content,
             timestamp: timestamp,
             status: status,
-            messageId: uuidv4(),
+            messageId: String,
             receiver: receiver
         };
 

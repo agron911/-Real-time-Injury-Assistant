@@ -93,6 +93,25 @@ class DAO {
         return msg;
     }
 
+    static updateMessageById = async (id, updateData) => {
+        try {
+        const  updatedDocument = await messageCollection.findByIdAndUpdate(
+            id,
+            { $set: updateData },
+            { new: true }
+          );
+          console.log("updated document", updatedDocument);
+        return updatedDocument;
+        //   return updatedDocument;
+        } catch (err) {
+          console.error(err);
+          return null;
+        }
+    };
+
+
+    
+
     static getAllMessages = async(receiver) => {
         const msgs = await messageCollection.find({receiver: receiver});
         return msgs;
@@ -109,23 +128,27 @@ class DAO {
     }
 
     static getUnreadMessages = async(username) => {
-        // const msgs = await messageCollection.find({receiver: username, viewed: false}).distinct().sort('_id', -1).limit(1);
-        const msgs = await messageCollection.aggregate([
-            { $match: { receiver: username, viewed: false } },
-            { $sort: { timestamp: -1 }},
-            {
-                $group: {
-                  _id: "$username",
-                  latestMessage: {
-                    $first: "$content"
-                  }
-                }
-              },
-            // { $sort: { _id: -1 }},
-            // { $limit: 1}
-        ]);
+        const msgs = await messageCollection.find({receiver: username, viewed: false});
+        // const msgs = await messageCollection.aggregate([
+        //     { $match: { receiver: username, viewed: false } },
+        //     { $sort: { timestamp: -1 }},
+        //     {
+        //         $group: {
+        //           _id: "$username",
+        //           latestMessage: {
+        //             $first: "$content"
+        //           }
+        //         }
+        //       },
+        //     // { $sort: { _id: -1 }},
+        //     // { $limit: 1}
+        // ]);
+        for (const msg of msgs) {
+            this.updateMessageById(msg._id, {viewed: true});
+        }
         return msgs;
     }
+
 
 
 
