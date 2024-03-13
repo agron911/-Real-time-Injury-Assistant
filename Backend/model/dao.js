@@ -122,7 +122,7 @@ class DAO {
     }
     updateUserStatus = async (username, status) => {
         try {
-            await userCollection.findOneAndUpdate({ username: username }, { status: status });
+            await userCollection.findOneAndUpdate({ username: username }, { status: status, statusChangeTimestamp: new Date().toString() }, );
             console.log(username, status);
         } catch (err) {
             throw new Error("Update user status error: ", err);

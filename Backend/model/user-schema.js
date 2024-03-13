@@ -20,6 +20,10 @@ const UserSchema = new mongoose.Schema({
     status: {
         type: String,
         required: true,
+    },
+    statusChangeTimestamp: {
+        type: String, 
+        required: false,
     }
 
 })
