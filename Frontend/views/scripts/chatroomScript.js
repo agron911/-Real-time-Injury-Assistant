@@ -289,23 +289,10 @@ const connectToSocket = async () => {
     })
 };
 
-const closeAlert = () => {
-    const alert = bootstrap.Alert.getOrCreateInstance('#liveAlertPlaceholder');
-    alert.close();
-}
-
-const showMessageAlert = (message, type) => {
-    const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
-    const wrapper = document.createElement('div');
-    console.log("showMessage", message);
-    wrapper.innerHTML = [
-      `<div class="alert alert-${type} alert-dismissible alert-fse" role="alert">`,
-      `   <div>${message.content}</div>`,
-      `<div class ="alert-button-container">`,
-      '   <button type="button" aria-label="Close" data-bs-toggle="modal"  data-bs-target="#exampleModal" onclick="closeAlert()"><i class="las la-eye"></i></button>',
-      `</div>`,
-      '</div>'
-    ].join('')
+const closeAlertAndShowMessage = (message) => {
+    console.log("message", message, message._id);
+    const alert = bootstrap.Alert.getOrCreateInstance('#'+message._id);
+    CHATROOM_USER = message.username;
     const titleElement = document.getElementById('message-modal-title');
     const statusElement = document.getElementById('message-modal-status');
 
@@ -327,11 +314,39 @@ const showMessageAlert = (message, type) => {
     const contentElement = document.getElementById('message-modal-content');
 
     titleElement.innerHTML = `New Message from ${message.username}`
+    while (statusElement.firstChild) {
+        statusElement.removeChild(statusElement.firstChild);
+    }
     statusElement.appendChild(iconElement);
+
     timeStampElement.innerHTML = message.timestamp;
     contentElement.innerHTML = message.content;
+    alert.close();
+}
+
+const showMessageAlert = (message, type) => {
+    const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
+    const wrapper = document.createElement('div');
+    wrapper.id  = message._id;
+    console.log("showMessage", message);
+    wrapper.innerHTML = [
+      `<div class="alert alert-${type} alert-dismissible alert-fse" role="alert">`,
+      `   <div>${message.content}</div>`,
+      `<div class ="alert-button-container">`,
+      `   <button type="button" id="button-${message._id}" aria-label="Close" data-bs-toggle="modal"  data-bs-target="#exampleModal" ><i class="las la-eye"></i></button>`,
+      `</div>`,
+      '</div>'
+    ].join('')
+    
     alertPlaceholder.append(wrapper);
+    const button = document.getElementById(`button-${message._id}`);
+    button.addEventListener('click', () => closeAlertAndShowMessage(message));
+
   }
+
+const replyToUser = ()=>{
+    showPrivateMessage(CHATROOM_USER);
+}
   
 
 const getStatus = async (username) => {
