@@ -337,7 +337,7 @@ const showMessageAlert = (message, type) => {
     console.log("showMessage", message);
     wrapper.innerHTML = [
       `<div class="alert alert-${type} alert-dismissible alert-fse" role="alert">`,
-      `   <div>${message.content}</div>`,
+      `   <div>${message.username}: ${message.content}</div>`,
       `<div class ="alert-button-container">`,
       `   <button type="button" id="button-${message._id}" aria-label="Close" data-bs-toggle="modal"  data-bs-target="#exampleModal" ><i class="las la-eye"></i></button>`,
       `</div>`,
