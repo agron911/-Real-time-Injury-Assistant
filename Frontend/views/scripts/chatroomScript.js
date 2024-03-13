@@ -321,7 +321,13 @@ const closeAlertAndShowMessage = (message) => {
 
     timeStampElement.innerHTML = message.timestamp;
     contentElement.innerHTML = message.content;
+    
     alert.close();
+    const alertContainer = document.getElementById("liveAlertPlaceholder");
+    if(alertContainer.children.length == 0){
+        hideNotificationDot();
+        alertContainer.style.display = "none";
+    }
 }
 
 const showMessageAlert = (message, type) => {
@@ -341,7 +347,7 @@ const showMessageAlert = (message, type) => {
     alertPlaceholder.append(wrapper);
     const button = document.getElementById(`button-${message._id}`);
     button.addEventListener('click', () => closeAlertAndShowMessage(message));
-
+    showNotificationDot();
   }
 
 const replyToUser = ()=>{
@@ -472,7 +478,8 @@ window.onload = async () => {
                 await logout();
                 window.location.replace("/");
             });
-
+            const status = await getStatus(username);
+            if (status) setStatusButtonUI(status);
             await getAlerts();
         }
     } catch (err) {
@@ -483,3 +490,29 @@ window.onload = async () => {
         // window.location.href = "/";
     }
 };
+
+
+function showNotificationDot() {
+    document.querySelector('.notification-dot').style.display = 'block';
+}
+
+function hideNotificationDot() {
+    document.querySelector('.notification-dot').style.display = 'none';
+}
+
+let notificationOpen = false;
+
+function handleAlertClick() {
+    // Your logic here
+    const alertContainer = document.getElementById("liveAlertPlaceholder");
+    if(!notificationOpen) {
+        alertContainer.style.display = 'block';
+    } else {
+        alertContainer.style.display = 'none';
+        
+    }
+    if(alertContainer.children.length == 0){
+        hideNotificationDot();
+    }
+    notificationOpen = !notificationOpen;
+}
