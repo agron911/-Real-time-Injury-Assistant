@@ -9,7 +9,7 @@ import { hashPassword, comparePassword } from "../utils/passwordUtils.js";
  * Connect to a new in-memory database before running any tests.
  */
 beforeAll(async () => {
-    await connect()
+    await connect();
 });
 
 /**
@@ -20,7 +20,18 @@ afterEach(async () => await clearDatabase());
 /**
  * Remove and close the db and server.
  */
-afterAll(async () => await closeDatabase());
+afterAll(async () => {
+    await closeDatabase();
+    await new Promise((resolve, reject) => {
+        httpServer.close((err) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve();
+        });
+    });
+});
 
 
 describe('Testing Share Status API', () => {
@@ -78,7 +89,7 @@ describe('Testing Chat pribately API', () => {
         const body = { username: user1, content: "a send to T", timestamp: "100", status: 'help', receiver: user2 }
         const response = ((await request(httpServer).post('/messages/private/').send(body)));
         const user2_msg = await DAO.getInstance().getUnreadMessages(user2);
-        console.log("????????????????",user2_msg);
+        console.log("????????????????", user2_msg);
         expect(response.statusCode).toBe(200);
         expect(user2_msg[0].content).toBe('a send to T');
     })
