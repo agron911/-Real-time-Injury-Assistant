@@ -98,6 +98,8 @@ const showPrivateMessage = async (otherUsername) => {
             addMessages(msg);
         }
     }
+    const messageElement = document.getElementById("messages");
+    messageElement.scrollTo(0, messageElement.scrollHeight);
     CHATROOM_USER = otherUsername;
 };
 
