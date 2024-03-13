@@ -29,4 +29,4 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
     - name: Deploy to Render
-      run: curl https://api.render.com/deploy/srv-cnao6qgl5elc7397quug?key=XKnqWB8_fSI
+      run: curl https://api.render.com/deploy/srv-cnotmk7sc6pc73d5qa2g?key=a_mZFLHvEtI
