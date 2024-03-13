@@ -31,7 +31,7 @@ describe('Testing API', () => {
             expect(response.status).toBe(200);
         }catch(err){
             // expect(err.message || err).toBe("Failed to get users");
-            console.log(err)
+            console.log(err) 
         }
         
     })
