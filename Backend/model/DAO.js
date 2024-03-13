@@ -8,15 +8,15 @@ class DAO {
     _db; // this must implement all IDatabase operations    
     static instance;
 
-    constructor(){
-        if(DAO.instance != null){
+    constructor() {
+        if (DAO.instance != null) {
             throw new TypeError("Attempted to create a second instance");
         }
         this.me = 1;
     }
 
-    static getInstance(){
-        if(DAO.instance == null){
+    static getInstance() {
+        if (DAO.instance == null) {
             console.log("Creating new instance");
             DAO.instance = new DAO();
         }
@@ -69,100 +69,128 @@ class DAO {
         }
     }
 
-    createUser = async(username, hashed_password, status) => {
-        const user = await userCollection.insertMany({ username: username, password: hashed_password, acknowledged: false, online: false, status: status});
+    createUser = async (username, hashed_password, status) => {
+        try {
+            const user = await userCollection.insertMany({ username: username, password: hashed_password, acknowledged: false, online: false, status: status });
+        } catch (err) {
+            throw new Error("Insert failed :", err);
+        }
         return user;
     }
 
-    getUserByName = async(username) => {
-        const user = await userCollection.findOne({ username: username.toLowerCase() });
+    getUserByName = async (username) => {
+        try {
+            const user = await userCollection.findOne({ username: username.toLowerCase() });
+        } catch (err) {
+            throw new Error("User not found: ", err);
+        }
         return user;
     }
 
 
-    getAllUsers = async() => {
-        const users = await userCollection.find().sort({online: -1, username: 1});
+    getAllUsers = async () => {
+        try {
+            const users = await userCollection.find().sort({ online: -1, username: 1 });
+        } catch (err) {
+            throw new Error("Get all users error: ", err);
+        }
         return users;
     }
 
     updateUserAcknowledgement = async (username) => {
-        await userCollection.findOneAndUpdate({ username: username }, { acknowledged: true });
-    }
-    
-    updateUserOnline = async(username) => {
-        await userCollection.findOneAndUpdate({ username: username }, { online: true });
-    }
-    
-    updateUserOffline = async(username) => {
-        const user = await userCollection.findOneAndUpdate({ username: username }, { online: false });
+        try {
+            await userCollection.findOneAndUpdate({ username: username }, { acknowledged: true });
+        } catch (err) {
+            throw new Error("Update user acknowledgement error: ", err);
+        }
     }
 
-    updateUserStatus = async(username, status) => {
-        await userCollection.findOneAndUpdate({ username : username }, { status: status });
-        console.log(username, status);
+    updateUserOnline = async (username) => {
+        try {
+            await userCollection.findOneAndUpdate({ username: username }, { online: true });
+        } catch (err) {
+            throw new Error("Update user online error: ", err);
+        }
     }
-    
-    createMessage = async(username, content, timestamp, status, receiver, viewed) => {
-        const msg = await messageCollection.insertMany({username: username, content: content, timestamp: timestamp, status: status, receiver: receiver, viewed: viewed});
+
+    updateUserOffline = async (username) => {
+        try {
+            const user = await userCollection.findOneAndUpdate({ username: username }, { online: false });
+        } catch (err) {
+            throw new Error("Update user offline error: ", err);
+        }
+    }
+    updateUserStatus = async (username, status) => {
+        try {
+            await userCollection.findOneAndUpdate({ username: username }, { status: status });
+            console.log(username, status);
+        } catch (err) {
+            throw new Error("Update user status error: ", err);
+        }
+    }
+
+    createMessage = async (username, content, timestamp, status, receiver, viewed) => {
+        try {
+            const msg = await messageCollection.insertMany({ username: username, content: content, timestamp: timestamp, status: status, receiver: receiver, viewed: viewed });
+        } catch (err) {
+            throw new Error("Create message error: ", err);
+        }
+
         return msg;
     }
 
     updateMessageById = async (id, updateData) => {
         try {
-        const  updatedDocument = await messageCollection.findByIdAndUpdate(
-            id,
-            { $set: updateData },
-            { new: true }
-          );
-        return updatedDocument;
-        //   return updatedDocument;
+            const updatedDocument = await messageCollection.findByIdAndUpdate(
+                id,
+                { $set: updateData },
+                { new: true }
+            );
+            return updatedDocument;
+            //   return updatedDocument;
         } catch (err) {
-          console.error(err);
-          return null;
+            console.error(err);
+            return null;
         }
     };
 
 
-    
 
-    getAllMessages = async(receiver) => {
-        const msgs = await messageCollection.find({receiver: receiver});
-        return msgs;
-    }
-    getAllPrivateMessages = async(username, receiver) => {
-        const msgs = await messageCollection.find({
-            $or: [
-              { username: username, receiver: receiver },
-              { username: receiver, receiver: username }
-            ]
-          }).sort({timestamp: 1});
-        return msgs;
-    }
 
-    getUnreadMessages = async(username) => {
-        const msgs = await messageCollection.find({receiver: username, viewed: false});
-        // const msgs = await messageCollection.aggregate([
-        //     { $match: { receiver: username, viewed: false } },
-        //     { $sort: { timestamp: -1 }},
-        //     {
-        //         $group: {
-        //           _id: "$username",
-        //           latestMessage: {
-        //             $first: "$content"
-        //           }
-        //         }
-        //       },
-        //     // { $sort: { _id: -1 }},
-        //     // { $limit: 1}
-        // ]);
-        for (const msg of msgs) {
-            this.updateMessageById(msg._id, {viewed: true});
+    getAllMessages = async (receiver) => {
+        try {
+            const msgs = await messageCollection.find({ receiver: receiver });
+        } catch (err) {
+            throw new Error("Get all messages error: ", err);
         }
         return msgs;
     }
+    getAllPrivateMessages = async (username, receiver) => {
+        try {
+            const msgs = await messageCollection.find({
+                $or: [
+                    { username: username, receiver: receiver },
+                    { username: receiver, receiver: username }
+                ]
+            }).sort({ timestamp: 1 });
+        } catch (err) {
+            throw new Error("Get all private messages error: ", err);
+        }
 
+        return msgs;
+    }
 
-
+    getUnreadMessages = async (username) => {
+        try{
+            const msgs = await messageCollection.find({ receiver: username, viewed: false });
+        }catch(err){
+            throw new Error("Get unread messages error: ", err);
+        }
+        for (const msg of msgs) {
+            this.updateMessageById(msg._id, { viewed: true });
+        }
+        return msgs;
+    }
 
 }
 
