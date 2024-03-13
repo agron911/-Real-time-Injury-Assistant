@@ -14,7 +14,7 @@ export const indexView = (req, res) => {
 };
  
 export async function loginRegister(user_data){
-    const userExists = await DAO.getUserByName(user_data.username);
+    const userExists = await DAO.getInstance().getUserByName(user_data.username);
     if (!userExists) {
         let un = user_data.username;
         const data = {
@@ -22,24 +22,24 @@ export async function loginRegister(user_data){
             password: user_data.password
         };
         const hashed_password = await hashPassword(data.password);
-        const userdata = await DAO.createUser(data.username, hashed_password, "undefined");
-        //res.status(202).send({ data });
-        return 1
+        const userdata = await DAO.getInstance().createUser(data.username, hashed_password, "undefined");
+        // res.status(202).send({ data });
+        return data;
     } else {
         //res.status(400).send({message: "User exists!"});
-        return 0
+        return null
     }
 }
 
 export const UserConfirmation = async (req, res) => { 
     var user_confirmation_result = await loginRegister(req.body)
-    if(user_confirmation_result == 1){
-        res.status(202).send({message: "User created!"});
+    if(user_confirmation_result != null){
+        res.status(202).send({data: user_confirmation_result});
     }
     else{
         res.status(400).send({message: "User already exists!"});
     }
-    // const userExists = await DAO.getUserByName(req.body.username);
+    // const userExists = await DAO.getInstance().getUserByName(req.body.username);
     // if (!userExists) {
     //     let un = req.body.username;
     //     const data = {
@@ -47,7 +47,7 @@ export const UserConfirmation = async (req, res) => {
     //         password: req.body.password
     //     };
     //     const hashed_password = await hashPassword(data.password);
-    //     const userdata = await DAO.createUser(data.username, hashed_password, "undefined");
+    //     const userdata = await DAO.getInstance().createUser(data.username, hashed_password, "undefined");
     //     res.status(202).send({ data });
     //     return 1
     // } else {
@@ -88,7 +88,7 @@ export const UserJoin = async (req, res) => {
     //     return;
     // }
     
-    const userExists = await DAO.getUserByName(data.username);
+    const userExists = await DAO.getInstance().getUserByName(data.username);
 
     if (userExists) {
         const hashed_password = await hashPassword(data.password);
@@ -106,10 +106,10 @@ export const UserJoin = async (req, res) => {
 
 export const UserAcknowledgement = async (req, res) => {
     const username = req.body.username;
-    const userExists = await DAO.getUserByName(username)
+    const userExists = await DAO.getInstance().getUserByName(username)
     if (userExists) {
         try {
-            await DAO.updateUserAcknowledgement(username);
+            await DAO.getInstance().updateUserAcknowledgement(username);
             res.status(200).send('Acknowledged');
         } catch (err) {
             console.log(err);

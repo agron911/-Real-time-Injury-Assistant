@@ -1,29 +1,126 @@
 const url = "http://localhost:3000";
 
-function getArchive() {
+let CHATROOM_USER = "";
+
+const getPrivateMessages = async (otherUsername) => {
+    const currentUsername = localStorage.getItem("username");
+    const data = await fetch(
+        url +
+        "/messages/private?username1=" +
+        currentUsername +
+        "&username2=" +
+        otherUsername,
+        {
+            method: "GET",
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+            },
+        }
+    );
+    const { archive } = await data.json();
+    console.log(archive);
+    return archive;
+};
+
+const sendMessage = async () => {
     
+    if (CHATROOM_USER) {
+        sendPrivateMessage(CHATROOM_USER);
+    } else {
+        sendPublicMessage();
+    }
+};
+
+const sendPrivateMessage = async (receiverUsername) => {
+    const textInput = document.getElementById("textInput");
+    const username = localStorage.getItem("username");
+    if (textInput.value) {
+        const inputbuf = textInput.value;
+        textInput.value = "";
+        const status = await getStatus(username);
+        if (status) setStatusButtonUI(status);
+        await fetch(url + "/messages/private", {
+            method: "POST",
+            body: JSON.stringify({
+                username: username,
+                content: inputbuf,
+                status: status,
+                receiver: receiverUsername,
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+            },
+        });
+        
+        showPrivateMessage(receiverUsername);
+    }
+};
+
+const sendPublicMessage = async () => {
+    const textInput = document.getElementById("textInput");
+    const username = localStorage.getItem("username");
+    if (textInput.value) {
+        const inputbuf = textInput.value;
+        textInput.value = "";
+        const status = await getStatus(username);
+        if (status) setStatusButtonUI(status);
+        await fetch(url + "/messages/public", {
+            method: "POST",
+            body: JSON.stringify({
+                username: username,
+                content: inputbuf,
+                timestamp: new Date().toString(),
+                status: status,
+                receiver: "all", // to send messages to public wall
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+            },
+        });
+    }
+};
+
+
+
+const showPrivateMessage = async (otherUsername) => {
     document.getElementById("elect-form").style.display = "none";
-    document.getElementById("public-wall").style.display = "block";
-    fetch (url + '/messages/public', {
+    document.getElementById("wall").style.display = "flex";
+
+    const chatroomTypeTitleElement = document.getElementById("chatroom-type-title");
+    
+    const msgs = await getPrivateMessages(otherUsername);
+    const messageContainer = document.getElementById("messages");
+    console.log("msgs", msgs);
+    messageContainer.innerHTML = "";
+    chatroomTypeTitleElement.innerHTML = otherUsername+" Chatroom";
+    if (!msgs.empty) {
+        for (let msg of msgs) {
+            addMessages(msg);
+        }
+    }
+    CHATROOM_USER = otherUsername;
+};
+
+function getArchive() {
+    document.getElementById("elect-form").style.display = "none";
+    document.getElementById("wall").style.display = "flex";
+    fetch(url + "/messages/public", {
         method: "GET",
         headers: {
             "Content-type": "application/json; charset=UTF-8",
-        }
-    }).then(async (response)=>{
-        data = await response.json()
+        },
+    }).then(async (response) => {
+        data = await response.json();
         if (!data.empty) {
             for (let msg of data.archive) {
                 let msgCard = createMsgCard(msg);
                 messages.appendChild(msgCard);
-
             }
         }
-    })
+    });
 }
 // Create usercard for 'users' ul
 function createUserCard(user) {
-
-
     let listItem = document.createElement("li");
     listItem.className = "list-group-item";
 
@@ -45,24 +142,23 @@ function createUserCard(user) {
     } else if (user.status === "emergency") {
         iconElement.classList.add("la-plus-square");
         iconElement.classList.add("plus-icon");
-    } 
+    }
 
     let title = document.createElement("h5");
     title.className = "card-title";
     title.textContent = user.username;
-
+    title.style.cursor = "pointer";
+    title.addEventListener("click", () => showPrivateMessage(user.username));
 
     cardHeader.appendChild(title);
     cardHeader.appendChild(iconElement);
-
 
     let dot = document.createElement("span");
     dot.className = "dot";
     dot.classList.add(user.online ? "online" : "offline");
 
     let statusText = document.createTextNode(user.online ? "Online" : "Offline");
-    
-    
+
     cardBody.appendChild(cardHeader);
     cardBody.appendChild(dot);
     cardBody.appendChild(statusText);
@@ -92,9 +188,8 @@ function createMsgCard(msg) {
     iconElement.classList.add("las");
 
     console.log("msg status", msg.status);
-    
-    setIconClass(msg.status, iconElement);
 
+    setIconClass(msg.status, iconElement);
 
     // let txt = document.createElement("small");
     // txt.className = "text-body-secondary";
@@ -129,7 +224,6 @@ function createMsgCard(msg) {
 }
 
 const setIconClass = (status, iconElement) => {
-
     iconElement.classList.remove("la-check-circle");
     iconElement.classList.remove("la-exclamation-circle");
     iconElement.classList.remove("la-plus-square");
@@ -137,7 +231,6 @@ const setIconClass = (status, iconElement) => {
     iconElement.classList.remove("danger-icon");
     iconElement.classList.remove("plus-icon");
 
-    
     if (status === "ok") {
         iconElement.classList.add("la-check-circle");
         iconElement.classList.add("check-icon");
@@ -148,12 +241,12 @@ const setIconClass = (status, iconElement) => {
         iconElement.classList.add("la-plus-square");
         iconElement.classList.add("plus-icon");
     }
-} 
+};
 
-const updateUserStatusIconEverywhere = (status, username)=>{
-    const icon = document.getElementById("user-status-icon-"+username);
+const updateUserStatusIconEverywhere = (status, username) => {
+    const icon = document.getElementById("user-status-icon-" + username);
     setIconClass(status, icon);
-}
+};
 
 const registerSocket = async (username, socketId) => {
     try {
@@ -169,11 +262,12 @@ const registerSocket = async (username, socketId) => {
     }
 };
 
-const connectToSocket = async ( addMessages) => {
+const connectToSocket = async () => {
     const socket = await io(url);
     socket.on("connect", async () => {
-        await registerSocket(localStorage.getItem('username'), socket.id);
-    })
+        const username = localStorage.getItem("username");
+        await registerSocket(localStorage.getItem("username"), socket.id);
+    });
     // socket.on("initMessages", (data) => {
     //     initMessages(data);
     // });
@@ -187,8 +281,58 @@ const connectToSocket = async ( addMessages) => {
 
     socket.on("status-update", (data) => {
         updateUserStatusIconEverywhere(data.status, data.username);
+    });
+
+    socket.on("private-message", (data) => {
+        console.log("private-message", data);
+        showMessageAlert(data, "primary");
     })
 };
+
+const closeAlert = () => {
+    const alert = bootstrap.Alert.getOrCreateInstance('#liveAlertPlaceholder');
+    alert.close();
+}
+
+const showMessageAlert = (message, type) => {
+    const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
+    const wrapper = document.createElement('div');
+    console.log("showMessage", message);
+    wrapper.innerHTML = [
+      `<div class="alert alert-${type} alert-dismissible alert-fse" role="alert">`,
+      `   <div>${message.content}</div>`,
+      `<div class ="alert-button-container">`,
+      '   <button type="button" aria-label="Close" data-bs-toggle="modal"  data-bs-target="#exampleModal" onclick="closeAlert()"><i class="las la-eye"></i></button>',
+      `</div>`,
+      '</div>'
+    ].join('')
+    const titleElement = document.getElementById('message-modal-title');
+    const statusElement = document.getElementById('message-modal-status');
+
+    const iconElement = document.createElement("i");
+    iconElement.classList.add("las");
+    iconElement.id = "user-status-icon-" + message.username;
+    if (message.status === "ok") {
+        iconElement.classList.add("la-check-circle");
+        iconElement.classList.add("check-icon");
+    } else if (message.status === "help") {
+        iconElement.classList.add("la-exclamation-circle");
+        iconElement.classList.add("danger-icon");
+    } else if (message.status === "emergency") {
+        iconElement.classList.add("la-plus-square");
+        iconElement.classList.add("plus-icon");
+    }
+
+    const timeStampElement = document.getElementById('message-modal-timestamp');
+    const contentElement = document.getElementById('message-modal-content');
+
+    titleElement.innerHTML = `New Message from ${message.username}`
+    statusElement.appendChild(iconElement);
+    timeStampElement.innerHTML = message.timestamp;
+    contentElement.innerHTML = message.content;
+    alertPlaceholder.append(wrapper);
+  }
+  
 
 const getStatus = async (username) => {
     try {
@@ -196,7 +340,7 @@ const getStatus = async (username) => {
             method: "GET",
             headers: {
                 "Content-type": "application/json; charset=UTF-8",
-            }
+            },
         });
         const { status } = await res.json();
         return status;
@@ -220,7 +364,7 @@ const setStatusButtonUI = (status) => {
 const changeStatus = async (status) => {
     try {
         const username = localStorage.getItem("username");
-        const res = await fetch(url + "/user/status/" + username , {
+        const res = await fetch(url + "/user/status/" + username, {
             method: "PUT",
             body: JSON.stringify({ status }),
             headers: {
@@ -268,53 +412,53 @@ const displayUsers = (users) => {
     });
 };
 
+const addMessages = (msg) => {
+    const messages = document.getElementById("messages");
+    let msgCard = createMsgCard(msg);
+    messages.appendChild(msgCard);
+    window.scrollTo(0, document.body.scrollHeight);
+};
+
+const getUnreadMessages = async () => {
+    const username = localStorage.getItem("username");
+    const data = await fetch(
+        url +
+        "/messages/private/" +
+        username,
+        {
+            method: "GET",
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+            },
+        }
+    );
+    const {archive} = await data.json();
+    
+    return archive;
+};
+
+const getAlerts = async () => {
+    const unreadMessages = await getUnreadMessages();
+    console.log("archives",unreadMessages);
+    for (const msg of unreadMessages){
+        console.log("msg", msg);
+        showMessageAlert(msg, "primary");
+    }
+}
+
 window.onload = async () => {
     try {
         const username = localStorage.getItem("username");
         if (username) {
-            
-            
-            const messages = document.getElementById("messages");
-            const messageForm = document.getElementById("messageForm");
-            const textInput = document.getElementById("textInput");
             const toggleButton = document.getElementById("toggle-btn");
-            
-            // When user submit a new message
-            messageForm.addEventListener("submit", async (e) => {
-                e.preventDefault();
-                if (textInput.value) {
-                    const inputbuf = textInput.value;
-                    textInput.value = "";
-                    const status = await getStatus(username);
-                    if (status) setStatusButtonUI(status);
-                    await fetch(url + "/messages/public", {
-                        method: "POST",
-                        body: JSON.stringify({
-                            username: username,
-                            content: inputbuf,
-                            timestamp: new Date().toString(),
-                            status : status,
-                            receiver: "all" // to send messages to public wall
-                        }),
-                        headers: {
-                            "Content-type": "application/json; charset=UTF-8",
-                        },
-                    });
-                }
-            });
-            const addMessage = (msg) => {
-                let msgCard = createMsgCard(msg);
-                messages.appendChild(msgCard);
-                window.scrollTo(0, document.body.scrollHeight);
-            }
-            await connectToSocket( addMessage);
-
+            await connectToSocket();
             toggleButton.addEventListener("click", async (e) => {
                 e.preventDefault();
                 await logout();
                 window.location.replace("/");
             });
 
+            await getAlerts();
         }
     } catch (err) {
         console.log("err", err);

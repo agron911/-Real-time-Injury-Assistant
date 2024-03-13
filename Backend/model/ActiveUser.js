@@ -40,10 +40,10 @@ export const deActivateUser = async (username) => {
     await ActiveUser.deleteMany({username: username});
 }
 
-export const getSocketId = async (username) => {
-    const activeUser = await ActiveUser.findOne({username: username});
-    if (activeUser) {
-        return activeUser.socketId;
+export const getSocketIds = async (username) => {
+    const activeUsers = await ActiveUser.find({username: username});
+    if (activeUsers.length > 0) {
+        return activeUsers.map((activeUser)=>activeUser.socketId);
     }
 }
 

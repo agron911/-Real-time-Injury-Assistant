@@ -37,7 +37,7 @@ describe('Password Operations', () => {
     })
     test('Test existing user password match', async() => {
         const hashedpasssword = await hashPassword('1234')
-        const new_user = await DAO.createUser('daniel', hashedpasssword, 'ok')
+        const new_user = await DAO.getInstance().createUser('daniel', hashedpasssword, 'ok')
         const passwordresult =  await comparePassword(new_user[0].password, '1234')
         return User.retrieve('daniel').then((user) => {
             expect(passwordresult).toBe(true);
@@ -45,7 +45,7 @@ describe('Password Operations', () => {
     })
     test('Test existing user password mismatch', async() => {
         const hashedpasssword = await hashPassword('1234')
-        const new_user = await DAO.createUser('daniel', hashedpasssword, 'ok')
+        const new_user = await DAO.getInstance().createUser('daniel', hashedpasssword, 'ok')
         const passwordresult =  await comparePassword(new_user.password, '12345')
         return User.retrieve('daniel').then((user) => {
             expect(passwordresult).toBe(false);
@@ -76,8 +76,8 @@ describe('Username Operations', () => {
     })
 
     test('Case Sensitivity', async() => {
-        const user1  = await DAO.createUser('daniel', await hashPassword('1234'), 'ok')
-        const user = await DAO.getUserByName('Daniel')
+        const user1  = await DAO.getInstance().createUser('daniel', await hashPassword('1234'), 'ok')
+        const user = await DAO.getInstance().getUserByName('Daniel')
         console.log(user)
         let check = 0
         if(user){
@@ -87,8 +87,8 @@ describe('Username Operations', () => {
     });
 
     test('Create and retrieve user', async() => {
-        const user1  = await DAO.createUser('daniel', await hashPassword('1234'), 'ok')
-        const user = await DAO.getUserByName('daniel')
+        const user1  = await DAO.getInstance().createUser('daniel', await hashPassword('1234'), 'ok')
+        const user = await DAO.getInstance().getUserByName('daniel')
         console.log(user)
         let check = 0
         if(user){

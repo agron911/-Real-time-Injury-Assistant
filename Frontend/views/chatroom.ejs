@@ -11,14 +11,24 @@
       integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
       crossorigin="anonymous"
     />
-    <link rel= "stylesheet" href= "https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css" >
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <link
+      rel="stylesheet"
+      href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <style>
       body {
-        padding-bottom: 3rem;
+        display: flex;
+        height: 95vh;
+        flex-direction: column;
+        box-sizing: border-box;
         /* Adjusted to avoid overlap with fixed elements */
       }
 
@@ -29,18 +39,18 @@
       }
 
       #messageForm {
-        bottom: 0;
-        left: 0;
-        right: 0;
+
       }
       #messages {
-        overflow-y: auto;
-        max-height: calc(60vh);
+        overflow: auto;
+        margin: 0;
+        height: 80%;
+        /* max-height: calc(60vh); */
       }
 
       .message {
         border: 1px solid #ddd;
-        margin-bottom: 10px;
+        /* margin-bottom: 10px; */
       }
 
       .message .timestamp {
@@ -64,23 +74,28 @@
       }
       #users {
         overflow-y: auto;
-        max-height: calc(60vh);
+        height: 100%;
+        /* max-height: 80%; */
+        /* max-height: calc(60vh); */
       }
       .dropdown-fse {
         margin-right: 2em;
       }
-      .nav-bar-container{
+      .nav-bar-container {
         display: flex;
         justify-content: space-between;
       }
-      .options-container{
+      .options-container {
         align-items: center;
         display: flex;
       }
       .status-button {
-        background-color  : transparent;
+        background-color: transparent;
         border-color: blue;
         min-width: 5em;
+        justify-content: center;
+        display: flex;
+        align-items: center;
       }
       .check-icon {
         background-color: green;
@@ -118,38 +133,96 @@
         display: flex;
         justify-content: space-between;
         width: 100%;
+        
         background-color: transparent;
-        padding: 0;
+        padding: 2px;
         border: 0;
+      }
+      .message-container {
+        /* max-height: 100%; */
+      }
+      .wall {
+        height: 95%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .row{
+        height: 100%;
+        position: relative;
+      }
+      .chatroom-container {
+        overflow: auto;
+        height: 100%;
+
+      }
+      .container-max-height{
+        flex-grow: 1;
+        height: 100%;
+      }
+      .card {
+        height: 80%;
+      }
+      .alert-fse {
+        display: flex;
+        justify-content: space-between;
+      }
+      .alert-button-container {
+        display: flex;
+        align-items: center;
+        gap: 2em;
+      }
+      .message-modal-body{
+        display: flex;
+        flex-direction: column;
+      }
+      .message-modal-body-header{
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+      }
+      .live-alert-placeholder{
+        margin-top: 1em; 
+      }
+      .chatroom-type-title{
+        padding: 0.5em;
+        background-color: aqua;
+        justify-content: center;
       }
     </style>
   </head>
   <body>
-    <header class="navbar navbar-expand-lg navbar-light fixed-top">
+    <header class="navbar navbar-expand-lg navbar-light">
       <div class="container-fluid nav-bar-container">
-        <a class="navbar-brand" href="#">FSE Chat Room</a>
-        
+        <a class="navbar-brand" href="/chatroom" >FSE Chat Room</a>
+
         <div class="options-container">
-          <div class="dropdown dropdown-fse">
+          <div class="dropdown dropdown-fse dropstart">
             <button
-              id = "status-button"
+              id="status-button"
               class="btn btn-secondary dropdown-toggle status-button"
               type="button"
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-            Status
+              Status
             </button>
             <ul class="dropdown-menu">
               <li class="menu-item dropdown-item" onclick="changeStatus('ok')">
                 <div class="" href="#">Ok</div>
                 <i class="las la-check-circle check-icon"></i>
               </li>
-              <li class="menu-item dropdown-item" onclick="changeStatus('help')">
+              <li
+                class="menu-item dropdown-item"
+                onclick="changeStatus('help')"
+              >
                 <div class="" href="#">Help</div>
                 <i class="las la-exclamation-circle danger-icon"></i>
               </li>
-              <li class="menu-item dropdown-item" onclick="changeStatus('emergency')">
+              <li
+                class="menu-item dropdown-item"
+                onclick="changeStatus('emergency')"
+              >
                 <div class="" href="#">Emergency</div>
                 <i class="las la-plus-square plus-icon"></i>
               </li>
@@ -162,31 +235,50 @@
         </div>
       </div>
     </header>
-
-
-    <div class="container-fluid" style="padding-top: 56px">
+    <div class="container-fluid container-max-height" style="padding-top: 56px">
       <!-- Adjust top padding to avoid overlap with fixed navbar -->
+      <div id="liveAlertPlaceholder" class="live-alert-placeholder"></div>
+      <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="message-modal-title">Modal title</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body message-modal-body">
+              <div class="message-modal-body-header">
+                <div class="message-modal-timestamp" id="message-modal-timestamp"></div>
+                <div class="message-modal-status" id="message-modal-status"></div>
+              </div>
+              <div class="message-modal-content" id="message-modal-content">message</div>              
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="row">
-        <aside class="col-md-2">
-          <br />
+        <div class="col-md-3">
           <div id="chatroom" class="card">
-            <div class="card-header text-center">Users</div>
+            <div class="card-header text-center chatroom-type-title">Users</div>
             <ul id="users" class="list-group"></ul>
           </div>
-        </aside>
-        <div class="col-md-9">
-          <br />
+        </div>
+        <div class="col-md-9 chatroom-container">
+          <!-- <br /> -->
           <div id="chatroom" class="card">
-            <div class="card-header text-center">Chatroom</div>
+            <div class="card-header text-center chatroom-type-title" id="chatroom-type-title">Public Chatroom</div>
             <div id="elect-form" class="card-body text-center">
               <h5 class="card-title">Post on Public wall</h5>
               <p class="card-text">Click to elect to chat publicly</p>
               <a class="btn btn-primary" onclick="getArchive()">Elect</a>
             </div>
 
-            <div id="public-wall" style="display: none">
-              <ul id="messages" class="list-unstyled"></ul>
-              <form id="messageForm" class="fixed-bottom bg-light p-3">
+            <div id="wall" style="display: none" class="wall">
+              <ul id="messages" class="list-unstyled message-container"></ul>
+              <form id="messageForm" class="bg-light p-3">
                 <div class="input-group">
                   <input
                     id="textInput"
@@ -196,13 +288,14 @@
                     placeholder="Type your message..."
                   />
                   <div class="input-group-append">
-                    <button class="btn btn-primary" type="submit">Post</button>
+                    <button class="btn btn-primary" type="button" onclick="sendMessage()">Post</button>
                   </div>
                 </div>
               </form>
             </div>
+            
           </div>
-          <br />
+          <!-- <br /> -->
         </div>
       </div>
     </div>
