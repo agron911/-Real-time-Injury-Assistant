@@ -478,7 +478,8 @@ window.onload = async () => {
                 await logout();
                 window.location.replace("/");
             });
-
+            const status = await getStatus(username);
+            if (status) setStatusButtonUI(status);
             await getAlerts();
         }
     } catch (err) {
