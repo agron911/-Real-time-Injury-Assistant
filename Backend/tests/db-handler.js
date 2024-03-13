@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import DAO from '../model/dao.js';
 const mongod = new MongoMemoryServer();
