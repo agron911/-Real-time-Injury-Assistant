@@ -10,7 +10,7 @@ const router = express.Router();
 router.get("/", HomeView);
 router.get("/community", indexView);
 router.get("/chatroom", ChatroomView);
-
+router.get('/test', (req, res) => (res.send("Hello World")));
 router.get("/users", getUsers);
 router.post("/messages/public", receivePublicMessage);
 router.get("/messages/public", loadPublicMessages);
