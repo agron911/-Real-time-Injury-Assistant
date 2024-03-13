@@ -7,7 +7,7 @@ const passwordInput = document.getElementById('passwordInput');
 const userHelpBlock = document.getElementById('userHelpBlock');
 const passwordHelpBlock = document.getElementById('passwordHelpBlock');
 
-const url = "http://localhost:3000"
+const url = ""
 
 function cancelUser(){
     usernameInput.value = '';

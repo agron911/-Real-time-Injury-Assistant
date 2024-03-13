@@ -1,4 +1,4 @@
-const url = "http://localhost:3000";
+const url = "";
 
 let CHATROOM_USER = "";
 
