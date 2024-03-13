@@ -180,6 +180,8 @@
       .alert-fse {
         display: flex;
         justify-content: space-between;
+        padding-right: 1rem;
+        gap: 2em;
       }
       .alert-button-container {
         display: flex;
@@ -198,11 +200,12 @@
       .live-alert-placeholder{
         margin-top: 1em;
         position: fixed;
-        top: 5em;
+        display: none;
+        bottom: 5em;
         z-index: 99999;
         left: auto;
-        right: auto;
-        width: 80%; 
+        right: 2em;
+        width: fit-content; 
       }
       .chatroom-type-title{
         padding-top: 0.5em;
@@ -214,8 +217,26 @@
         width: 100%;
       }
       .navbar-parent{
-        z-index: 9999999;
+        z-index: 999;
       }
+      .notification-icon {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        cursor: pointer;
+      }
+
+      .notification-dot {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: red;
+        display: none;
+      }
+
     </style>
   </head>
   <body>
@@ -262,6 +283,11 @@
         </div>
       </div>
     </header>
+    <div class="notification-icon" onclick="handleAlertClick()">
+      <i class="la la-bell"></i>
+      <span class="notification-dot"></span>
+    </div>
+  
     <div class="container-fluid container-max-height" style="padding-top: 56px">
       <!-- Adjust top padding to avoid overlap with fixed navbar -->
       <div id="liveAlertPlaceholder" class="live-alert-placeholder"></div>
