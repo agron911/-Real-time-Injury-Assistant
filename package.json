@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "Node server.js",
+    "start-with-env": "PORT=3000 ENV=prod node server.js",
     "test": "jest --runInBand .backend/tests/test.js",
     "test-api": "jest --runInBand .backend/tests/test-api.js"
   },
@@ -27,6 +28,7 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "socket.io": "^4.7.4",
+    "supertest": "^6.3.4",
     "ts-jest": "^29.1.2",
     "uuid": "^9.0.1"
   }

@@ -15,16 +15,14 @@ import cors from 'cors'
 
 configDotenv();
 
-
-
 const app = express();
 const httpServer = createServer(app);
 const port = 3000;
 
 // Serving static files in view
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-app.use(express.static(path.join(__dirname, 'Frontend', 'views')));
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = dirname(__filename);
+// app.use(express.static(path.join(__dirname, 'Frontend', 'views')));
 
 app.use(cors())
 
@@ -44,16 +42,22 @@ const options = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: process.env.JWT_SECRET,
 }
-passport.use(new Strategy(options, (jwt_payload, done)=>{
+passport.use(new Strategy(options, (jwt_payload, done) => {
   console.log('Authenticate invoked');
 }))
 app.use(passport.initialize());
 
 
-// MongoDB connection
-const main_uri ="mongodb+srv://daniilturpitka:Letoosen228@cluster0.1fayqt0.mongodb.net/?retryWrites=true&w=majority";
-const dao = DAO.getInstance();
-dao.setDB(main_uri);
+
+
+const environment = process.env.NODE_ENV; // Add NODE_ENV to your .env files
+let main_uri;
+if (environment != 'test') {
+  // MongoDB connection
+  const main_uri = "mongodb+srv://daniilturpitka:Letoosen228@cluster0.1fayqt0.mongodb.net/?retryWrites=true&w=majority";
+  const dao = DAO.getInstance();
+  dao.setDB(main_uri);
+}
 
 
 // Socket io connection
@@ -61,13 +65,15 @@ dao.setDB(main_uri);
 const io = setupSocket(httpServer);
 
 app.use(router)
-app.get('/just', (req, res)=>{
+app.get('/just', (req, res) => {
   io.emit('details');
   res.send({})
 })
 httpServer.listen(port, function () {
   console.log(`Listening port... ${port}`);
 });
+
+export default httpServer;
 
 
 
