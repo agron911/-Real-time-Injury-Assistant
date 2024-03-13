@@ -326,6 +326,7 @@ const closeAlertAndShowMessage = (message) => {
     const alertContainer = document.getElementById("liveAlertPlaceholder");
     if(alertContainer.children.length == 0){
         hideNotificationDot();
+        alertContainer.style.display = "none";
     }
 }
 
