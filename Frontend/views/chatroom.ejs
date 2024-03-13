@@ -74,7 +74,7 @@
       }
       #users {
         overflow-y: auto;
-        height: 100%;
+        height: 80%;
         /* max-height: 80%; */
         /* max-height: calc(60vh); */
       }
@@ -154,14 +154,28 @@
       .chatroom-container {
         overflow: auto;
         height: 100%;
-
+        border: 1px solid;
+        padding: 0;
+      }
+      .users-container {
+        overflow: auto;
+        height: 100%;
       }
       .container-max-height{
         flex-grow: 1;
         height: 100%;
+        justify-content: center;
+        position: relative;
+        justify-content: center;
+        display: flex;
+        width: 90%;
       }
-      .card {
-        height: 80%;
+      .users-card {
+        /* height: 90%; */
+        border: 1px solid;
+      }
+      .chatroom-card {
+        height: 90%;
       }
       .alert-fse {
         display: flex;
@@ -182,12 +196,22 @@
         width: 100%;
       }
       .live-alert-placeholder{
-        margin-top: 1em; 
+        margin-top: 1em;
+        position: fixed;
+        top: 5em;
+        z-index: 99999;
+        left: auto;
+        right: auto;
+        width: 80%; 
       }
       .chatroom-type-title{
-        padding: 0.5em;
+        padding-top: 0.5em;
+        padding-bottom: 0.5em;
         background-color: aqua;
         justify-content: center;
+      }
+      .row-container{
+        width: 100%;
       }
     </style>
   </head>
@@ -253,22 +277,22 @@
               <div class="message-modal-content" id="message-modal-content">message</div>              
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="replyToUser()">Reply</button>
               <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
             </div>
           </div>
         </div>
       </div>
-      <div class="row">
-        <div class="col-md-3">
-          <div id="chatroom" class="card">
+      <div class="row row-container">
+        <div class="col-md-3 users-container">
+          <div id="chatroom" class="users-card">
             <div class="card-header text-center chatroom-type-title">Users</div>
             <ul id="users" class="list-group"></ul>
           </div>
         </div>
         <div class="col-md-9 chatroom-container">
           <!-- <br /> -->
-          <div id="chatroom" class="card">
+          <div id="chatroom" class="chatroom-card">
             <div class="card-header text-center chatroom-type-title" id="chatroom-type-title">Public Chatroom</div>
             <div id="elect-form" class="card-body text-center">
               <h5 class="card-title">Post on Public wall</h5>
