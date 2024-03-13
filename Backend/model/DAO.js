@@ -72,29 +72,29 @@ class DAO {
     createUser = async (username, hashed_password, status) => {
         try {
             const user = await userCollection.insertMany({ username: username, password: hashed_password, acknowledged: false, online: false, status: status });
+            return user;
         } catch (err) {
             throw new Error("Insert failed :", err);
         }
-        return user;
     }
 
     getUserByName = async (username) => {
         try {
             const user = await userCollection.findOne({ username: username.toLowerCase() });
+            return user;
         } catch (err) {
             throw new Error("User not found: ", err);
         }
-        return user;
     }
 
 
     getAllUsers = async () => {
         try {
             const users = await userCollection.find().sort({ online: -1, username: 1 });
+            return users;
         } catch (err) {
             throw new Error("Get all users error: ", err);
         }
-        return users;
     }
 
     updateUserAcknowledgement = async (username) => {
@@ -132,11 +132,11 @@ class DAO {
     createMessage = async (username, content, timestamp, status, receiver, viewed) => {
         try {
             const msg = await messageCollection.insertMany({ username: username, content: content, timestamp: timestamp, status: status, receiver: receiver, viewed: viewed });
+            return msg;
         } catch (err) {
             throw new Error("Create message error: ", err);
         }
 
-        return msg;
     }
 
     updateMessageById = async (id, updateData) => {
@@ -160,10 +160,10 @@ class DAO {
     getAllMessages = async (receiver) => {
         try {
             const msgs = await messageCollection.find({ receiver: receiver });
+            return msgs;
         } catch (err) {
             throw new Error("Get all messages error: ", err);
         }
-        return msgs;
     }
     getAllPrivateMessages = async (username, receiver) => {
         try {
@@ -173,16 +173,17 @@ class DAO {
                     { username: receiver, receiver: username }
                 ]
             }).sort({ timestamp: 1 });
+            return msgs;
         } catch (err) {
             throw new Error("Get all private messages error: ", err);
         }
 
-        return msgs;
     }
 
     getUnreadMessages = async (username) => {
+        let msgs;
         try{
-            const msgs = await messageCollection.find({ receiver: username, viewed: false });
+            msgs = await messageCollection.find({ receiver: username, viewed: false });
         }catch(err){
             throw new Error("Get unread messages error: ", err);
         }
