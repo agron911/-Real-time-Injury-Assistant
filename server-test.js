@@ -20,15 +20,15 @@ const httpServer = createServer(app);
 const port = 3000;
 
 // Serving static files in view
-const __filename = fileURLToPath(new URL(import.meta.url));
-const __dirname = dirname(__filename);
-app.use(express.static(path.join(__dirname, 'Frontend', 'views')));
+// const __filename = fileURLToPath(new URL(import.meta.url));
+// const __dirname = dirname(__filename);
+// app.use(express.static(path.join(__dirname, 'Frontend', 'views')));
 
-app.use(cors())
+// app.use(cors())
 
 
-// Setting up view engine
-app.set('views', path.join(__dirname, 'Frontend', 'views'));
+// // Setting up view engine
+// app.set('views', path.join(__dirname, 'Frontend', 'views'));
 app.set("view engine", "ejs")
 
 // Body-Parser
@@ -50,14 +50,6 @@ app.use(passport.initialize());
 
 const environment = process.env.NODE_ENV ;
 
-
-console.log('Environment!!!!:', environment);
-if (environment != 'test') {
-  // MongoDB connection
-  const main_uri = "mongodb+srv://daniilturpitka:Letoosen228@cluster0.1fayqt0.mongodb.net/?retryWrites=true&w=majority";
-  const dao = DAO.getInstance();
-  dao.setDB(main_uri);
-}
 
 
 // Socket io connection

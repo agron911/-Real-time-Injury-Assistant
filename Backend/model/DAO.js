@@ -114,7 +114,6 @@ class DAO {
             { $set: updateData },
             { new: true }
           );
-          console.log("updated document", updatedDocument);
         return updatedDocument;
         //   return updatedDocument;
         } catch (err) {
@@ -137,7 +136,6 @@ class DAO {
               { username: receiver, receiver: username }
             ]
           }).sort({timestamp: 1});
-        console.log(msgs);
         return msgs;
     }
 

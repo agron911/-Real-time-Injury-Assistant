@@ -5,10 +5,10 @@
   "main": "app.js",
   "type": "module",
   "scripts": {
-    "start": "Node server.js",
-    "start-with-env": "PORT=3000 ENV=prod node server.js",
-    "test": "jest --runInBand .backend/tests/test.js",
-    "test-api": "jest --runInBand .backend/tests/test-api.js"
+    "start": "cross-env NODE_ENV=production Node server.js",
+    "start-with-env": "cross-env NODE_ENV=production node server.js",
+    "test": "cross-env NODE_ENV=test jest --runInBand .backend/tests/test.js",
+    "test-api": "cross-env NODE_ENV=test jest --runInBand .backend/tests/test-api.js"
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +17,7 @@
     "axios": "^1.6.7",
     "babel-jest": "^29.7.0",
     "bcrypt": "^5.1.1",
+    "cross-env": "^7.0.3",
     "datetime": "^0.0.3",
     "dotenv": "^16.4.4",
     "ejs": "^3.1.9",

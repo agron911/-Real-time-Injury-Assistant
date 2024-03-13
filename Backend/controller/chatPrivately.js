@@ -5,7 +5,11 @@ import { isUserActive, getSocketIds } from '../model/ActiveUser.js';
 
 export const loadUnreadMessages = async(req, res) => {
     const messages = await DAO.getInstance().getUnreadMessages(req.params.username);
-    res.send({archive:messages})
+    try{
+        res.status(200).send({archive:messages});
+    }catch(err){
+        res.status(400).send({message: "Error in loading unread messages"});
+    }
 }
 
 export const receivePrivateMessage = async(req, res)=>{
@@ -13,7 +17,7 @@ export const receivePrivateMessage = async(req, res)=>{
     const timestamp = now.toISOString(); // Format as ISO string, e.g., "2021-03-23T18:25:43.511Z"
     new MessageObj(req.body.username, req.body.content, timestamp, req.body.status, req.body.receiver);
     const mess = await DAO.getInstance().createMessage(req.body.username, req.body.content, timestamp, req.body.status, req.body.receiver, false);
-    // TODO: Alert the receiver of the message
+
     // if the user is online, send notification to user through socket
     const userActive = await isUserActive(req.body.receiver);
     if (userActive) {
@@ -32,7 +36,10 @@ export const receivePrivateMessage = async(req, res)=>{
 
 // Retrieve all private messages between two users
 export const loadPrivateMessages = async(req, res) => {
-    
     const messages = await DAO.getInstance().getAllPrivateMessages(req.query.username1, req.query.username2);
-    res.send({archive:messages})
+    try{
+        res.status(200).send({archive:messages})
+    }catch(err){
+        res.status(400).send({message: "Error in loading all private messages"});
+    }
 }

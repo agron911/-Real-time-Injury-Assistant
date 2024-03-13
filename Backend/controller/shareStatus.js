@@ -7,7 +7,12 @@ export const updateUserStatus = async (req, res) =>{
 
     await DAO.getInstance().updateUserStatus(username, status);
     io.emit('status-update', {username: username, status: status});
-    res.status(200).send({message: "status updated"});
+    try{
+        res.status(200).send({message: "status updated"});
+    }catch(err){
+        res.status(400).send({message: "Failed to update status"});
+    }
+    
 }
 
 
