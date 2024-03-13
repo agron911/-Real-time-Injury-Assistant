@@ -112,7 +112,7 @@ class DAO {
             throw new Error("Update user online error: ", err);
         }
     }
-
+    //comment
     updateUserOffline = async (username) => {
         try {
             const user = await userCollection.findOneAndUpdate({ username: username }, { online: false });
