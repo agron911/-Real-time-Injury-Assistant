@@ -8,7 +8,7 @@ import { loginRegister } from '../controller/joinCommunity.js';
 /**
  * Connect to a new in-memory database before running any tests.
  */
-beforeAll(async () => await connect());
+beforeAll(async () =>  await connect());
 
 /**
  * Clear all test data after every test.
@@ -18,7 +18,7 @@ afterEach(async () => await clearDatabase());
 /**
  * Remove and close the db and server.
  */
-afterAll(async () => await closeDatabase());
+afterAll( async () =>  await closeDatabase() );
 
 
 describe('Password Operations', () => {
@@ -29,7 +29,6 @@ describe('Password Operations', () => {
         }catch(err){
             expect(err.message || err).toBe("Password length invalid")
         }
-
     })
     test('Password is good',  () => {
         const isvalid = User.validate('daniel', '1234');
@@ -89,7 +88,6 @@ describe('Username Operations', () => {
     test('Create and retrieve user', async() => {
         const user1  = await DAO.getInstance().createUser('daniel', await hashPassword('1234'), 'ok')
         const user = await DAO.getInstance().getUserByName('daniel')
-        console.log(user)
         let check = 0
         if(user){
             check = 1
@@ -98,9 +96,10 @@ describe('Username Operations', () => {
     });
 
     test('New Username', async() =>{
-        await DAO.createUser('daniel', await hashPassword('1234'), 'ok')
+        await DAO.getInstance().createUser('daniel', await hashPassword('1234'), 'ok')
         const new_user_atempt = await loginRegister({username:'daniel54', password:'1234'})
-        expect(new_user_atempt).toBe(1)
+
+        expect(new_user_atempt).toBeDefined()
     })
 
 

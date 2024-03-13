@@ -20,7 +20,7 @@ export async function connect() {
  */
 export async function closeDatabase() {
     const dao = DAO.getInstance();
-    dao.closeDB();
+    await dao.closeDB();
     await mongod.stop();
 }
 

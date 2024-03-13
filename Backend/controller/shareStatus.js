@@ -13,6 +13,11 @@ export const updateUserStatus = async (req, res) =>{
 
 export const getStatus = async (req, res) =>{
     const username = req.params.username;
-    const user = await DAO.getInstance().getUserByName(username);
-    res.status(200).send({status: user.status});
+    try{
+        const user = await DAO.getInstance().getUserByName(username);
+        res.status(200).send({status: user.status});
+    }catch(err){
+        res.status(400).send({message: "Failed to get status"});
+    }
+    
 }

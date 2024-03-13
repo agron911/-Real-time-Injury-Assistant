@@ -17,6 +17,7 @@ class DAO {
 
     static getInstance(){
         if(DAO.instance == null){
+            console.log("Creating new instance");
             DAO.instance = new DAO();
         }
         return DAO.instance;
