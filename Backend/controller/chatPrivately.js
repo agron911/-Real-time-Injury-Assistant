@@ -13,9 +13,9 @@ export const loadUnreadMessages = async(req, res) => {
 }
 
 export const receivePrivateMessage = async(req, res)=>{
-    const now = new Date();
-    const timestamp = now.toISOString(); // Format as ISO string, e.g., "2021-03-23T18:25:43.511Z"
-    new MessageObj(req.body.username, req.body.content, timestamp, req.body.status, req.body.receiver);
+
+    const timestamp = new Date().toString(); 
+    new MessageObj(req.body.username, req.body.content, req.body.timestamp, req.body.status, req.body.receiver);
     const mess = await DAO.getInstance().createMessage(req.body.username, req.body.content, timestamp, req.body.status, req.body.receiver, false);
 
     // if the user is online, send notification to user through socket
