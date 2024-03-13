@@ -65,12 +65,28 @@ export const UserJoin = async (req, res) => {
     };
 
     var status = 0;
-
-    var ruleCheck = User.validate(data.username, data.password);
-    if (ruleCheck) {
-        res.status(400 + ruleCheck).send();
-        return;
+    try{
+        User.validate(data.username, data.password);
+    }catch(err){
+        if(err.message =="Username length invalid"){
+            res.status(401).send({message: "Username length invalid"});
+            return;
+        }
+        if(err.message =="Password length invalid"){
+            res.status(402).send({message: "Password length invalid"});
+            return;
+        }
+        if(err.message =="Username prohibited"){
+            res.status(403).send({message: "Username prohibited"});
+            return;
+        }
+        console.log(err)
     }
+
+    // if (ruleCheck) {
+    //     res.status(400 + ruleCheck).send();
+    //     return;
+    // }
     
     const userExists = await DAO.getUserByName(data.username);
 

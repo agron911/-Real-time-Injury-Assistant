@@ -65,19 +65,19 @@ class User {
         // Check username length
         if (!username || username.length < this.usernameMinLength) {
             console.log(`Username must be at least 3 characters long.`);
-            return 1;
+            throw new Error("Username length invalid");
         }
 
         // Check password length
         if (!password || password.length < this.passwordMinLength) {
             console.log(`Your password must be at least 4 characters long. Passwords are case sensitive!`);
-            return 2;
+            throw new Error("Password length invalid");
         } 
 
         // Check banned usernames
         if (this.prohibitedUsernames.indexOf(username) > -1) {
             console.log(`Your username is prohibited. Try again.`);
-            return 3;
+            throw new Error("Username prohibited");
         }
 
         return 0;

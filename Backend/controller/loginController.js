@@ -72,7 +72,8 @@ export const deregisterUserSocket = async (socketId) => {
 export const getUsers = async (req, res) => {
     try {
         const users = await DAO.getAllUsers(); 
-        res.json({ users }); 
+        
+        res.status(200).send({ users }); 
     } catch (error) {
         console.error('Failed to get users:', error);
         res.status(500).send({ message: 'Failed to get users' });
