@@ -1,0 +1,239 @@
+body {
+    display: flex;
+    height: 95vh;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+header, #messageForm {
+    background-color: rgb(168, 196, 244);
+    backdrop-filter: blur(10px);
+}
+
+#messages {
+    overflow: auto;
+    margin: 0;
+    height: 80%;
+}
+
+.message {
+    border: 1px solid #ddd;
+}
+
+.message .timestamp {
+    color: #888;
+}
+
+.dot {
+    height: 8px;
+    width: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.online {
+    background-color: rgb(19, 117, 19);
+}
+
+.offline {
+    background-color: rgb(251, 58, 58);
+}
+
+#users {
+    overflow-y: auto;
+    height: 80%;
+}
+
+.dropdown-fse {
+    margin-right: 2em;
+}
+
+.nav-bar-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.options-container {
+    align-items: center;
+    display: flex;
+}
+
+.status-button {
+    background-color: transparent;
+    border-color: blue;
+    min-width: 5em;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+}
+
+.check-icon {
+    background-color: green;
+    height: fit-content;
+    color: white;
+    padding: 2px;
+    width: fit-content;
+}
+
+.danger-icon {
+    background-color: yellow;
+    height: fit-content;
+    width: fit-content;
+    color: black;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+}
+
+.plus-icon {
+    background-color: red;
+    height: fit-content;
+    width: fit-content;
+    color: black;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    gap: 1em;
+    /* width: fit-content;   */
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+
+    background-color: transparent;
+    padding: 2px;
+    border: 0;
+}
+
+.wall {
+    height: 95%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.row {
+    height: 100%;
+    position: relative;
+}
+
+.chatroom-container {
+    overflow: auto;
+    height: 90%;
+    border: 1px solid;
+    padding: 0;
+}
+
+.users-container {
+    /* overflow: auto; */
+    height: 100%;
+}
+
+.container-max-height {
+    flex-grow: 1;
+    height: 100%;
+    justify-content: center;
+    position: relative;
+    justify-content: center;
+    display: flex;
+    width: 90%;
+}
+
+.users-card {
+    height: 90%;
+    border: 1px solid;
+}
+
+.chatroom-card {
+    height: 95%;
+}
+
+.alert-fse {
+    display: flex;
+    justify-content: space-between;
+    padding-right: 1rem;
+    gap: 2em;
+}
+
+.alert-button-container {
+    display: flex;
+    align-items: center;
+    gap: 2em;
+}
+
+.message-modal-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.message-modal-body-header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.live-alert-placeholder {
+    margin-top: 1em;
+    position: fixed;
+    display: none;
+    bottom: 150px;
+    z-index: 99999;
+    left: auto;
+    right: 2em;
+    width: fit-content;
+}
+
+.chatroom-type-title {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    background-color: aqua;
+    justify-content: center;
+}
+
+.row-container {
+    width: 100%;
+}
+
+.navbar-parent {
+    z-index: 999;
+}
+
+.notification-icon {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    cursor: pointer;
+    width: 60px;
+    /* Adjust based on the size of your icon */
+    height: 60px;
+    /* Adjust based on the size of your icon */
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    /* Your desired background color */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #000;
+    z-index: 999;
+    /* Adjust border color and thickness as needed */
+}
+
+.notification-dot {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: red;
+    display: none;
+}
