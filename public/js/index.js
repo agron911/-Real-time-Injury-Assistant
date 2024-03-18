@@ -2,10 +2,6 @@
 
 //const { response } = require("express");
 
-const usernameInput = document.getElementById('usernameInput');
-const passwordInput = document.getElementById('passwordInput');
-const userHelpBlock = document.getElementById('userHelpBlock');
-const passwordHelpBlock = document.getElementById('passwordHelpBlock');
 
 const url = ""
 
@@ -64,8 +60,11 @@ const login = async (username, password) => {
 }
 
 function submitJoinForm(){
+    const usernameInput = document.getElementById('usernameInput');
+    const passwordInput = document.getElementById('passwordInput');
 
     if (usernameInput && passwordInput) {
+        
         fetch(url+"/users/verification", {
             method: "POST",
             body: JSON.stringify({
