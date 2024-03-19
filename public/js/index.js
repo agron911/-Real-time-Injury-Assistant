@@ -27,8 +27,6 @@ function saveUser(){
         const {data} = await response.json();
         localStorage.setItem("username", data.username);
         document.getElementById("acknowlegementmodal").style.display="none";
-        
-        //Display acknowlegement modal
         document.getElementById("acknowlegementmodal1").style.display="block";
     })
     .catch(error => console.log(error))
@@ -110,7 +108,6 @@ const submitJoinForm = async ()=>{
 
 async function userAcknowledged(){
     try{
-        const username = localStorage.getItem("username");
         const response = await fetch(url + "/users/acknowledgement",{
             method: "POST",
             body: JSON.stringify({
@@ -122,7 +119,6 @@ async function userAcknowledged(){
         });
         if(response.status==200){
             window.location.replace('/chatroom');
-            console.log('closing modal');
             document.getElementById("acknowlegementmodal1").style.display="none"
             usernameInput.value = '';
             passwordInput.value = '';

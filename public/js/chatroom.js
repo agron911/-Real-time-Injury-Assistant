@@ -141,46 +141,55 @@ function createUserCard(user) {
   return listItem;
 }
 
+const createTimeStampElement = (timestamp)=> {
+    let timestamp = document.createElement("p");
+    timestamp.className = "card-text text-end";
+    let time = document.createElement("small");
+    time.className = "text-body-secondary";
+    time.textContent = timestamp;
+    timestamp.appendChild(time);
+    return timestamp;
+} 
+
+const createTitleElement = (username)=> {
+    let title = document.createElement("h5");
+    title.className = "card-title fw-bold";
+    if (msg.username == localStorage.getItem("username")) {
+        card.className = "card ms-auto my-3 mx-3";
+        title.textContent = "Me";
+    } else {
+        title.textContent = msg.username;
+    }
+    return title;
+}
+
+const createMsgCardBody = (msg)=>{
+    let cardBody = document.createElement("div");
+    cardBody.className = "card-body";
+    const iconElement = document.createElement("i");
+    iconElement.classList.add("las");
+    setIconClass(msg.status, iconElement);
+    const titleElement = createTitleElement(msg.username)
+    const timestampElement = createTimeStampElement(msg.timestamp);
+    let text = document.createElement("p");
+    text.className = "card-text";
+    text.textContent = msg.content;
+    cardBody.appendChild(titleElement);
+    cardBody.appendChild(iconElement);
+    cardBody.appendChild(text);
+    cardBody.appendChild(timestampElement);
+    return cardBody;
+}
+
 function createMsgCard(msg) {
   let listItem = document.createElement("li");
   listItem.className = "list-group-item";
 
+  const cardBody = createMsgCardBody(msg);
   let card = document.createElement("div");
   card.className = "card mx-3 my-3";
   card.style = "max-width: 36rem;";
-
-  let cardBody = document.createElement("div");
-  cardBody.className = "card-body";
-
-  let title = document.createElement("h5");
-  title.className = "card-title fw-bold";
-
-  const iconElement = document.createElement("i");
-  iconElement.classList.add("las");
-  setIconClass(msg.status, iconElement);
-
-  if (msg.username == localStorage.getItem("username")) {
-    card.className = "card ms-auto my-3 mx-3";
-    title.textContent = "Me";
-  } else {
-    title.textContent = msg.username;
-  }
-
-  let text = document.createElement("p");
-  text.className = "card-text";
-  text.textContent = msg.content;
-
-  let timestamp = document.createElement("p");
-  timestamp.className = "card-text text-end";
-  let time = document.createElement("small");
-  time.className = "text-body-secondary";
-  time.textContent = msg.timestamp;
-  timestamp.appendChild(time);
-
-  cardBody.appendChild(title);
-  cardBody.appendChild(iconElement);
-  cardBody.appendChild(text);
-  cardBody.appendChild(timestamp);
+   
   card.appendChild(cardBody);
   listItem.appendChild(card);
   return listItem;
