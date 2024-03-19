@@ -88,21 +88,15 @@ const submitJoinForm = async ()=>{
     const usernameInput = document.getElementById('usernameInput');
     const passwordInput = document.getElementById('passwordInput');
     if (usernameInput && passwordInput) {
-        try{
-            const response = await verifyUser(usernameInput.value, passwordInput.value);
-            console.log(response);
-            if (response.status == 201) {
-                document.getElementById("acknowlegementmodal").style.display="block";
-            } else if (response.status == 205){
-                login(usernameInput.value, passwordInput.value)
-            } else {
-                alertUser(response.statusCode);
-            }
-        } catch (e) {
-            console.log("exception","das");
+        const response = await verifyUser(usernameInput.value, passwordInput.value);
+        if (response.status == 201) {
+            document.getElementById("acknowlegementmodal").style.display="block";
+        } else if (response.status == 205){
+            login(usernameInput.value, passwordInput.value)
+        } else {
+            alertUser(response.statusCode);
         }
     }
-    
 } 
     
 

@@ -5,11 +5,7 @@ let notificationOpen = false;
 const getPrivateMessages = async (otherUsername) => {
   const currentUsername = localStorage.getItem("username");
   const data = await fetch(
-    url +
-      "/messages/private?username1=" +
-      currentUsername +
-      "&username2=" +
-      otherUsername,
+    url + "/messages/private?username1=" + currentUsername + "&username2=" + otherUsername,
     {
       method: "GET",
       headers: {
@@ -25,18 +21,17 @@ const getPrivateMessages = async (otherUsername) => {
 const sendMessage = async () => {
   const textInput = document.getElementById("textInput");
   const username = localStorage.getItem("username");
-  const inputbuf = textInput.value;
   if (textInput.value) {
-    textInput.value = "";
     const status = await getStatus(username);
     if (status) setStatusButtonUI(status);
     if (CHATROOM_USER) {
-        await sendPrivateMessage(CHATROOM_USER, status, inputbuf);
+        await sendPrivateMessage(CHATROOM_USER, status, textInput.value);
         showPrivateMessage(CHATROOM_USER);
     } else {
         sendPublicMessage(status, inputbuf);
     }
-    }
+    textInput.value = "";
+}
 };
 
 const sendPrivateMessage = async (receiverUsername, status, message) => {
@@ -63,14 +58,9 @@ const sendPublicMessage = async (status, message) => {
 const showPrivateMessage = async (otherUsername) => {
   document.getElementById("elect-form").style.display = "none";
   document.getElementById("wall").style.display = "flex";
-
-  const chatroomTypeTitleElement = document.getElementById(
-    "chatroom-type-title"
-  );
-
+  const chatroomTypeTitleElement = document.getElementById("chatroom-type-title");
   const msgs = await getPrivateMessages(otherUsername);
   const messageContainer = document.getElementById("messages");
-  console.log("msgs", msgs);
   messageContainer.innerHTML = "";
   chatroomTypeTitleElement.innerHTML = otherUsername + " Chatroom";
   if (!msgs.empty) {
@@ -83,23 +73,27 @@ const showPrivateMessage = async (otherUsername) => {
   CHATROOM_USER = otherUsername;
 };
 
-function getArchive() {
+const getPublicMessages = async () => {
+    const response = await fetch(url + "/messages/public", {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+      });
+    return response;
+}
+
+async function getArchive() {
   document.getElementById("elect-form").style.display = "none";
   document.getElementById("wall").style.display = "flex";
-  fetch(url + "/messages/public", {
-    method: "GET",
-    headers: {
-      "Content-type": "application/json; charset=UTF-8",
-    },
-  }).then(async (response) => {
-    data = await response.json();
+  const response = await getPublicMessages();
+  const data = await response.json();
     if (!data.empty) {
       for (let msg of data.archive) {
         let msgCard = createMsgCard(msg);
         messages.appendChild(msgCard);
       }
-    }
-  });
+    };
 }
 
 const createIconElement = (username, status) => {
@@ -110,33 +104,39 @@ const createIconElement = (username, status) => {
   return iconElement;
 };
 
-// Create usercard for 'users' ul
-function createUserCard(user) {
-  let title = document.createElement("h5");
-  title.className = "card-title";
-  title.textContent = user.username;
-  title.style.cursor = "pointer";
-  title.addEventListener("click", () => showPrivateMessage(user.username));
-  let listItem = document.createElement("li");
-  listItem.className = "list-group-item";
-  let cardBody = document.createElement("div");
-  cardBody.className = "card-body";
+const createUserBodyHeader = (user) =>{
+    let title = document.createElement("h5");
+    title.className = "card-title";
+    title.textContent = user.username;
+    title.style.cursor = "pointer";
+    title.addEventListener("click", () => showPrivateMessage(user.username));
   let cardHeader = document.createElement("div");
   cardHeader.className = "card-header";
   const iconElement = createIconElement(user.username , user.status);
   cardHeader.appendChild(title);
   cardHeader.appendChild(iconElement);
+  return cardHeader;
+}
 
+
+const  createUserCardBody = (user) => {
+  let cardBody = document.createElement("div");
+  cardBody.className = "card-body";
   let dot = document.createElement("span");
   dot.className = "dot";
   dot.classList.add(user.online ? "online" : "offline");
-
   let statusText = document.createTextNode(user.online ? "Online" : "Offline");
-
+  const cardHeader = createUserBodyHeader(user);
   cardBody.appendChild(cardHeader);
   cardBody.appendChild(dot);
   cardBody.appendChild(statusText);
+  return cardBody;
+}
 
+// Create usercard for 'users' ul
+function createUserCard(user) {
+  let listItem = document.createElement("li");
+  listItem.className = "list-group-item";
   listItem.appendChild(cardBody);
   return listItem;
 }
@@ -196,13 +196,8 @@ function createMsgCard(msg) {
 }
 
 const setIconClass = (status, iconElement) => {
-  iconElement.classList.remove("la-check-circle");
-  iconElement.classList.remove("la-exclamation-circle");
-  iconElement.classList.remove("la-plus-square");
-  iconElement.classList.remove("check-icon");
-  iconElement.classList.remove("danger-icon");
-  iconElement.classList.remove("plus-icon");
-
+  const classes = ["la-check-circle", "la-exclamation-circle", "la-plus-square", "check-icon", "danger-icon", "plus-icon"];
+  classes.forEach((className)=>{iconElement.classList.remove(className)});
   if (status === "ok") {
     iconElement.classList.add("la-check-circle");
     iconElement.classList.add("check-icon");
@@ -236,46 +231,30 @@ const registerSocket = async (username, socketId) => {
 
 const connectToSocket = async () => {
   const socket = await io(url);
-  socket.on("connect", async () => {
-    const username = localStorage.getItem("username");
-    await registerSocket(localStorage.getItem("username"), socket.id);
-  });
-  socket.on("chat message", (msg) => {
-    addMessages(msg);
-  });
-
-  socket.on("updateUserList", async () => {
-    await fetchInitialUserList();
-  });
-
-  socket.on("status-update", (data) => {
-    updateUserStatusIconEverywhere(data.status, data.username);
-  });
-
-  socket.on("private-message", (data) => {
-    console.log("private-message", data);
-    showMessageAlert(data, "primary");
-  });
+  socket.on("connect", async () => {registerSocket(localStorage.getItem("username"), socket.id);});
+  socket.on("chat message", (msg) => {addMessages(msg)});
+  socket.on("updateUserList", async () => {await fetchInitialUserList();});
+  socket.on("status-update", (data) => {updateUserStatusIconEverywhere(data.status, data.username);});
+  socket.on("private-message", (data) => {showMessageAlert(data, "primary");});
 };
 
-const closeAlertAndShowMessage = (message) => {
-  console.log("message", message, message._id);
+const showMessage = (message)=>{
+    const titleElement = document.getElementById("message-modal-title");
+    const statusElement = document.getElementById("message-modal-status");
+    const iconElement = createIconElement(message.username, message.status);
+    const timeStampElement = document.getElementById("message-modal-timestamp");
+    const contentElement = document.getElementById("message-modal-content");
+    titleElement.innerHTML = `New Message from ${message.username}`;
+    while (statusElement.firstChild) {
+        statusElement.removeChild(statusElement.firstChild);
+    }
+    statusElement.appendChild(iconElement);
+    timeStampElement.innerHTML = message.timestamp;
+    contentElement.innerHTML = message.content;
+}
+
+const closeAlert = (message) => {
   const alert = bootstrap.Alert.getOrCreateInstance("#" + message._id);
-  CHATROOM_USER = message.username;
-  const titleElement = document.getElementById("message-modal-title");
-  const statusElement = document.getElementById("message-modal-status");
-  const iconElement = createIconElement(message.username, message.status);
-  const timeStampElement = document.getElementById("message-modal-timestamp");
-  const contentElement = document.getElementById("message-modal-content");
-
-  titleElement.innerHTML = `New Message from ${message.username}`;
-  while (statusElement.firstChild) {
-    statusElement.removeChild(statusElement.firstChild);
-  }
-  statusElement.appendChild(iconElement);
-  timeStampElement.innerHTML = message.timestamp;
-  contentElement.innerHTML = message.content;
-
   alert.close();
   const alertContainer = document.getElementById("liveAlertPlaceholder");
   if (alertContainer.children.length == 0) {
@@ -307,7 +286,11 @@ const showMessageAlert = (message, type) => {
   const alertElement = createAlertHTMLElement(message, type);
   alertPlaceholder.append(alertElement);
   const button = document.getElementById(`button-${message._id}`);
-  button.addEventListener("click", () => closeAlertAndShowMessage(message));
+  button.addEventListener("click", () => {
+    closeAlert(message);
+    showMessage(message);
+    CHATROOM_USER = message.username;
+  });
   showNotificationDot();
 };
 
