@@ -1,6 +1,6 @@
 const url = "";
-
 let CHATROOM_USER = "";
+let notificationOpen = false;
 
 const getPrivateMessages = async (otherUsername) => {
   const currentUsername = localStorage.getItem("username");
@@ -23,60 +23,41 @@ const getPrivateMessages = async (otherUsername) => {
 };
 
 const sendMessage = async () => {
-  if (CHATROOM_USER) {
-    sendPrivateMessage(CHATROOM_USER);
-  } else {
-    sendPublicMessage();
-  }
-};
-
-const sendPrivateMessage = async (receiverUsername) => {
   const textInput = document.getElementById("textInput");
   const username = localStorage.getItem("username");
+  const inputbuf = textInput.value;
   if (textInput.value) {
-    const inputbuf = textInput.value;
     textInput.value = "";
     const status = await getStatus(username);
     if (status) setStatusButtonUI(status);
+    if (CHATROOM_USER) {
+        await sendPrivateMessage(CHATROOM_USER, status, inputbuf);
+        showPrivateMessage(CHATROOM_USER);
+    } else {
+        sendPublicMessage(status, inputbuf);
+    }
+    }
+};
+
+const sendPrivateMessage = async (receiverUsername, status, message) => {
     await fetch(url + "/messages/private", {
       method: "POST",
-      body: JSON.stringify({
-        username: username,
-        content: inputbuf,
-        status: status,
-        receiver: receiverUsername,
-      }),
+      body: JSON.stringify({username: localStorage.getItem("username"),content: message, status: status, receiver: receiverUsername}),
       headers: {
         "Content-type": "application/json; charset=UTF-8",
       },
     });
-
-    showPrivateMessage(receiverUsername);
-  }
 };
 
-const sendPublicMessage = async () => {
-  const textInput = document.getElementById("textInput");
-  const username = localStorage.getItem("username");
-  if (textInput.value) {
-    const inputbuf = textInput.value;
-    textInput.value = "";
-    const status = await getStatus(username);
-    if (status) setStatusButtonUI(status);
+
+const sendPublicMessage = async (status, message) => {
     await fetch(url + "/messages/public", {
       method: "POST",
-      body: JSON.stringify({
-        username: username,
-        content: inputbuf,
-        timestamp: new Date().toString(),
-        status: status,
-        receiver: "all", // to send messages to public wall
-      }),
+      body: JSON.stringify({username: username, content: message, timestamp: new Date().toString(), status: status, receiver: "all"}),
       headers: {
         "Content-type": "application/json; charset=UTF-8",
       },
     });
-  }
 };
 
 const showPrivateMessage = async (otherUsername) => {
@@ -125,16 +106,7 @@ const createIconElement = (username, status) => {
   const iconElement = document.createElement("i");
   iconElement.classList.add("las");
   iconElement.id = "user-status-icon-" + username;
-  if (status === "ok") {
-    iconElement.classList.add("la-check-circle");
-    iconElement.classList.add("check-icon");
-  } else if (status === "help") {
-    iconElement.classList.add("la-exclamation-circle");
-    iconElement.classList.add("danger-icon");
-  } else if (status === "emergency") {
-    iconElement.classList.add("la-plus-square");
-    iconElement.classList.add("plus-icon");
-  }
+  setIconClass(status, iconElement);
   return iconElement;
 };
 
@@ -458,10 +430,6 @@ window.onload = async () => {
     }
   } catch (err) {
     console.log("err", err);
-    // alert(
-    //   `Failed to load chatroom for user ${err?.message || "Unknown error."}`
-    // );
-    // window.location.href = "/";
   }
 };
 
@@ -473,10 +441,7 @@ function hideNotificationDot() {
   document.querySelector(".notification-dot").style.display = "none";
 }
 
-let notificationOpen = false;
-
 function handleAlertClick() {
-  // Your logic here
   const alertContainer = document.getElementById("liveAlertPlaceholder");
   if (!notificationOpen) {
     alertContainer.style.display = "block";

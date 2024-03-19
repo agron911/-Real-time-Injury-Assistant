@@ -72,30 +72,36 @@ const verifyUser = async (username, password) => {
     });
 }
 
+const alertUser = (statusCode) =>{
+    if (statusCode == 400){
+        alert(`Username exist. \nPlease re-enter a different username or input correct password.`);
+    } else if (statusCode == 401) {
+        alert(`Username must be at least 3 characters long.`);
+    } else if (statusCode == 402) {
+        alert(`Your password must be at least 4 characters long. \nPasswords are case sensitive!`);
+    } else if (statusCode == 403) {
+        alert(`Your username is prohibited. Try again.`);
+    } else {
+        alert(`Server experienced a problem`);
+    }
+} 
+
 const submitJoinForm = async ()=>{
     const usernameInput = document.getElementById('usernameInput');
     const passwordInput = document.getElementById('passwordInput');
     if (usernameInput && passwordInput) {
         try{
             const response = await verifyUser(usernameInput.value, passwordInput.value);
+            console.log(response);
             if (response.status == 201) {
                 document.getElementById("acknowlegementmodal").style.display="block";
             } else if (response.status == 205){
                 login(usernameInput.value, passwordInput.value)
-            } else if (response.status == 400){
-                alert(`Username exist. \nPlease re-enter a different username or input correct password.`);
-            } else if (response.status == 401) {
-                alert(`Username must be at least 3 characters long.`);
-            } else if (response.status == 402) {
-                alert(`Your password must be at least 4 characters long. \nPasswords are case sensitive!`);
-            } else if (response.status == 403) {
-                alert(`Your username is prohibited. Try again.`);
             } else {
-                alert(`Server experienced a problem`);
+                alertUser(response.statusCode);
             }
-            
         } catch (e) {
-            console.log("exception",e);
+            console.log("exception","das");
         }
     }
     
