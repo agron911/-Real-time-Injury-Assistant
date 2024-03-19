@@ -28,7 +28,7 @@ const sendMessage = async () => {
         await sendPrivateMessage(CHATROOM_USER, status, textInput.value);
         showPrivateMessage(CHATROOM_USER);
     } else {
-        sendPublicMessage(status, inputbuf);
+        sendPublicMessage(status, textInput.value);
     }
     textInput.value = "";
 }
@@ -48,7 +48,7 @@ const sendPrivateMessage = async (receiverUsername, status, message) => {
 const sendPublicMessage = async (status, message) => {
     await fetch(url + "/messages/public", {
       method: "POST",
-      body: JSON.stringify({username: username, content: message, timestamp: new Date().toString(), status: status, receiver: "all"}),
+      body: JSON.stringify({username: localStorage.getItem("username"), content: message, timestamp: new Date().toString(), status: status, receiver: "all"}),
       headers: {
         "Content-type": "application/json; charset=UTF-8",
       },
@@ -137,16 +137,17 @@ const  createUserCardBody = (user) => {
 function createUserCard(user) {
   let listItem = document.createElement("li");
   listItem.className = "list-group-item";
+  const cardBody = createUserCardBody(user);
   listItem.appendChild(cardBody);
   return listItem;
 }
 
-const createTimeStampElement = (timestamp)=> {
+const createTimeStampElement = (timestampDate)=> {
     let timestamp = document.createElement("p");
     timestamp.className = "card-text text-end";
     let time = document.createElement("small");
     time.className = "text-body-secondary";
-    time.textContent = timestamp;
+    time.textContent = timestampDate;
     timestamp.appendChild(time);
     return timestamp;
 } 
@@ -154,11 +155,10 @@ const createTimeStampElement = (timestamp)=> {
 const createTitleElement = (username)=> {
     let title = document.createElement("h5");
     title.className = "card-title fw-bold";
-    if (msg.username == localStorage.getItem("username")) {
-        card.className = "card ms-auto my-3 mx-3";
+    if (username == localStorage.getItem("username")) {
         title.textContent = "Me";
     } else {
-        title.textContent = msg.username;
+        title.textContent = username;
     }
     return title;
 }
@@ -182,17 +182,18 @@ const createMsgCardBody = (msg)=>{
 }
 
 function createMsgCard(msg) {
-  let listItem = document.createElement("li");
-  listItem.className = "list-group-item";
-
-  const cardBody = createMsgCardBody(msg);
-  let card = document.createElement("div");
-  card.className = "card mx-3 my-3";
-  card.style = "max-width: 36rem;";
-   
-  card.appendChild(cardBody);
-  listItem.appendChild(card);
-  return listItem;
+    let listItem = document.createElement("li");
+    listItem.className = "list-group-item";
+    const cardBody = createMsgCardBody(msg);
+    let card = document.createElement("div");
+    card.className = "card mx-3 my-3";
+    card.style = "max-width: 36rem;";
+    if (msg.username == localStorage.getItem("username")) {
+        card.className = "card ms-auto my-3 mx-3";
+    }
+    card.appendChild(cardBody);
+    listItem.appendChild(card);
+    return listItem;
 }
 
 const setIconClass = (status, iconElement) => {
@@ -273,7 +274,7 @@ const createAlertHTMLElement = (message, type)=>{
       `<div class ="alert-button-container">`,
       `<button type="button" id="button-${message._id}" aria-label="Close" data-bs-toggle="modal"  data-bs-target="#exampleModal" >`,
       `<i class="las la-eye">`,
-      `</i>`
+      `</i>`,
       `</button>`,
       `</div>`,
       "</div>",
