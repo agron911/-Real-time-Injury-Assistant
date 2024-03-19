@@ -120,37 +120,38 @@ function getArchive() {
     }
   });
 }
-// Create usercard for 'users' ul
-function createUserCard(user) {
-  let listItem = document.createElement("li");
-  listItem.className = "list-group-item";
 
-  let cardBody = document.createElement("div");
-  cardBody.className = "card-body";
-
-  let cardHeader = document.createElement("div");
-  cardHeader.className = "card-header";
-
+const createIconElement = (username, status) => {
   const iconElement = document.createElement("i");
   iconElement.classList.add("las");
-  iconElement.id = "user-status-icon-" + user.username;
-  if (user.status === "ok") {
+  iconElement.id = "user-status-icon-" + username;
+  if (status === "ok") {
     iconElement.classList.add("la-check-circle");
     iconElement.classList.add("check-icon");
-  } else if (user.status === "help") {
+  } else if (status === "help") {
     iconElement.classList.add("la-exclamation-circle");
     iconElement.classList.add("danger-icon");
-  } else if (user.status === "emergency") {
+  } else if (status === "emergency") {
     iconElement.classList.add("la-plus-square");
     iconElement.classList.add("plus-icon");
   }
+  return iconElement;
+};
 
+// Create usercard for 'users' ul
+function createUserCard(user) {
   let title = document.createElement("h5");
   title.className = "card-title";
   title.textContent = user.username;
   title.style.cursor = "pointer";
   title.addEventListener("click", () => showPrivateMessage(user.username));
-
+  let listItem = document.createElement("li");
+  listItem.className = "list-group-item";
+  let cardBody = document.createElement("div");
+  cardBody.className = "card-body";
+  let cardHeader = document.createElement("div");
+  cardHeader.className = "card-header";
+  const iconElement = createIconElement(user.username , user.status);
   cardHeader.appendChild(title);
   cardHeader.appendChild(iconElement);
 
@@ -182,20 +183,9 @@ function createMsgCard(msg) {
   let title = document.createElement("h5");
   title.className = "card-title fw-bold";
 
-  // let status = document.createElement("p");
-  // status.className = "card-text";
-
   const iconElement = document.createElement("i");
   iconElement.classList.add("las");
-
-  console.log("msg status", msg.status);
-
   setIconClass(msg.status, iconElement);
-
-  // let txt = document.createElement("small");
-  // txt.className = "text-body-secondary";
-  // txt.textContent = msg.status;
-  // status.appendChild(txt);
 
   if (msg.username == localStorage.getItem("username")) {
     card.className = "card ms-auto my-3 mx-3";
@@ -269,9 +259,6 @@ const connectToSocket = async () => {
     const username = localStorage.getItem("username");
     await registerSocket(localStorage.getItem("username"), socket.id);
   });
-  // socket.on("initMessages", (data) => {
-  //     initMessages(data);
-  // });
   socket.on("chat message", (msg) => {
     addMessages(msg);
   });
@@ -296,21 +283,7 @@ const closeAlertAndShowMessage = (message) => {
   CHATROOM_USER = message.username;
   const titleElement = document.getElementById("message-modal-title");
   const statusElement = document.getElementById("message-modal-status");
-
-  const iconElement = document.createElement("i");
-  iconElement.classList.add("las");
-  iconElement.id = "user-status-icon-" + message.username;
-  if (message.status === "ok") {
-    iconElement.classList.add("la-check-circle");
-    iconElement.classList.add("check-icon");
-  } else if (message.status === "help") {
-    iconElement.classList.add("la-exclamation-circle");
-    iconElement.classList.add("danger-icon");
-  } else if (message.status === "emergency") {
-    iconElement.classList.add("la-plus-square");
-    iconElement.classList.add("plus-icon");
-  }
-
+  const iconElement = createIconElement(message.username, message.status);
   const timeStampElement = document.getElementById("message-modal-timestamp");
   const contentElement = document.getElementById("message-modal-content");
 
@@ -319,7 +292,6 @@ const closeAlertAndShowMessage = (message) => {
     statusElement.removeChild(statusElement.firstChild);
   }
   statusElement.appendChild(iconElement);
-
   timeStampElement.innerHTML = message.timestamp;
   contentElement.innerHTML = message.content;
 
@@ -331,21 +303,24 @@ const closeAlertAndShowMessage = (message) => {
   }
 };
 
+const createAlertHTMLElement = (message, type)=>{
+    const wrapper = document.createElement("div");
+    wrapper.id = message._id;
+    wrapper.innerHTML = [
+      `<div class="alert alert-${type} alert-dismissible alert-fse" role="alert">`,
+      `   <div>${message.username}: ${message.content}</div>`,
+      `<div class ="alert-button-container">`,
+      `   <button type="button" id="button-${message._id}" aria-label="Close" data-bs-toggle="modal"  data-bs-target="#exampleModal" ><i class="las la-eye"></i></button>`,
+      `</div>`,
+      "</div>",
+    ].join("");
+    return wrapper;  
+}
+
 const showMessageAlert = (message, type) => {
   const alertPlaceholder = document.getElementById("liveAlertPlaceholder");
-  const wrapper = document.createElement("div");
-  wrapper.id = message._id;
-  console.log("showMessage", message);
-  wrapper.innerHTML = [
-    `<div class="alert alert-${type} alert-dismissible alert-fse" role="alert">`,
-    `   <div>${message.username}: ${message.content}</div>`,
-    `<div class ="alert-button-container">`,
-    `   <button type="button" id="button-${message._id}" aria-label="Close" data-bs-toggle="modal"  data-bs-target="#exampleModal" ><i class="las la-eye"></i></button>`,
-    `</div>`,
-    "</div>",
-  ].join("");
-
-  alertPlaceholder.append(wrapper);
+  const alertElement = createAlertHTMLElement(message, type);
+  alertPlaceholder.append(alertElement);
   const button = document.getElementById(`button-${message._id}`);
   button.addEventListener("click", () => closeAlertAndShowMessage(message));
   showNotificationDot();

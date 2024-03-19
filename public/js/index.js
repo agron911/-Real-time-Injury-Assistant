@@ -59,26 +59,27 @@ const login = async (username, password) => {
     }
 }
 
-function submitJoinForm(){
+const verifyUser = async (username, password) => {
+    return await fetch(url+"/users/verification", {
+        method: "POST",
+        body: JSON.stringify({
+            "username": username,
+            "password": password,
+        }),
+        headers: {
+            "Content-type": "application/json; charset=UTF-8"
+        }
+    });
+}
+
+const submitJoinForm = async ()=>{
     const usernameInput = document.getElementById('usernameInput');
     const passwordInput = document.getElementById('passwordInput');
-
     if (usernameInput && passwordInput) {
-        
-        fetch(url+"/users/verification", {
-            method: "POST",
-            body: JSON.stringify({
-                "username": usernameInput.value,
-                "password": passwordInput.value,
-            }),
-            headers: {
-                "Content-type": "application/json; charset=UTF-8"
-            }
-        })
-        .then((response) => {
+        try{
+            const response = await verifyUser(usernameInput.value, passwordInput.value);
             if (response.status == 201) {
-                document.getElementById("acknowlegementmodal").style.display="block"
-                //alert(`Success! Please login with your new username.`);
+                document.getElementById("acknowlegementmodal").style.display="block";
             } else if (response.status == 205){
                 login(usernameInput.value, passwordInput.value)
             } else if (response.status == 400){
@@ -92,10 +93,12 @@ function submitJoinForm(){
             } else {
                 alert(`Server experienced a problem`);
             }
-            //return response.json()
-        })
-        .catch(error => console.log(error))
+            
+        } catch (e) {
+            console.log("exception",e);
+        }
     }
+    
 } 
     
 
