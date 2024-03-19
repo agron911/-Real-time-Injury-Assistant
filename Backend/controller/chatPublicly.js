@@ -4,7 +4,10 @@ import { io } from "../utils/socketSetup.js";
 import DAO from "../model/dao.js"
 
 export const ChatroomView = (req, res) => {
-    res.render("chatroom");
+    const data = { 
+        title: "SA1 ESN Community", 
+    };
+    res.render("chatroom",{data});
 };
 
 export const receivePublicMessage = async(req, res)=>{
