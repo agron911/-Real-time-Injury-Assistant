@@ -5,12 +5,20 @@ import User from "../model/user-class.js";
 
 // Define the route handler functions
 
+ 
+
 export const HomeView = (req, res) => {
-    res.render("home");
+    const data = { 
+        title: "SA1 ESN Community", 
+    };
+    res.render("home", {data});
 };
 
 export const indexView = (req, res) => {
-    res.render("index");
+    const data = { 
+        title: "SA1 ESN", 
+    };
+    res.render("index", {data});
 };
  
 export async function loginRegister(user_data){

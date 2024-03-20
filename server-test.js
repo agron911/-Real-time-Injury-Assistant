@@ -27,9 +27,11 @@ const port = 3000;
 // app.use(cors())
 
 
-// // Setting up view engine
+// Setting up view engine
+
 // app.set('views', path.join(__dirname, 'Frontend', 'views'));
 app.set("view engine", "ejs")
+app.use(express.static('public'));
 
 // Body-Parser
 import body_parser from 'body-parser';
