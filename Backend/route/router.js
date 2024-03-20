@@ -5,6 +5,7 @@ import { ChatroomView, receivePublicMessage, loadPublicMessages } from '../contr
 import { receivePrivateMessage, loadUnreadMessages } from '../controller/chatPrivately.js';
 import { updateUserStatus, getStatus } from '../controller/shareStatus.js';
 import { loadPrivateMessages } from '../controller/chatPrivately.js';
+import { receiveAnnouncementMessage, loadAnnouncementMessages } from '../controller/postAnnouncement.js';
 const router = express.Router();
 
 router.get("/", HomeView);
@@ -17,6 +18,8 @@ router.get("/messages/public", loadPublicMessages);
 router.post("/messages/private", receivePrivateMessage);
 router.get("/messages/private", loadPrivateMessages);
 router.get("/messages/private/:username", loadUnreadMessages);
+router.get("/messages/announcement", loadAnnouncementMessages);
+router.post("/messages/announcement", receiveAnnouncementMessage);
 
 router.post("/users/verification", UserJoin);
 router.post("/users/", UserConfirmation);
