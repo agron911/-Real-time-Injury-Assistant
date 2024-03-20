@@ -1,5 +1,6 @@
 const url = "";
 let CHATROOM_USER = "";
+let ANNOUNCEMENT = false;
 let notificationOpen = false;
 
 const getPrivateMessages = async (otherUsername) => {
@@ -25,10 +26,13 @@ const sendMessage = async () => {
     const status = await getStatus(username);
     if (status) setStatusButtonUI(status);
     if (CHATROOM_USER) {
-        await sendPrivateMessage(CHATROOM_USER, status, textInput.value);
-        showPrivateMessage(CHATROOM_USER);
+      await sendPrivateMessage(CHATROOM_USER, status, textInput.value);
+      showPrivateMessage(CHATROOM_USER);
+    } else if (ANNOUNCEMENT){
+      // TODO: check for coordinator status
+      sendAnnouncementMessage(textInput.value);
     } else {
-        sendPublicMessage(status, textInput.value);
+      sendPublicMessage(status, textInput.value);
     }
     textInput.value = "";
 }
@@ -53,6 +57,16 @@ const sendPublicMessage = async (status, message) => {
         "Content-type": "application/json; charset=UTF-8",
       },
     });
+};
+
+const sendAnnouncementMessage = async (message) => {
+  await fetch(url + "/messages/announcement", {
+    method: "POST",
+    body: JSON.stringify({username: localStorage.getItem("username"), content: message, timestamp: new Date().toString(), status: "undefined", receiver: "announcement"}),
+    headers: {
+      "Content-type": "application/json; charset=UTF-8",
+    },
+  });
 };
 
 const showPrivateMessage = async (otherUsername) => {
@@ -81,6 +95,18 @@ const getPublicMessages = async () => {
         },
       });
     return response;
+}
+
+const getAnnouncement = async () => {
+  const response = await fetch(url + "/messages/announcement", {
+      method: "GET",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    });
+    const { archive } = await response.json();
+    console.log(archive);
+  return archive;
 }
 
 async function getArchive() {
@@ -345,6 +371,7 @@ const changeStatus = async (status) => {
 
 const logout = async () => {
   try {
+    window.location.replace("/");
     await fetch(url + "/auth/users", {
       method: "PATCH",
       body: JSON.stringify({
@@ -358,6 +385,25 @@ const logout = async () => {
     localStorage.setItem("token", null);
     localStorage.setItem("username", null);
   } catch (e) {}
+};
+
+
+const announcement = async () => {
+  ANNOUNCEMENT = true;
+  document.getElementById("elect-form").style.display = "none";
+  document.getElementById("wall").style.display = "flex";
+  const chatroomTypeTitleElement = document.getElementById("chatroom-type-title");
+  const msgs = await getAnnouncement();
+  const messageContainer = document.getElementById("messages");
+  messageContainer.innerHTML = "";
+  chatroomTypeTitleElement.innerHTML = "Announcement";
+  if (!msgs.empty) {
+    for (let msg of msgs) {
+      addMessages(msg);
+    }
+  }
+  const messageElement = document.getElementById("messages");
+  messageElement.scrollTo(0, messageElement.scrollHeight);
 };
 
 const fetchInitialUserList = async () => {
@@ -412,11 +458,11 @@ window.onload = async () => {
     if (username) {
       const toggleButton = document.getElementById("toggle-btn");
       await connectToSocket();
-      toggleButton.addEventListener("click", async (e) => {
-        e.preventDefault();
-        await logout();
-        window.location.replace("/");
-      });
+      // toggleButton.addEventListener("click", async (e) => {
+      //   e.preventDefault();
+      //   await logout();
+      //   window.location.replace("/");
+      // });
       const status = await getStatus(username);
       if (status) setStatusButtonUI(status);
       await getAlerts();
