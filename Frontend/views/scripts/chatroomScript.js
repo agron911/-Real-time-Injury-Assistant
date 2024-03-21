@@ -334,8 +334,8 @@ const closeAlertAndShowMessage = (message) => {
 
 const showMessageAlert = (message, type) => {
     const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
-    const wrapper = document.createElement('div');
-    wrapper.id  = message._id;
+    const wrapper = document.createElement('div');//change name to allert-object
+    wrapper.id  = message._id;//change to "message-${message._id}" for consistency 
     console.log("showMessage", message);
     wrapper.innerHTML = [
       `<div class="alert alert-${type} alert-dismissible alert-fse" role="alert">`,

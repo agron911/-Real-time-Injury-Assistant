@@ -5,6 +5,7 @@ import { ChatroomView, receivePublicMessage, loadPublicMessages } from '../contr
 import { receivePrivateMessage, loadUnreadMessages } from '../controller/chatPrivately.js';
 import { updateUserStatus, getStatus } from '../controller/shareStatus.js';
 import { loadPrivateMessages } from '../controller/chatPrivately.js';
+import  { searchByPublicMessage, searchByPrivateMessages, searchByAnnouncement, searchByStatus, searchByUsername } from '../controller/search_info.js';
 const router = express.Router();
 
 router.get("/", HomeView);
@@ -26,7 +27,11 @@ router.get("/user/status/:username", getStatus);
 
 router.patch("/auth/users", loginOrLogout);
 router.post("/sockets/users/:username", registerUserSocket);
-
+router.get("/messages/public/search/:content", searchByPublicMessage);
+router.get("/messages/private/search/:sender/:receiver/:content", searchByPrivateMessages);
+router.get("/users/username/search/:user", searchByUsername);
+router.get("/users/messages/announcement/search/:username", searchByAnnouncement);
+router.get("/users/status/search/:status", searchByStatus);
 
 
 export default router;
