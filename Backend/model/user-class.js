@@ -1,12 +1,13 @@
 import DAO from "./dao.js"
 
 class User {
-    constructor(username, password, status) {
+    constructor(username, password, status, usertype) {
         if (User.validate(username, password)) throw "Invalid username or password"
 
         this.username = username;
         this.status = status;
         this.password = password;
+        this.usertype = usertype;
     }
 
     static get dao() {
@@ -93,6 +94,17 @@ class User {
 
     static all() {
         return DAO.getInstance().getAllUsers();
+    }
+
+    static toSchemaObject() {
+        return {
+            username: this.username,
+            password: this.password,
+            status: this.status,
+            online: false, 
+            acknowledged: false, 
+            usertype: this.usertype
+        };
     }
 }
 

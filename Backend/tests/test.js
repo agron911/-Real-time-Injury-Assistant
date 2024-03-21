@@ -36,15 +36,15 @@ describe('Password Operations', () => {
     })
     test('Test existing user password match', async() => {
         const hashedpasssword = await hashPassword('1234')
-        const new_user = await DAO.getInstance().createUser('daniel', hashedpasssword, 'ok')
-        const passwordresult =  await comparePassword(new_user[0].password, '1234')
+        const new_user = await DAO.getInstance().createUser('daniel', hashedpasssword, 'ok', 'citizen')
+        const passwordresult =  await comparePassword(new_user.password, '1234')
         return User.retrieve('daniel').then((user) => {
             expect(passwordresult).toBe(true);
         })
     })
     test('Test existing user password mismatch', async() => {
         const hashedpasssword = await hashPassword('1234')
-        const new_user = await DAO.getInstance().createUser('daniel', hashedpasssword, 'ok')
+        const new_user = await DAO.getInstance().createUser('daniel', hashedpasssword, 'ok', 'citizen')
         const passwordresult =  await comparePassword(new_user.password, '12345')
         return User.retrieve('daniel').then((user) => {
             expect(passwordresult).toBe(false);

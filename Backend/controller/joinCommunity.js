@@ -30,7 +30,7 @@ export async function loginRegister(user_data){
             password: user_data.password
         };
         const hashed_password = await hashPassword(data.password);
-        const userdata = await DAO.getInstance().createUser(data.username, hashed_password, "undefined");
+        const userdata = await DAO.getInstance().createUser(data.username, hashed_password, "undefined", "Citizen");
         // res.status(202).send({ data });
         return data;
     } else {

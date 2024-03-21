@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import userCollection from "./user-schema.js"
 import messageCollection from "./message-schema.js";
+import UserFactory from './userFactory.js'; 
 
 class DAO {
 
@@ -69,9 +70,18 @@ class DAO {
         }
     }
 
-    createUser = async (username, hashed_password, status) => {
+    createUser = async (username, hashed_password, status, usertype) => {
         try {
-            const user = await userCollection.insertMany({ username: username, password: hashed_password, acknowledged: false, online: false, status: status });
+            // const user = await userCollection.insertMany({ username: username, password: hashed_password, acknowledged: false, online: false, status: status });
+            // return user;
+
+            const userObject = UserFactory.createUser(usertype, username, hashed_password, status);
+            console.log("!!!!!!!!!!!???", userObject);
+
+            // Assuming you have a method to convert the user object to a schema-compatible object
+            const userSchemaObject = userObject.toSchemaObject();
+            console.log("!!!!!!!!!!!!!!", userSchemaObject);
+            const user = await userCollection.create(userSchemaObject);
             return user;
         } catch (err) {
             throw new Error("Insert failed :", err);
@@ -122,7 +132,7 @@ class DAO {
     }
     updateUserStatus = async (username, status) => {
         try {
-            await userCollection.findOneAndUpdate({ username: username }, { status: status, statusChangeTimestamp: new Date().toString() }, );
+            await userCollection.findOneAndUpdate({ username: username }, { status: status, statusChangeTimestamp: new Date().toString() },);
             console.log(username, status);
         } catch (err) {
             throw new Error("Update user status error: ", err);
@@ -182,9 +192,9 @@ class DAO {
 
     getUnreadMessages = async (username) => {
         let msgs;
-        try{
+        try {
             msgs = await messageCollection.find({ receiver: username, viewed: false });
-        }catch(err){
+        } catch (err) {
             throw new Error("Get unread messages error: ", err);
         }
         for (const msg of msgs) {
