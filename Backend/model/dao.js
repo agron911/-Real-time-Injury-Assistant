@@ -74,13 +74,8 @@ class DAO {
         try {
             // const user = await userCollection.insertMany({ username: username, password: hashed_password, acknowledged: false, online: false, status: status });
             // return user;
-
             const userObject = UserFactory.createUser(usertype, username, hashed_password, status);
-            console.log("!!!!!!!!!!!???", userObject);
-
-            // Assuming you have a method to convert the user object to a schema-compatible object
             const userSchemaObject = userObject.toSchemaObject();
-            console.log("!!!!!!!!!!!!!!", userSchemaObject);
             const user = await userCollection.create(userSchemaObject);
             return user;
         } catch (err) {

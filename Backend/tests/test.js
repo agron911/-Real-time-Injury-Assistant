@@ -36,7 +36,7 @@ describe('Password Operations', () => {
     })
     test('Test existing user password match', async() => {
         const hashedpasssword = await hashPassword('1234')
-        const new_user = await DAO.getInstance().createUser('daniel', hashedpasssword, 'ok', 'citizen')
+        const new_user = await DAO.getInstance().createUser('daniel', hashedpasssword, 'ok', 'administrator')
         const passwordresult =  await comparePassword(new_user.password, '1234')
         return User.retrieve('daniel').then((user) => {
             expect(passwordresult).toBe(true);
@@ -75,7 +75,7 @@ describe('Username Operations', () => {
     })
 
     test('Case Sensitivity', async() => {
-        const user1  = await DAO.getInstance().createUser('daniel', await hashPassword('1234'), 'ok')
+        const user1  = await DAO.getInstance().createUser('daniel', await hashPassword('1234'), 'ok','citizen')
         const user = await DAO.getInstance().getUserByName('Daniel')
         console.log(user)
         let check = 0
@@ -86,7 +86,7 @@ describe('Username Operations', () => {
     });
 
     test('Create and retrieve user', async() => {
-        const user1  = await DAO.getInstance().createUser('daniel', await hashPassword('1234'), 'ok')
+        const user1  = await DAO.getInstance().createUser('daniel', await hashPassword('1234'), 'ok','citizen')
         const user = await DAO.getInstance().getUserByName('daniel')
         let check = 0
         if(user){
@@ -96,7 +96,7 @@ describe('Username Operations', () => {
     });
 
     test('New Username', async() =>{
-        await DAO.getInstance().createUser('daniel', await hashPassword('1234'), 'ok')
+        await DAO.getInstance().createUser('daniel', await hashPassword('1234'), 'ok', 'citizen')
         const new_user_atempt = await loginRegister({username:'daniel54', password:'1234'})
 
         expect(new_user_atempt).toBeDefined()
