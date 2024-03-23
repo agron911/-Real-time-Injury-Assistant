@@ -117,7 +117,7 @@ class DAO {
             throw new Error("Update user online error: ", err);
         }
     }
-    //comment
+
     updateUserOffline = async (username) => {
         try {
             const user = await userCollection.findOneAndUpdate({ username: username }, { online: false });
@@ -152,14 +152,11 @@ class DAO {
                 { new: true }
             );
             return updatedDocument;
-            //   return updatedDocument;
         } catch (err) {
             console.error(err);
             return null;
         }
     };
-
-
 
 
     getAllMessages = async (receiver) => {
