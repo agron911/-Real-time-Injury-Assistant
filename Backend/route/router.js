@@ -18,6 +18,8 @@ router.get("/messages/public", loadPublicMessages);
 router.post("/messages/private", receivePrivateMessage);
 router.get("/messages/private", loadPrivateMessages);
 router.get("/messages/private/:username", loadUnreadMessages);
+router.get("/messages/announcement", loadAnnouncementMessages);
+router.post("/messages/announcement", receiveAnnouncementMessage);
 
 router.post("/users/verification", UserJoin);
 router.post("/users/", UserConfirmation);
