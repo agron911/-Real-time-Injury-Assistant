@@ -1,0 +1,36 @@
+<!--header.ejs-->
+<header class="navbar navbar-expand-lg navbar-light navbar-parent">
+    <div class="container-fluid nav-bar-container">
+        <a class="navbar-brand" href="/chatroom">FSE Chat Room</a>
+        <div class="options-container">
+            <div class="dropdown dropdown-fse dropstart">
+                <button id="status-button" class="btn btn-secondary dropdown-toggle status-button" type="button"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    Status
+                </button>
+                <ul class="dropdown-menu">
+                    <li class="menu-item dropdown-item" onclick="changeStatus('ok')">
+                        <div class="" href="#">Ok</div>
+                        <i class="las la-check-circle check-icon"></i>
+                    </li>
+                    <li class="menu-item dropdown-item" onclick="changeStatus('help')">
+                        <div class="" href="#">Help</div>
+                        <i class="las la-exclamation-circle danger-icon"></i>
+                    </li>
+                    <li class="menu-item dropdown-item" onclick="changeStatus('emergency')">
+                        <div class="" href="#">Emergency</div>
+                        <i class="las la-plus-square plus-icon"></i>
+                    </li>
+                </ul>
+            </div>
+
+            <button class="btn btn-outline-primary my-2 my-sm-0" onclick="announcement()" id="toggle-btn">
+                Announcement
+            </button>
+
+            <button class="btn btn-outline-primary my-2 my-sm-0" onclick="login()" id="toggle-btn">
+                Logout
+            </button>
+        </div>
+    </div>
+</header>

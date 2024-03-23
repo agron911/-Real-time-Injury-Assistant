@@ -1,0 +1,7 @@
+component_depth: 1
+exclude:
+  - ".*/views/.*"
+  - "./*.json"
+  - "./*.md"
+languages:
+  - name: javascript

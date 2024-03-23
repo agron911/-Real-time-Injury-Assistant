@@ -22,14 +22,15 @@ const port = 3000;
 // Serving static files in view
 const __filename = fileURLToPath(new URL(import.meta.url));
 const __dirname = dirname(__filename);
-app.use(express.static(path.join(__dirname, 'Frontend', 'views')));
+// app.use(express.static(path.join(__dirname, 'Frontend', 'views')));
 
-app.use(cors())
+app.use(cors());
 
 
 // Setting up view engine
-app.set('views', path.join(__dirname, 'Frontend', 'views'));
-app.set("view engine", "ejs")
+// app.set('views', path.join(__dirname, 'Frontend', 'views'));
+app.set("view engine", "ejs");
+app.use(express.static('public'));
 
 // Body-Parser
 import body_parser from 'body-parser';

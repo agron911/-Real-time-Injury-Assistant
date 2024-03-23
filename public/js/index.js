@@ -2,10 +2,6 @@
 
 //const { response } = require("express");
 
-const usernameInput = document.getElementById('usernameInput');
-const passwordInput = document.getElementById('passwordInput');
-const userHelpBlock = document.getElementById('userHelpBlock');
-const passwordHelpBlock = document.getElementById('passwordHelpBlock');
 
 const url = ""
 
@@ -31,8 +27,6 @@ function saveUser(){
         const {data} = await response.json();
         localStorage.setItem("username", data.username);
         document.getElementById("acknowlegementmodal").style.display="none";
-        
-        //Display acknowlegement modal
         document.getElementById("acknowlegementmodal1").style.display="block";
     })
     .catch(error => console.log(error))
@@ -63,46 +57,51 @@ const login = async (username, password) => {
     }
 }
 
-function submitJoinForm(){
+const verifyUser = async (username, password) => {
+    return await fetch(url+"/users/verification", {
+        method: "POST",
+        body: JSON.stringify({
+            "username": username,
+            "password": password,
+        }),
+        headers: {
+            "Content-type": "application/json; charset=UTF-8"
+        }
+    });
+}
 
+const alertUser = (statusCode) =>{
+    if (statusCode == 400){
+        alert(`Username exist. \nPlease re-enter a different username or input correct password.`);
+    } else if (statusCode == 401) {
+        alert(`Username must be at least 3 characters long.`);
+    } else if (statusCode == 402) {
+        alert(`Your password must be at least 4 characters long. \nPasswords are case sensitive!`);
+    } else if (statusCode == 403) {
+        alert(`Your username is prohibited. Try again.`);
+    } else {
+        alert(`Server experienced a problem`);
+    }
+} 
+
+const submitJoinForm = async ()=>{
+    const usernameInput = document.getElementById('usernameInput');
+    const passwordInput = document.getElementById('passwordInput');
     if (usernameInput && passwordInput) {
-        fetch(url+"/users/verification", {
-            method: "POST",
-            body: JSON.stringify({
-                "username": usernameInput.value,
-                "password": passwordInput.value,
-            }),
-            headers: {
-                "Content-type": "application/json; charset=UTF-8"
-            }
-        })
-        .then((response) => {
-            if (response.status == 201) {
-                document.getElementById("acknowlegementmodal").style.display="block"
-                //alert(`Success! Please login with your new username.`);
-            } else if (response.status == 205){
-                login(usernameInput.value, passwordInput.value)
-            } else if (response.status == 400){
-                alert(`Username exist. \nPlease re-enter a different username or input correct password.`);
-            } else if (response.status == 401) {
-                alert(`Username must be at least 3 characters long.`);
-            } else if (response.status == 402) {
-                alert(`Your password must be at least 4 characters long. \nPasswords are case sensitive!`);
-            } else if (response.status == 403) {
-                alert(`Your username is prohibited. Try again.`);
-            } else {
-                alert(`Server experienced a problem`);
-            }
-            //return response.json()
-        })
-        .catch(error => console.log(error))
+        const response = await verifyUser(usernameInput.value, passwordInput.value);
+        if (response.status == 201) {
+            document.getElementById("acknowlegementmodal").style.display="block";
+        } else if (response.status == 205){
+            login(usernameInput.value, passwordInput.value)
+        } else {
+            alertUser(response.statusCode);
+        }
     }
 } 
     
 
 async function userAcknowledged(){
     try{
-        const username = localStorage.getItem("username");
         const response = await fetch(url + "/users/acknowledgement",{
             method: "POST",
             body: JSON.stringify({
@@ -114,7 +113,6 @@ async function userAcknowledged(){
         });
         if(response.status==200){
             window.location.replace('/chatroom');
-            console.log('closing modal');
             document.getElementById("acknowlegementmodal1").style.display="none"
             usernameInput.value = '';
             passwordInput.value = '';
