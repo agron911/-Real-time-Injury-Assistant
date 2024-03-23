@@ -7,6 +7,7 @@ import { updateUserStatus, getStatus } from '../controller/shareStatus.js';
 import { loadPrivateMessages } from '../controller/chatPrivately.js';
 import  { searchByPublicMessage, searchByPrivateMessages, searchByAnnouncement, searchByStatus, searchByUsername } from '../controller/search_info.js';
 import { suspendNormalOps } from '../controller/speedtest.js';
+import {loadAnnouncementMessages, receiveAnnouncementMessage} from '../controller/postAnnouncement.js'
 const router = express.Router();
 
 router.get("/", HomeView);
