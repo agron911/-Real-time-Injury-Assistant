@@ -6,6 +6,7 @@ import { receivePrivateMessage, loadUnreadMessages } from '../controller/chatPri
 import { updateUserStatus, getStatus } from '../controller/shareStatus.js';
 import { loadPrivateMessages } from '../controller/chatPrivately.js';
 import  { searchByPublicMessage, searchByPrivateMessages, searchByAnnouncement, searchByStatus, searchByUsername } from '../controller/search_info.js';
+import { suspendNormalOps } from '../controller/speedtest.js';
 const router = express.Router();
 
 router.get("/", HomeView);
@@ -34,6 +35,9 @@ router.get("/messages/private/search/:sender/:receiver/:content", searchByPrivat
 router.get("/users/username/search/:user", searchByUsername);
 router.get("/users/messages/announcement/search/:username", searchByAnnouncement);
 router.get("/users/status/search/:status", searchByStatus);
+
+
+router.post("/speedtest", suspendNormalOps)
 
 
 export default router;
