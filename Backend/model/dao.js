@@ -92,6 +92,50 @@ class DAO {
         }
     }
 
+    search_by_username = async (username) => {
+    try{
+        var result = await userCollection.find({ username: new RegExp(username)}).sort({ online: -1, username: 1 });
+        return result;
+    }catch(err){
+        throw new Error("Search did not find results with specified parameters:", err);
+        }
+    }
+
+    search_by_announcement = async ( announcement) => {
+        try{
+            var result = await messageCollection.find({receiver: "announcement", content:{$eq: new RegExp(announcement)}}).sort({timestamp:-1}).limit(10);
+            return result;
+        }catch(err){
+            throw new Error("Search did not find results with specified parameters:", err);
+        }
+    }
+
+    search_by_status = async (status)=>{
+        try{
+            var result = await userCollection.find({ status: status}).sort({ online: -1, username: 1 });
+            return result;
+        }catch(err){
+            throw new Error("Search did not find results with specified parameters:", err);
+        }
+    }
+
+    search_by_public_messages = async (message) => {
+        try{
+            var result = await messageCollection.find({ content: new RegExp(message), receiver: {$ne: "announcement"}}).sort({ timestamp: -1, username: 1 }).limit(10);
+            return result;
+        }catch(err){
+            throw new Error("Search did not find results with specified parameters:", err);
+        }
+    }
+
+    search_by_private_messages = async (message, sender, receiver)=>{
+        try{
+            var result = await messageCollection.find({content: new RegExp(message), receiver:{ $eq: receiver}, username: sender}).sort({ timestamp: -1}).limit(10)
+            return result
+        }catch(err){
+            throw new Error("Search did not find results with specified parameters:", err);
+        }
+    }
 
     getAllUsers = async () => {
         try {
