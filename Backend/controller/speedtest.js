@@ -1,8 +1,9 @@
-import { io } from "../utils/socketSetup.js";
-import { connect,} from './db-handler';
+// import { io } from "../utils/socketSetup.js";
+// import DAO from "../model/dao.js"
 
-export async function suspendNormalOps(req, res){
-    io.emit("suspendNormalOps");
-    await connect();
+export const suspendNormalOps = async (req, res)=>{
+    /*conect test db*/
+    // io.emit("suspendNormalOps");
+    
 
 }
