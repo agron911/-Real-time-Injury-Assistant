@@ -139,7 +139,7 @@ class DAO {
             const msg = await messageCollection.insertMany({ username: username, content: content, timestamp: timestamp, status: status, receiver: receiver, viewed: viewed });
             return msg;
         } catch (err) {
-            throw new Error("Create message error: ", err);
+            throw new Error('Create Message database failure');
         }
 
     }

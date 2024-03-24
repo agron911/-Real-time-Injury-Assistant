@@ -1,5 +1,4 @@
 import { connect, closeDatabase, clearDatabase } from './db-handler';
-import User from '../model/user-class';
 import { hashPassword, comparePassword } from "../utils/passwordUtils.js";
 import DAO from '../model/dao.js';
 import { loginRegister } from '../controller/joinCommunity.js';
@@ -77,21 +76,13 @@ describe('Username Operations', () => {
     test('Username is not case sensitive', async() => {
         await DAO.getInstance().createUser('daniel', await hashPassword('1234'), 'ok','citizen')
         const citizen = await DAO.getInstance().getUserByName('Daniel')
-        let check = 0
-        if(citizen){
-            check = 1
-        }
-        expect(check).toBe(1)
+        expect(citizen).not.toBeNull()
     });
 
     test('Successfully creates and retrieves a user', async() => {
         await DAO.getInstance().createUser('daniel2', await hashPassword('1234'), 'ok','citizen')
         const citizen = await DAO.getInstance().getUserByName('daniel2')
-        let check = 0
-        if(citizen){
-            check = 1
-        }
-        expect(check).toBe(1)
+        expect(citizen).not.toBeNull()
     });
 
 })
@@ -137,24 +128,26 @@ describe('Update information', () => {
 describe("Message Operations", () => {
     test("Create a public message", async () => {
         let citizen = 'agron'
-        await DAO.getInstance().createMessage(citizen, 'hello', new Date().toString(), 'ok', 'all', false)
-        let message = await DAO.getInstance().getAllMessages(citizen)
-        let check = 0
-        if(message){
-            check = 1
-        }
-        expect(check).toBe(1)
+        let date_now = new Date().toString()
+        let content = 'test public'
+        let status = 'ok'
+        let receiver = 'all'
+        await DAO.getInstance().createMessage(citizen, content , date_now, status, receiver, false)
+        let message = await DAO.getInstance().getAllMessages("all")
+        let msg = message.filter(msg => msg.username === citizen && msg.timestamp === date_now)
+        expect(msg[0].content).toBe(content)
+
     })
 
     test("Create a private message", async () => {
         let citizen = 'agron123'
-        let citizen2 = 'daniel'
-        await DAO.getInstance().createMessage(citizen, 'hello', new Date().toString(), 'ok', citizen2, false)
-        let message = await DAO.getInstance().getAllPrivateMessages(citizen, citizen2)
-        let check = 0
-        if(message){
-            check = 1
-        }
-        expect(check).toBe(1)
+        let date_now = new Date().toString()
+        let content = 'test public'
+        let status = 'ok'
+        let receiver = 'daniel'
+        await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
+        let message = await DAO.getInstance().getAllPrivateMessages(citizen, receiver)
+        let msg = message.filter(msg => msg.username === citizen && msg.timestamp === date_now)
+        expect(msg[0].content).toBe(content)
     })
 });
