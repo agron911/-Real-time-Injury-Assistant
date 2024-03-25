@@ -89,7 +89,7 @@ const submitJoinForm = async ()=>{
     const passwordInput = document.getElementById('passwordInput');
     if (usernameInput && passwordInput) {
         const response = await verifyUser(usernameInput.value, passwordInput.value);
-        if (response.status == 201) {
+        if (response.status == 205) {
             document.getElementById("acknowlegementmodal").style.display="block";
         } else if (response.status == 205){
             login(usernameInput.value, passwordInput.value)

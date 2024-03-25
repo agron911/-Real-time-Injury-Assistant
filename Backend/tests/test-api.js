@@ -95,7 +95,7 @@ describe("Test Join Community API", () => {
         await request(httpServer).post("/users").send(data4);
         const response6 = await request(httpServer).post("/users/verification").send(data4);
 
-        expect(response6.statusCode).toBe(202);
+        expect(response6.statusCode).toBe(205);
         expect(response6.body.message).toBe('Join successful');
         const data7 = {
             username: 'agron3',
@@ -151,12 +151,20 @@ describe('Test Chat Public API', () => {
         expect(response.statusCode).toBe(200);
         expect(response.body.message).toBe('message received');
 
+
+        const data2 = {
+            username: 'agron',
+            content: 'hello',
+            timestamp: '100',
+            status: 'ok',
+            
+        }
+        const response2 = await request(httpServer).post("/messages/public").send(data2);
+        expect(response2.statusCode).toBe(400);
+        expect(response2.body.error).toBe('Create Message database failure');
         // TODO: test error, it works sometimes
         
-        // jest.spyOn(DAO.getInstance(), 'createMessage').mockImplementation(() => { throw new Error('Create Message database failure') });
-        // const response2 = await request(httpServer).post("/messages/public").send(data);
-        // expect(response2.statusCode).toBe(400);
-        // expect(response2.body.error).toBe('Create Message database failure');
+
 
     })
     test('/Get all public messages', async () => {
