@@ -5,16 +5,6 @@ class Coordinator extends User {
         super(username, password, status, "Coordinator");
     }
     
-    toSchemaObject() {
-        return {
-            username: this.username,
-            password: this.password,
-            status: this.status,
-            online: false, 
-            acknowledged: false, 
-            usertype: this.usertype 
-        };
-    }
 }
 
 export default Coordinator;

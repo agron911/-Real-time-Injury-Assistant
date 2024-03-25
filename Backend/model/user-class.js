@@ -96,7 +96,7 @@ class User {
         return DAO.getInstance().getAllUsers();
     }
 
-    static toSchemaObject() {
+    toSchemaObject() {
         return {
             username: this.username,
             password: this.password,
