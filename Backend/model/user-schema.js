@@ -24,7 +24,12 @@ const UserSchema = new mongoose.Schema({
     statusChangeTimestamp: {
         type: String, 
         required: false,
-    }
+    },
+    usertype: {
+        type: String,
+        required: true,
+        enum: ['Citizen', 'Administrator', 'Coordinator'],
+    },
 
 })
 
