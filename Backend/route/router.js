@@ -39,6 +39,7 @@ router.get("/users/status/search/:status", searchByStatus);
 
 
 router.post("/speedtest", suspendNormalOps)
+router.post("/speedtest/postlimit", handlePostRequestLimit);
 
 
 export default router;
