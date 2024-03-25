@@ -3,6 +3,5 @@ exclude:
   - ".*/views/.*"
   - "./*.json"
   - "./*.md"
-  - ".*/Backend/utils/user-config.js"
 languages:
   - name: javascript

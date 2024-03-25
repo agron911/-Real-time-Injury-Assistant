@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import userCollection from "./user-schema.js"
 import messageCollection from "./message-schema.js";
-import UserFactory from './userFactory.js'; 
 
 class DAO {
 
@@ -70,13 +69,9 @@ class DAO {
         }
     }
 
-    createUser = async (username, hashed_password, status, usertype) => {
+    createUser = async (username, hashed_password, status) => {
         try {
-            // const user = await userCollection.insertMany({ username: username, password: hashed_password, acknowledged: false, online: false, status: status });
-            // return user;
-            const userObject = UserFactory.createUser(usertype, username, hashed_password, status);
-            const userSchemaObject = userObject.toSchemaObject();
-            const user = await userCollection.create(userSchemaObject);
+            const user = await userCollection.insertMany({ username: username, password: hashed_password, acknowledged: false, online: false, status: status });
             return user;
         } catch (err) {
             throw new Error("Insert failed :", err);
@@ -161,7 +156,7 @@ class DAO {
             throw new Error("Update user online error: ", err);
         }
     }
-
+    //comment
     updateUserOffline = async (username) => {
         try {
             const user = await userCollection.findOneAndUpdate({ username: username }, { online: false });
@@ -171,7 +166,7 @@ class DAO {
     }
     updateUserStatus = async (username, status) => {
         try {
-            await userCollection.findOneAndUpdate({ username: username }, { status: status, statusChangeTimestamp: new Date().toString() },);
+            await userCollection.findOneAndUpdate({ username: username }, { status: status, statusChangeTimestamp: new Date().toString() }, );
             console.log(username, status);
         } catch (err) {
             throw new Error("Update user status error: ", err);
@@ -183,7 +178,7 @@ class DAO {
             const msg = await messageCollection.insertMany({ username: username, content: content, timestamp: timestamp, status: status, receiver: receiver, viewed: viewed });
             return msg;
         } catch (err) {
-            throw new Error('Create Message database failure');
+            throw new Error("Create message error: ", err);
         }
 
     }
@@ -196,11 +191,14 @@ class DAO {
                 { new: true }
             );
             return updatedDocument;
+            //   return updatedDocument;
         } catch (err) {
             console.error(err);
             return null;
         }
     };
+
+
 
 
     getAllMessages = async (receiver) => {
@@ -228,9 +226,9 @@ class DAO {
 
     getUnreadMessages = async (username) => {
         let msgs;
-        try {
+        try{
             msgs = await messageCollection.find({ receiver: username, viewed: false });
-        } catch (err) {
+        }catch(err){
             throw new Error("Get unread messages error: ", err);
         }
         for (const msg of msgs) {
