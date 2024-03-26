@@ -9,7 +9,7 @@
     "start-with-env": "cross-env NODE_ENV=production node server.js",
     "dev": "cross-env NODE_ENV=production nodemon server.js",
     "test": "cross-env NODE_ENV=test jest --runInBand .backend/tests/test.js",
-    "test-api": "cross-env NODE_ENV=test jest --runInBand .backend/tests/test-api.js",
+    "test-api": "cross-env NODE_ENV=test jest --runInBand .backend/tests/test-api.js ",
     "coverage": "jest --coverage"
 
   },

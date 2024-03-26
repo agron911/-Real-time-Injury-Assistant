@@ -79,7 +79,7 @@ export const UserJoin = async (req, res) => {
         const hashed_password = await hashPassword(data.password);
         const isPasswordCorrect = await comparePassword(userExists.password, data.password, hashed_password);
         if (isPasswordCorrect) {
-            res.status(205).send({message: "Join successful"});
+            res.status(206).send({message: "Join successful"});
         } else {
             res.status(400).send({message: "Password mismatch"});
         }

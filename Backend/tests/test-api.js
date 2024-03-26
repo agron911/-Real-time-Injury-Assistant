@@ -22,13 +22,11 @@ afterEach(async () => await clearDatabase());
  * Remove and close the db and server.
  */
 afterAll(async () => {
-    jest.restoreAllMocks();
-    await closeDatabase();
     await new Promise((resolve, reject) => {
+        console.log("Closing server");
         httpServer.close((err) => {
             if (err) {
                 console.error("Error closing the server:", err);
-
                 reject(err);
                 return;
             }
@@ -36,13 +34,10 @@ afterAll(async () => {
             resolve();
         });
     }).catch((err) => console.error("err in closing promis", err));
+    await closeDatabase();
 });
 
 
-// router.get("/community", indexView);
-// router.post("/users/", UserConfirmation);
-// router.post("/users/verification", UserJoin);
-// router.post("/users/acknowledgement", UserAcknowledgement);
 describe("Test Join Community API", () => {
     test("/Get community", async () => {
         const response = await request(httpServer).get("/community");
@@ -90,12 +85,13 @@ describe("Test Join Community API", () => {
         }
         const response4 = await request(httpServer).post("/users/verification").send(data4);
         expect(response4.statusCode).toBe(201);
+        console.log(response4.body);
         expect(response4.body.message).toBe('User does not exist');
 
         await request(httpServer).post("/users").send(data4);
         const response6 = await request(httpServer).post("/users/verification").send(data4);
 
-        expect(response6.statusCode).toBe(205);
+        expect(response6.statusCode).toBe(206);
         expect(response6.body.message).toBe('Join successful');
         const data7 = {
             username: 'agron3',
@@ -103,6 +99,7 @@ describe("Test Join Community API", () => {
         }
         const response7 = await request(httpServer).post("/users/verification").send(data7);
         expect(response7.statusCode).toBe(400);
+        console.log(response7.body);
         expect(response7.body.message).toBe('Password mismatch');
     })
 
@@ -215,7 +212,6 @@ describe('Test Share Status API', () => {
 describe('Test Chat privately API', () => {
 
     test("/Get all latest private messages", async () => {
-        // username, content, timestamp, status, receiver, viewe
         let user1 = 'agron';
         let user2 = 'Taige';
         await DAO.getInstance().createMessage(user1, "a send to T", "100", 'ok', user2, true)
