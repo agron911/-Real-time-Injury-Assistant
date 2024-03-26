@@ -11,7 +11,6 @@
     "test": "cross-env NODE_ENV=test jest --runInBand .backend/tests/test.js",
     "test-api": "cross-env NODE_ENV=test jest --runInBand .backend/tests/test-api.js",
     "coverage": "jest --coverage"
-
   },
   "author": "",
   "license": "ISC",
