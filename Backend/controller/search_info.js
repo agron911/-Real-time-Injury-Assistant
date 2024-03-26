@@ -29,6 +29,7 @@ export const searchByPublicMessage = async(req, res)=>{
         res.status(201).send({search_result:[]});
     } else {
         const result = await DAO.getInstance().search_by_public_messages(content);
+
         res.status(200).send({search_result:result});
     }
 }
@@ -42,7 +43,9 @@ export const searchByPrivateMessages = async(req, res)=>{
     } else {
         const result = await DAO.getInstance().search_by_private_messages(content, sender, receiver);
         res.status(200).send({search_result:result});
+
     }
+    
     
 }
 
@@ -54,6 +57,7 @@ export const searchByAnnouncement = async(req,res)=>{
         console.log(content);
         const result = await DAO.getInstance().search_by_announcement(content);
         console.log(result);
+
         res.status(200).send({search_result:result});
     }
 }
@@ -69,5 +73,6 @@ export const searchByStatus = async(req, res)=>{
     const status = req.params.status;
     const result = await DAO.getInstance().search_by_status(status);
     res.status(200).send({search_result:result}); 
+
 }
 
