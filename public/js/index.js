@@ -123,3 +123,24 @@ async function userAcknowledged(){
     }
 }
 
+window.onload = async () => {
+    try {
+      await checkIfTestOngoing();
+    } catch(error) {
+
+    }  
+}
+
+const checkIfTestOngoing = async () => {
+    const response = await fetch(url + "/speedTest",{
+      method: "GET",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    });
+    const responseData = await response.json();
+    console.log("responseData", responseData);
+    if(responseData) {
+      SUSPEND_NORMAL_OPERATION = true;
+    }
+}

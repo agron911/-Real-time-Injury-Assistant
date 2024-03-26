@@ -28,5 +28,6 @@ export async function closeDatabase() {
  */
 export async function clearDatabase() {
     const dao = DAO.getInstance();
+    if(DAO.type == "PROD") return;
     await dao.clearDB();
 }

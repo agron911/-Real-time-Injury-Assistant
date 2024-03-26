@@ -61,6 +61,7 @@ function sleep(duration){
 }
 
 async function run_test(interval, duration){
+    
     var post_duration;
     var limitflag;
     var post_start = Date.now();
@@ -120,6 +121,7 @@ const stopSpeedTest = async () => {
 };
 
 const showSpeedTestModal = () => {
+    if(SUSPEND_NORMAL_OPERATION) return;
     const speedTestModal = new bootstrap.Modal('#speedTestModal');
     // const modal = document.getElementById('speedTestModal');
     // console.log("modal: ",modal);

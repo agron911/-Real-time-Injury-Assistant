@@ -7,6 +7,7 @@ class DAO {
     #configured = false; // private
     _db; // this must implement all IDatabase operations    
     static instance;
+    static type;
 
     constructor() {
         if (DAO.instance != null) {
