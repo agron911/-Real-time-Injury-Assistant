@@ -458,26 +458,6 @@ const getAlerts = async () => {
   }
 };
 
-window.onload = async () => {
-  try {
-    const username = localStorage.getItem("username");
-    if (username) {
-      const toggleButton = document.getElementById("toggle-btn");
-      await connectToSocket();
-      // toggleButton.addEventListener("click", async (e) => {
-      //   e.preventDefault();
-      //   await logout();
-      //   window.location.replace("/");
-      // });
-      const status = await getStatus(username);
-      if (status) setStatusButtonUI(status);
-      await getAlerts();
-    }
-  } catch (err) {
-    console.log("err", err);
-  }
-};
-
 function showNotificationDot() {
   document.querySelector(".notification-dot").style.display = "block";
 }
@@ -683,3 +663,23 @@ function searchMessages() {
     }
   }
 }
+
+window.onload = async () => {
+  try {
+    const username = localStorage.getItem("username");
+    if (username) {
+      const toggleButton = document.getElementById("toggle-btn");
+      await connectToSocket();
+      // toggleButton.addEventListener("click", async (e) => {
+      //   e.preventDefault();
+      //   await logout();
+      //   window.location.replace("/");
+      // });
+      const status = await getStatus(username);
+      if (status) setStatusButtonUI(status);
+      await getAlerts();
+    }
+  } catch (err) {
+    console.log("err", err);
+  }
+};
