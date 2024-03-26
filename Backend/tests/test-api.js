@@ -1,5 +1,6 @@
 import { connect, closeDatabase, clearDatabase } from './db-handler';
-import httpServer from '../../server-test.js'
+// import httpServer from '../../server-test.js'
+import Server from '../../server.js';
 import request from 'supertest';
 import DAO from '../model/dao.js';
 import { hashPassword, comparePassword } from "../utils/passwordUtils.js";
@@ -10,6 +11,8 @@ import { hashPassword, comparePassword } from "../utils/passwordUtils.js";
  */
 beforeAll(async () => {
     await connect();
+    console.log("here");
+    Server.createAndRun(true);
 });
 
 /**
@@ -23,7 +26,7 @@ afterEach(async () => await clearDatabase());
 afterAll(async () => {
     await closeDatabase();
     await new Promise((resolve, reject) => {
-        httpServer.close((err) => {
+        Server.instance.httpServer.close((err) => {
             if (err) {
                 reject(err);
                 return;
@@ -38,7 +41,7 @@ describe('Testing Share Status API', () => {
 
     test("/Get user status", async () => {
         await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok')
-        const response = await request(httpServer).get("/user/status/agron");
+        const response = await request(Server.instance.httpServer).get("/user/status/agron");
         expect(response.statusCode).toBe(200);
         expect(response.body.status).toBe('ok');
     });
@@ -46,7 +49,7 @@ describe('Testing Share Status API', () => {
 
     test('/Update user status', async () => {
         await DAO.getInstance().createUser('agron1', await hashPassword('1234'), 'ok')
-        const response = (await request(httpServer).put('/user/status/agron1').send({ status: 'help' }));
+        const response = (await request(Server.instance.httpServer).put('/user/status/agron1').send({ status: 'help' }));
         const user_status = await DAO.getInstance().getUserByName('agron1');
         expect(response.statusCode).toBe(200);
         expect(user_status.status).toBe('help');
@@ -64,7 +67,7 @@ describe('Testing Chat pribately API', () => {
         let user2 = 'Taige';
         await DAO.getInstance().createMessage(user1, "a send to T", "100", 'ok', user2, true)
         await DAO.getInstance().createMessage(user2, "T send to a", "100", 'ok', user1, true)
-        const response = (await request(httpServer).get("/messages/private?username1=" + user1 + "&username2=" + user2));
+        const response = (await request(Server.instance.httpServer).get("/messages/private?username1=" + user1 + "&username2=" + user2));
         expect(response.statusCode).toBe(200);
         expect(response.body.archive[0].content).toContain('a send to T');
         expect(response.body.archive[1].content).toContain('T send to a');
@@ -77,7 +80,7 @@ describe('Testing Chat pribately API', () => {
         let user3 = 'Kaushik';
         await DAO.getInstance().createMessage(user1, "a send to T", "100", 'ok', user2, false)
         await DAO.getInstance().createMessage(user3, "k send to T", "100", 'ok', user2, false)
-        const response = (await request(httpServer).get('/messages/private/' + user2));
+        const response = (await request(Server.instance.httpServer).get('/messages/private/' + user2));
         expect(response.statusCode).toBe(200);
         expect(response.body.archive[0].content).toBe('a send to T');
         expect(response.body.archive[1].content).toBe('k send to T');
@@ -87,7 +90,7 @@ describe('Testing Chat pribately API', () => {
         let user1 = 'agron';
         let user2 = 'Taige';
         const body = { username: user1, content: "a send to T", timestamp: "100", status: 'help', receiver: user2 }
-        const response = ((await request(httpServer).post('/messages/private/').send(body)));
+        const response = ((await request(Server.instance.httpServer).post('/messages/private/').send(body)));
         const user2_msg = await DAO.getInstance().getUnreadMessages(user2);
         console.log("????????????????", user2_msg);
         expect(response.statusCode).toBe(200);

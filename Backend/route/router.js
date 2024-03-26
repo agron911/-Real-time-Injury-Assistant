@@ -39,8 +39,8 @@ router.get("/users/messages/announcement/search/:username/:limit", searchByAnnou
 router.get("/users/status/search/:status", searchByStatus);
 
 
+router.get("/speedtest", isSpeedTestOngoing);
 router.post("/speedtest", startSpeedTest);
 router.post("/speedtest/done", stopSpeedTest);
-router.get("/speedtest", isSpeedTestOngoing);
 
 export default router;

@@ -42,7 +42,7 @@ app.use(express.urlencoded({ extended: true }));
 //passportjs-auth
 const options = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.JWT_SECRET,
+  secretOrKey: process.env.JWT_SECRET?process.env.JWT_SECRET:"test_secret",
 }
 passport.use(new Strategy(options, (jwt_payload, done) => {
   console.log('Authenticate invoked');
@@ -50,19 +50,7 @@ passport.use(new Strategy(options, (jwt_payload, done) => {
 app.use(passport.initialize());
 
 
-const environment = process.env.NODE_ENV ;
-
-
-
-// Socket io connection
-
-const io = setupSocket(httpServer);
-
 app.use(router)
-app.get('/just', (req, res) => {
-  io.emit('details');
-  res.send({})
-})
 httpServer.listen(port, function () {
   console.log(`Listening port... ${port}`);
 });
