@@ -23,8 +23,9 @@ function containsStopWords(word){
 
 export const searchByPublicMessage = async(req,res)=>{
     const content = req.params.content;
+    const limit = req.params.limit;
     if(!containsStopWords(content)){
-        const result = await DAO.getInstance().search_by_public_messages(content);
+        const result = await DAO.getInstance().search_by_public_messages(content, limit);
         res.status(200).send({search_result:result});
     }else{
         res.status(402).send();
@@ -33,28 +34,37 @@ export const searchByPublicMessage = async(req,res)=>{
 }
 
 export const searchByPrivateMessages = async(req,res)=>{
-    console.log(req.params)
+    //console.log(req.params)
     const content = req.params.content;
     const sender = req.params.sender;;
     const receiver = req.params.receiver;
-    if(!containsStopWords(content)){
-        const result = await DAO.getInstance().search_by_private_messages(content, sender, receiver);
-        res.status(200).send({search_result:result});
+    const limit = req.params.limit;
+    if(content == "status"){
+        const result = await DAO.getInstance().search_by_username(sender)
+        console.log(typeof result[0])
+        res.status(200).send(result[0])
     }else{
-        res.status(402).send({search_result:[]});
+        if(!containsStopWords(content)){
+            const result = await DAO.getInstance().search_by_private_messages(content, sender, receiver, limit);
+            res.status(200).send({search_result:result});
+        }else{
+            res.status(402).send({search_result:[]});
+        }
     }
+    
     
 }
 
 export const searchByUsername = async(req,res)=>{
-    const result = await DAO.getInstance().search_by_username(req.params.user);
+    const result = await DAO.getInstance().search_by_username(req.params.user, req.params.limit);
     console.log("usernamesearch");
     res.status(200).send({search_result:result});
 }
+
 export const searchByAnnouncement = async(req,res)=>{
     const content = req.params.content;
     if(!containsStopWords(content)){
-        const result = await DAO.getInstance().search_by_announcement(req.params.content);
+        const result = await DAO.getInstance().search_by_announcement(req.params.content, reqs.param.limit);
         res.status(200).send({search_result:result});
     }else{
         res.status(402).send();
@@ -65,13 +75,8 @@ export const searchByAnnouncement = async(req,res)=>{
 
 export const searchByStatus = async(req, res)=>{
     const status = req.params.status;
-    if(status == "status"){
-        res.status(200).snd({status_history})
-    }
-    else{
-        const result = await DAO.getInstance().search_by_status(status);
-        res.status(200).send({search_result:result});
-    }
+    const result = await DAO.getInstance().search_by_status(status);
+    res.status(200).send({search_result:result});
     
 }
 
