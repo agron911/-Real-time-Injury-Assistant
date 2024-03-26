@@ -1,4 +1,32 @@
 <div id="chatroom" class="users-card">
-    <div class="card-header text-center chatroom-type-title">Users</div>
+    <div id="users-title" class="card-header text-center chatroom-type-title" >Users</div>
+    <div id="users-search" class="card-body">
+        <div class="btn-group" style="margin-bottom: .5rem !important;">
+            <button id="users-search-button" class="btn btn-success btn-sm" type="button">
+              Username
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="visually-hidden">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" onclick="setContextUsername()">Username</a></li>
+                <li><a class="dropdown-item" href="#" onclick="setContextStatus()">Status</a></li>
+            </ul>
+        </div>
+        <form class="d-flex" role="search">
+            <input id="users-search-input" class="form-control me-2" type="search" placeholder="Search by Username" aria-label="Search" style="display: block;">
+            <div id="users-search-status" class="btn-group" style="display: none;">
+                <button id="users-search-status-button" type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Search by Status
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="#" onclick="setSearchStatusOK()">Status - OK</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="setSearchStatusHelp()">Status - Help</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="setSearchStatusEmergency()">Status - Emergency</a></li>
+                </ul>
+            </div>
+            <button class="btn btn-outline-success" type="button" onclick="searchUsers()"><i class="bi bi-search"></i></button>
+        </form>
+    </div>
     <ul id="users" class="list-group"></ul>
 </div>

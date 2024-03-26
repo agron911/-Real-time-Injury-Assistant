@@ -16,6 +16,26 @@ header, #messageForm {
     height: 80%;
 }
 
+#users-title {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-weight: bold;
+}
+
+#users-search {
+    padding: 10px;
+}
+
+#users-search-status {
+    margin-right: .5rem !important;
+}
+
+#chatroom-title {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-weight: bold;
+}
+
 .message {
     border: 1px solid #ddd;
 }
@@ -193,8 +213,8 @@ header, #messageForm {
 }
 
 .chatroom-type-title {
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
+    padding-top: 10px;
+    padding-bottom: 10px;
     background-color: aqua;
     justify-content: center;
 }
