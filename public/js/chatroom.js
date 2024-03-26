@@ -2,6 +2,9 @@ const url = "";
 let CHATROOM_USER = "";
 let ANNOUNCEMENT = false;
 let notificationOpen = false;
+let USERS_SEARCH_CONTEXT = "username";
+let USERS_SEARCH_STATUS = "";
+let MESSAGE_RECEIVER = "";
 
 const getPrivateMessages = async (otherUsername) => {
   const currentUsername = localStorage.getItem("username");
@@ -70,9 +73,10 @@ const sendAnnouncementMessage = async (message) => {
 };
 
 const showPrivateMessage = async (otherUsername) => {
+  setSearchPrivate(otherUsername);
   document.getElementById("elect-form").style.display = "none";
   document.getElementById("wall").style.display = "flex";
-  const chatroomTypeTitleElement = document.getElementById("chatroom-type-title");
+  const chatroomTypeTitleElement = document.getElementById("chatroom-title");
   const msgs = await getPrivateMessages(otherUsername);
   const messageContainer = document.getElementById("messages");
   messageContainer.innerHTML = "";
@@ -110,6 +114,7 @@ const getAnnouncement = async () => {
 }
 
 async function getArchive() {
+  setSearchPublic();
   document.getElementById("elect-form").style.display = "none";
   document.getElementById("wall").style.display = "flex";
   const response = await getPublicMessages();
@@ -390,9 +395,10 @@ const logout = async () => {
 
 const announcement = async () => {
   ANNOUNCEMENT = true;
+  setSearchAnnouncement();
   document.getElementById("elect-form").style.display = "none";
   document.getElementById("wall").style.display = "flex";
-  const chatroomTypeTitleElement = document.getElementById("chatroom-type-title");
+  const chatroomTypeTitleElement = document.getElementById("chatroom-title");
   const msgs = await getAnnouncement();
   const messageContainer = document.getElementById("messages");
   messageContainer.innerHTML = "";
@@ -452,26 +458,6 @@ const getAlerts = async () => {
   }
 };
 
-window.onload = async () => {
-  try {
-    const username = localStorage.getItem("username");
-    if (username) {
-      const toggleButton = document.getElementById("toggle-btn");
-      await connectToSocket();
-      // toggleButton.addEventListener("click", async (e) => {
-      //   e.preventDefault();
-      //   await logout();
-      //   window.location.replace("/");
-      // });
-      const status = await getStatus(username);
-      if (status) setStatusButtonUI(status);
-      await getAlerts();
-    }
-  } catch (err) {
-    console.log("err", err);
-  }
-};
-
 function showNotificationDot() {
   document.querySelector(".notification-dot").style.display = "block";
 }
@@ -492,3 +478,209 @@ function handleAlertClick() {
   }
   notificationOpen = !notificationOpen;
 }
+
+function setContextUsername() {
+  USERS_SEARCH_CONTEXT = "username";
+  USERS_SEARCH_STATUS = "";
+  document.getElementById("users-search-input").style.display = "block";
+  document.getElementById("users-search-status").style.display = "none";
+  document.getElementById("users-search-button").textContent = "Username";
+}
+
+function setContextStatus() {
+  USERS_SEARCH_CONTEXT = "status";
+  document.getElementById("users-search-input").style.display = "none";
+  document.getElementById("users-search-status").style.display = "block";
+  document.getElementById("users-search-button").textContent = "Status";
+}
+
+function setSearchStatusOK() {
+  USERS_SEARCH_STATUS = "ok";
+  const button = document.getElementById("users-search-status-button");
+  button.textContent = "Status - OK";
+  button.classList.remove("btn-primary");
+  button.classList.remove("btn-warning");
+  button.classList.remove("btn-danger");
+  button.classList.add("btn-success");
+}
+
+function setSearchStatusHelp() {
+  USERS_SEARCH_STATUS = "help";
+  const button = document.getElementById("users-search-status-button");
+  button.textContent = "Status - Help";
+  button.classList.remove("btn-primary");
+  button.classList.remove("btn-success");
+  button.classList.remove("btn-danger");
+  button.classList.add("btn-warning");
+}
+
+function setSearchStatusEmergency() {
+  USERS_SEARCH_STATUS = "emergency";
+  const button = document.getElementById("users-search-status-button");
+  button.textContent = "Status - Emergency";
+  button.classList.remove("btn-primary");
+  button.classList.remove("btn-success");
+  button.classList.remove("btn-warning");
+  button.classList.add("btn-danger");
+}
+
+const searchByUsername = async (searchValue) => {
+  console.log(`searching by username: ${searchValue}`);
+  try {
+    const response = await fetch(url + "/users/username/search/" + searchValue, {
+      method: "GET",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    });
+    const { search_result } = await response.json();
+    const data = {users: search_result};
+    console.log("search result", data);
+    displayUsers(data);
+  } catch (e) {
+    console.log("Database retrieval error", e);
+  }
+}
+
+const searchByStatus = async () => {
+  console.log(`searching by status: ${USERS_SEARCH_STATUS}`);
+  try {
+    const response = await fetch(url + "/users/status/search/" + USERS_SEARCH_STATUS, {
+      method: "GET",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    });
+    const { search_result } = await response.json();
+    const data = {users: search_result};
+    console.log("search result", data);
+    displayUsers(data);
+  } catch (e) {
+    console.log("Database retrieval error", e);
+  }
+}
+
+function searchUsers() {
+  const searchInput = document.getElementById("users-search-input");
+  if (USERS_SEARCH_CONTEXT === "username") {
+    if (searchInput.value) {
+      searchByUsername(searchInput.value);
+    }
+  } else {
+    searchByStatus();
+  }
+}
+
+function setSearchPublic() {
+  MESSAGE_RECEIVER = "all";
+  document.getElementById("messages-search-input").placeholder = "Search Public Messages";
+} 
+
+function setSearchAnnouncement() {
+  MESSAGE_RECEIVER = "announcement";
+  document.getElementById("messages-search-input").placeholder = "Search Announcement Messages";
+}
+
+function setSearchPrivate(receiver) {
+  MESSAGE_RECEIVER = receiver;
+  document.getElementById("messages-search-input").placeholder = "Search Private Messages";
+}
+
+const searchPublicMessages = async (searchValue) => {
+  console.log(`searching by public message: ${searchValue}`);
+  try {
+    const response = await fetch(url + "/messages/public/search/" + searchValue, {
+      method: "GET",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    });
+    const { search_result } = await response.json();
+    const messages = document.getElementById("messages");
+    messages.innerHTML = "";
+    for (let msg of search_result) {
+      let msgCard = createMsgCard(msg);
+      messages.appendChild(msgCard);
+    }
+  } catch (e) {
+    console.log("Database retrieval error", e);
+  }
+}
+
+const searchAnnouncementMessages = async (searchValue) => {
+  console.log(`searching by announcement message: ${searchValue}`);
+  try {
+    const response = await fetch(url + "/messages/announcement/search/" + searchValue, {
+      method: "GET",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    });
+    const { search_result } = await response.json();
+    const messages = document.getElementById("messages");
+    messages.innerHTML = "";
+    for (let msg of search_result) {
+      let msgCard = createMsgCard(msg);
+      messages.appendChild(msgCard);
+    }
+  } catch (e) {
+    console.log("Database retrieval error", e);
+  }
+}
+
+const searchPrivateMessages = async (searchValue) => {
+  console.log(`searching by private message: ${searchValue}`);
+  try {
+    const response = await fetch(url + "/messages/private/search/" + localStorage.getItem("username") + "/" + MESSAGE_RECEIVER + "/" + searchValue, {
+      method: "GET",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    });
+    const { search_result } = await response.json();
+    const messages = document.getElementById("messages");
+    messages.innerHTML = "";
+    for (let msg of search_result) {
+      let msgCard = createMsgCard(msg);
+      messages.appendChild(msgCard);
+    }
+  } catch (e) {
+    console.log("Database retrieval error", e);
+  }
+}
+
+
+function searchMessages() {
+  const searchInput = document.getElementById("messages-search-input");
+  const searchValue = searchInput.value;
+  if (searchInput.value) {
+    
+    if (MESSAGE_RECEIVER === "all") {
+      searchPublicMessages(searchValue);
+    } else if (MESSAGE_RECEIVER === "announcement") {
+      searchAnnouncementMessages(searchValue);
+    } else {
+      searchPrivateMessages(searchValue);
+    }
+  }
+}
+
+window.onload = async () => {
+  try {
+    const username = localStorage.getItem("username");
+    if (username) {
+      const toggleButton = document.getElementById("toggle-btn");
+      await connectToSocket();
+      // toggleButton.addEventListener("click", async (e) => {
+      //   e.preventDefault();
+      //   await logout();
+      //   window.location.replace("/");
+      // });
+      const status = await getStatus(username);
+      if (status) setStatusButtonUI(status);
+      await getAlerts();
+    }
+  } catch (err) {
+    console.log("err", err);
+  }
+};

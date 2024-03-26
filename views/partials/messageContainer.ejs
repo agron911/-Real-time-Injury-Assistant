@@ -1,11 +1,15 @@
 <div id="chatroom" class="chatroom-card">
-    <div class="card-header text-center chatroom-type-title" id="chatroom-type-title">Public Chatroom</div>
+    <div class="card-header text-center chatroom-type-title" id="chatroom-title">Public Chatroom</div>
     <div id="elect-form" class="card-body text-center">
       <h5 class="card-title">Post on Public wall</h5>
       <p class="card-text">Click to elect to chat publicly</p>
       <a class="btn btn-primary" onclick="getArchive()">Elect</a>
     </div>
     <div id="wall" style="display: none" class="wall">
+      <form class="d-flex">
+        <input id="messages-search-input" class="form-control me-2" placeholder="Search Public Messages" style="display: block;">
+        <button class="btn btn-outline-success" type="button" onclick="searchMessages()"><i class="bi bi-search"></i></button>
+      </form>
       <ul id="messages" class="list-unstyled message-container"></ul>
       <form id="messageForm" class="bg-light p-3">
         <div class="input-group">
