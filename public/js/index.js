@@ -1,9 +1,6 @@
-// const socket = io();
-
-//const { response } = require("express");
-
 
 const url = ""
+let SUSPEND_NORMAL_OPERATION = false;
 
 function cancelUser(){
     usernameInput.value = '';
@@ -13,6 +10,7 @@ function cancelUser(){
 }
 
 function saveUser(){
+    if(SUSPEND_NORMAL_OPERATION) return
     fetch(url+"/users",{
         method:"POST",
         body: JSON.stringify({
@@ -33,6 +31,7 @@ function saveUser(){
 }
 
 const login = async (username, password) => {
+    if(SUSPEND_NORMAL_OPERATION) return
     try {    
         const response = await fetch(url+"/auth/users",{
             method:"PATCH",
@@ -58,6 +57,7 @@ const login = async (username, password) => {
 }
 
 const verifyUser = async (username, password) => {
+    if(SUSPEND_NORMAL_OPERATION) return;
     return await fetch(url+"/users/verification", {
         method: "POST",
         body: JSON.stringify({
@@ -101,6 +101,7 @@ const submitJoinForm = async ()=>{
     
 
 async function userAcknowledged(){
+    if(SUSPEND_NORMAL_OPERATION) return
     try{
         const response = await fetch(url + "/users/acknowledgement",{
             method: "POST",

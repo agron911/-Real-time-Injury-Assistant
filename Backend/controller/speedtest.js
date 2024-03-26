@@ -1,12 +1,39 @@
 import { io } from "../utils/socketSetup.js";
-import { connect, clearDatabase} from '../tests/db-handler.js';
+import Server from "../../server.js";
+import { connect, closeDatabase, clearDatabase } from '../tests/db-handler.js';
+import DAO from "../model/dao.js";
+// let mongod;
 
-export async function suspendNormalOps(req, res){
-    io.emit("suspendNormalOps");
+export async function startSpeedTest(req, res){
+    const socketID = req.body.socketID;
+    Server.disableRoutes(socketID);
+    await DAO.getInstance().closeDB();
+    // mongod = new MongoMemoryServer();
     await connect();
-
+    await DAO.getInstance().createUser('test', 'wqe', 'ok');
+    res.status(200).send("success");
+    io.emit("suspendNormalOps", socketID);
 }
 
-export async function handlePostRequestLimit(req, resp){
+export async function stopSpeedTest(req, res){
+    await stopTest();
+    res.status(200).send("success");
+}
+
+export const stopTest = async()=>{
+    const dao = DAO.getInstance();
     await clearDatabase();
+    await closeDatabase();
+    const main_uri = process.env.PROD_MONGO_DB_URI;
+    await dao.setDB(main_uri);
+    Server.enableRoutes();
+    io.emit("enableNormalOperations");
 }
+
+export const isSpeedTestOngoing = async(req, res)=>{
+    if(Server.instance.testSocketID){
+        res.status(200).send(true);
+    } else {
+        res.status(201).send(false);
+    }
+};

@@ -1,0 +1,13 @@
+import Server from './server.js';
+import DAO from './Backend/model/dao.js';
+import { configDotenv } from 'dotenv';
+
+
+configDotenv();
+
+//attach Database
+const main_uri = process.env.PROD_MONGO_DB_URI;
+const dao = DAO.getInstance();
+await dao.setDB(main_uri);
+
+Server.createAndRun();

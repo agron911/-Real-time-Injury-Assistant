@@ -41,6 +41,7 @@ export const logout = async (req, res) => {
 
 export const registerUserSocket = async (req, res) => {
     const username = req.params.username;
+    
     const user = await DAO.getInstance().getUserByName(username);
     if (user) {
         await addActiveUser(username, req.body.socketId);

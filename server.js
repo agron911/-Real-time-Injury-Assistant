@@ -6,75 +6,81 @@ import { dirname } from 'path';
 import passport from 'passport';
 import { Strategy } from 'passport-jwt';
 import { ExtractJwt } from 'passport-jwt';
-import { configDotenv } from 'dotenv';
 import { setupSocket } from './Backend/utils/socketSetup.js';
 import router from './Backend/route/router.js';
 import DAO from './Backend/model/dao.js';
-
+import body_parser from 'body-parser';
 import cors from 'cors'
 
-configDotenv();
+class Server {
 
-const app = express();
-const httpServer = createServer(app);
-const port = 3000;
+  static instance;
 
-// Serving static files in view
-const __filename = fileURLToPath(new URL(import.meta.url));
-const __dirname = dirname(__filename);
-// app.use(express.static(path.join(__dirname, 'Frontend', 'views')));
+  constructor() {
 
-app.use(cors());
+    if(Server.instance!=null){
+      throw new TypeError("Attempted to create a second instance");
+    }
 
+    this.allowAllRoutes = true;
 
-// Setting up view engine
-// app.set('views', path.join(__dirname, 'Frontend', 'views'));
-app.set("view engine", "ejs");
-app.use(express.static('public'));
+    this.app = express();
+    const httpServer = createServer(this.app);
+    const port = 3000;
+    
+    this.app.use(cors());
+    // Setting up view engine
+    this.app.set("view engine", "ejs");
+    this.app.use(express.static('public'));
 
-// Body-Parser
-import body_parser from 'body-parser';
-app.use(body_parser.urlencoded({ extended: false }));
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }));
+    // Body-Parser
+    this.app.use(body_parser.urlencoded({ extended: false }));
+    this.app.use(express.json())
+    this.app.use(express.urlencoded({ extended: true }));
 
-//passportjs-auth
-const options = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.JWT_SECRET,
+    //passportjs-auth
+    const options = {
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: process.env.JWT_SECRET,
+    }
+    passport.use(new Strategy(options, (jwt_payload, done) => {
+      console.log('Authenticate invoked');
+    }))
+    this.app.use(passport.initialize());
+
+    const environment = process.env.NODE_ENV;
+
+    
+  
+    // Socket io connection
+    const io = setupSocket(httpServer);
+    this.app.use(router);
+    httpServer.listen(port, function () {
+      console.log(`Listening port... ${port}`);
+    });
+
+  }
+  
+  static createAndRun(){
+    Server.instance = new Server();
+    return Server.instance;
+  }
+
+  static disableRoutes(socketID){
+    Server.instance.testSocketID = socketID;
+  }
+
+  static enableRoutes(){
+    Server.instance.testSocketID = null;
+  }
+
+  static get(){
+    return Server.instance;
+  }
+
 }
-passport.use(new Strategy(options, (jwt_payload, done) => {
-  console.log('Authenticate invoked');
-}))
-app.use(passport.initialize());
 
-
-const environment = process.env.NODE_ENV ;
-
-
-console.log('Environment!!!!:', environment);
-if (environment != 'test') {
-  // MongoDB connection
-  const main_uri = "mongodb+srv://daniilturpitka:Letoosen228@cluster0.1fayqt0.mongodb.net/?retryWrites=true&w=majority";
-  const dao = DAO.getInstance();
-  dao.setDB(main_uri);
-}
-
-
-// Socket io connection
-
-const io = setupSocket(httpServer);
-
-app.use(router)
-app.get('/just', (req, res) => {
-  io.emit('details');
-  res.send({})
-})
-httpServer.listen(port, function () {
-  console.log(`Listening port... ${port}`);
-});
-
-export default httpServer;
+export default Server;
 
 
 

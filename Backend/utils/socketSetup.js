@@ -1,6 +1,8 @@
 import { Server } from "socket.io";
 import { deregisterUserSocket } from "../controller/loginController.js";
 import { loadPublicMessages } from "../controller/chatPublicly.js";
+import { stopTest } from "../controller/speedtest.js";
+import MainServer from "../../server.js";
 
 export let io = {};
 
@@ -14,8 +16,11 @@ export const setupSocket = (server) => {
     //socket.emit('initMessages', {empty: false, archive:msgs})
 
     socket.on("disconnect", async() => {
+      if(MainServer.instance.testSocketID == socket.id) {
+        await stopTest();
+      };
       await deregisterUserSocket(socket.id);
-      console.log("Socket disconnected", socket.id);
+      console.log("Socket disconnected", socket.id, MainServer.instance.testSocketID);
     });
     
 

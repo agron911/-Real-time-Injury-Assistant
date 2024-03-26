@@ -29,7 +29,7 @@ class DAO {
             this.#configured = true;
             console.log("Database connected\n");
         } catch (error) {
-            console.log("Unable to connect to Database\n");
+            console.log("Unable to connect to Database\n", error);
             throw new Error("Unable to connect to Database\n");
         }
     }
@@ -42,9 +42,9 @@ class DAO {
     }
 
     async setDB(uri) {
-        if (this.#configured) {
-            throw new Error("DB already configured!");
-        }
+        // if (this.#configured) {
+        //     throw new Error("DB already configured!");
+        // }
         await this.connectDB(uri);
         this.#configured = true;
     }
@@ -53,7 +53,7 @@ class DAO {
         if (!this.#configured) {
             throw new Error("DB not configured!");
         }
-        await mongoose.connection.dropDatabase();
+        // await mongoose.connection.dropDatabase();
         await mongoose.connection.close();
     }
 
@@ -83,7 +83,7 @@ class DAO {
             const user = await userCollection.findOne({ username: username.toLowerCase() });
             return user;
         } catch (err) {
-            throw new Error("User not found: ", err);
+            return new Error("User not found: ", err);
         }
     }
 
@@ -228,12 +228,13 @@ class DAO {
         let msgs;
         try{
             msgs = await messageCollection.find({ receiver: username, viewed: false });
+            for (const msg of msgs) {
+                this.updateMessageById(msg._id, { viewed: true });
+            }
         }catch(err){
-            throw new Error("Get unread messages error: ", err);
+            console.log("Get unread messages error: ", err);
         }
-        for (const msg of msgs) {
-            this.updateMessageById(msg._id, { viewed: true });
-        }
+        
         return msgs;
     }
 
