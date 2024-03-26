@@ -98,14 +98,12 @@ class DAO {
 
     search_by_announcement = async ( announcement) => {
         try{
-            
+            var result = await messageCollection.find({receiver: "announcement", content:{$eq: new RegExp(announcement)}}).sort({timestamp:-1});
             if(limit == 10){
-                var result = await messageCollection.find({receiver: "announcement", content:{$eq: new RegExp(announcement)}}).sort({timestamp:-1}).limit(10);
-                return result;
+                return await result.limit(10);
             }
             else{
-                var result = await messageCollection.find({receiver: "announcement", content:{$eq: new RegExp(announcement)}}).sort({timestamp:-1});
-                return result;
+                return await result;
             }
         }catch(err){
             throw new Error("Search did not find results with specified parameters:", err);
@@ -123,14 +121,12 @@ class DAO {
 
     search_by_public_messages = async (message, limit) => {
         try{
-            
+            var result = messageCollection.find({ content: new RegExp(message), receiver: {$ne: "announcement"}}).sort({ timestamp: -1, username: 1 })
             if(limit == 10){
-                var result = await messageCollection.find({ content: new RegExp(message), receiver: {$ne: "announcement"}}).sort({ timestamp: -1, username: 1 }).limit(10);
-                return result;
+                return await result.limit(10);
             }
             else{
-                var result = await messageCollection.find({ content: new RegExp(message), receiver: {$ne: "announcement"}}).sort({ timestamp: -1, username: 1 });
-                return result;
+                return await result;
             }
         }catch(err){
             throw new Error("Search did not find results with specified parameters:", err);
@@ -139,12 +135,11 @@ class DAO {
 
     search_by_private_messages = async (message, sender, receiver, limit)=>{
         try{
+            var result = messageCollection.find({content: new RegExp(message), receiver:{ $eq: receiver}, username: sender}).sort({ timestamp: -1});
             if(limit == 10){
-                var result = await messageCollection.find({content: new RegExp(message), receiver:{ $eq: receiver}, username: sender}).sort({ timestamp: -1}).limit(10)
-                return result;
+                return await result.limit(10);
             }else{
-                var result = await messageCollection.find({content: new RegExp(message), receiver:{ $eq: receiver}, username: sender}).sort({ timestamp: -1});
-            return result;
+            return await result;
             }
         }catch(err){
             throw new Error("Search did not find results with specified parameters:", err);
