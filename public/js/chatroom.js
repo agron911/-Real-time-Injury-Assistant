@@ -654,6 +654,7 @@ function searchMessages() {
   const searchInput = document.getElementById("messages-search-input");
   const searchValue = searchInput.value;
   if (searchInput.value) {
+    
     if (MESSAGE_RECEIVER === "all") {
       searchPublicMessages(searchValue);
     } else if (MESSAGE_RECEIVER === "announcement") {
