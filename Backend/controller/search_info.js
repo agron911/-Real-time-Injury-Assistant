@@ -57,7 +57,7 @@ export const searchByPrivateMessages = async(req,res)=>{
             status_hist = status_hist.slice(-10);
         }
         status_hist = status_hist.reverse();
-        let status_message = new MessageObj(sender, "Status History: " +status_hist, new Date().toString(), result[0].status, receiver )
+        let status_message = new MessageObj(sender, "Status History of last 10 status changes for "+"sender: " +status_hist, new Date().toString(), result[0].status, receiver )
         res.status(200).send({search_result:[status_message.obj]})
     }else{
         content = filterStopWords(content);
