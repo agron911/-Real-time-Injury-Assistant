@@ -214,7 +214,7 @@ class DAO {
             const msgs = await messageCollection.find({ receiver: receiver });
             return msgs;
         } catch (err) {
-            throw new Error("Get all messages error: ", err);
+            return new Error("Get all messages error: ", err);
         }
     }
     getAllPrivateMessages = async (username, receiver) => {
