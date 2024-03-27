@@ -30,10 +30,10 @@ class Server {
 
     this.app.use(cors());
     // Setting up view engine
-    if (!isTest) {
-      this.app.set("view engine", "ejs");
-      this.app.use(express.static('public'));
-    }
+    
+    this.app.set("view engine", "ejs");
+    this.app.use(express.static('public'));
+    
     // Body-Parser
     this.app.use(body_parser.urlencoded({ extended: false }));
     this.app.use(express.json())

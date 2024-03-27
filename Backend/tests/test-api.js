@@ -24,7 +24,6 @@ afterEach(async () => await clearDatabase());
  * Remove and close the db and server.
  */
 afterAll(async () => {
-    await closeDatabase();
     await new Promise((resolve, reject) => {
         Server.instance.httpServer.close((err) => {
             if (err) {
@@ -34,10 +33,149 @@ afterAll(async () => {
             resolve();
         });
     });
+    await closeDatabase();
 });
 
 
-describe('Testing Share Status API', () => {
+describe("Test Join Community API", () => {
+    test("/Get community", async () => {
+        const response = await request(Server.instance.httpServer).get("/community");
+        expect(response.statusCode).toBe(200);
+    });
+
+    test("/Post users resigtration", async () => {
+        const data = {
+            username: 'agron',
+            password: '1234'
+        }
+        const response = await request(Server.instance.httpServer).post("/users/").send(data);
+        expect(response.statusCode).toBe(202);
+        expect(response.body.data.username).toBe('agron');
+        const response2 = await request(Server.instance.httpServer).post("/users/").send(data);
+        expect(response2.statusCode).toBe(400);
+        expect(response2.body.message).toBe('User already exists!');
+    })
+
+    test("/Post users verification-username/passoword", async () => {
+        const data = {
+            username: 'ag',
+            password: '1234'
+        }
+        const response = await request(Server.instance.httpServer).post("/users/verification").send(data);
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toBe('Username length invalid');
+        const data2 = {
+            username: 'agron',
+            password: '123'
+        }
+        const response2 = await request(Server.instance.httpServer).post("/users/verification").send(data2);
+        expect(response2.statusCode).toBe(402);
+        expect(response2.body.message).toBe('Password length invalid');
+        const data3 = {
+            username: 'all',
+            password: '1234'
+        }
+        const response3 = await request(Server.instance.httpServer).post("/users/verification").send(data3);
+        expect(response3.statusCode).toBe(403);
+        expect(response3.body.message).toBe('Username prohibited');
+        const data4 = {
+            username: 'agron3',
+            password: '1234'
+        }
+        const response4 = await request(Server.instance.httpServer).post("/users/verification").send(data4);
+        expect(response4.statusCode).toBe(201);
+        console.log(response4.body);
+        expect(response4.body.message).toBe('User does not exist');
+
+        await request(Server.instance.httpServer).post("/users").send(data4);
+        const response6 = await request(Server.instance.httpServer).post("/users/verification").send(data4);
+
+        expect(response6.statusCode).toBe(206);
+        expect(response6.body.message).toBe('Join successful');
+        const data7 = {
+            username: 'agron3',
+            password: '12345'
+        }
+        const response7 = await request(Server.instance.httpServer).post("/users/verification").send(data7);
+        expect(response7.statusCode).toBe(400);
+        console.log(response7.body);
+        expect(response7.body.message).toBe('Password mismatch');
+    })
+
+    test("/Post users acknowledgement", async () => {
+        const data = {
+            username: 'agron',
+            password: '1234'
+        }
+        await request(Server.instance.httpServer).post("/users").send(data);
+        const response = await request(Server.instance.httpServer).post("/users/acknowledgement").send({ username: 'agron' });
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toBe('Acknowledged');
+
+        const response2 = await request(Server.instance.httpServer).post("/users/acknowledgement").send({ username: 'agron1' });
+        expect(response2.statusCode).toBe(400);
+        expect(response2.body.message).toBe('User does not exist');
+
+    })
+
+})
+
+describe('Test Login-Logoff API', () => {
+    test('/Get all users', async () => {
+        const data = {
+            username: 'agron',
+            password: '1234'
+        }
+        await request(Server.instance.httpServer).post("/users").send(data);
+        const response = await request(Server.instance.httpServer).get("/users");
+        expect(response.statusCode).toBe(200);
+    })
+})
+
+
+describe('Test Chat Public API', () => {
+
+    test('/Post public message', async () => {
+        const data = {
+            username: 'agron',
+            content: 'hello',
+            timestamp: '100',
+            status: 'ok',
+            receiver: 'all'
+        }
+        const response = await request(Server.instance.httpServer).post("/messages/public").send(data);
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toBe('message received');
+
+
+        const data2 = {
+            username: 'agron',
+            content: 'hello',
+            timestamp: '100',
+            status: 'ok',
+        }
+        const response2 = await request(Server.instance.httpServer).post("/messages/public").send(data2);
+        expect(response2.statusCode).toBe(400);
+
+    })
+    test('/Get all public messages', async () => {
+        const data = {
+            username: 'agron',
+            content: 'hello',
+            timestamp: '100',
+            status: 'ok',
+            receiver: 'all'
+        }
+        await request(Server.instance.httpServer).post("/messages/public").send(data);
+        const response = await request(Server.instance.httpServer).get("/messages/public");
+        let msg = response.body.archive.filter(msg => msg.username === data.username && msg.timestamp === data.timestamp)
+        expect(response.statusCode).toBe(200);
+        expect(msg[0].content).toBe('hello');
+    })
+})
+
+
+describe('Test Share Status API', () => {
 
     test("/Get user status", async () => {
         await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok')
@@ -62,7 +200,6 @@ describe('Testing Share Status API', () => {
 describe('Testing Chat pribately API', () => {
 
     test("/Get all latest private messages", async () => {
-        // username, content, timestamp, status, receiver, viewe
         let user1 = 'agron';
         let user2 = 'Taige';
         await DAO.getInstance().createMessage(user1, "a send to T", "100", 'ok', user2, true)
@@ -92,7 +229,6 @@ describe('Testing Chat pribately API', () => {
         const body = { username: user1, content: "a send to T", timestamp: "100", status: 'help', receiver: user2 }
         const response = ((await request(Server.instance.httpServer).post('/messages/private/').send(body)));
         const user2_msg = await DAO.getInstance().getUnreadMessages(user2);
-        console.log("????????????????", user2_msg);
         expect(response.statusCode).toBe(200);
         expect(user2_msg[0].content).toBe('a send to T');
     })

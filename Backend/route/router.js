@@ -32,11 +32,11 @@ router.get("/user/status/:username", getStatus);
 router.patch("/auth/users", loginOrLogout);
 router.post("/sockets/users/:username", registerUserSocket);
 
-router.get("/users/status/search/:status", searchByStatus);
+router.get("/messages/public/search/:content/:limit", searchByPublicMessage);
+router.get("/messages/private/search/:sender/:receiver/:content/:limit", searchByPrivateMessages);
 router.get("/users/username/search/:user", searchByUsername);
-router.get("/messages/public/search/:content", searchByPublicMessage);
-router.get("/messages/announcement/search/:content", searchByAnnouncement);
-router.get("/messages/private/search/:sender/:receiver/:content", searchByPrivateMessages);
+router.get("/users/messages/announcement/search/:username/:limit", searchByAnnouncement);
+router.get("/users/status/search/:status", searchByStatus);
 
 
 

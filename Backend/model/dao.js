@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import userCollection from "./user-schema.js"
 import messageCollection from "./message-schema.js";
+import UserFactory from './userFactory.js'; 
 
 class DAO {
 
@@ -70,9 +71,11 @@ class DAO {
         }
     }
 
-    createUser = async (username, hashed_password, status) => {
+    createUser = async (username, hashed_password, status, usertype) => {
         try {
-            const user = await userCollection.insertMany({ username: username, password: hashed_password, acknowledged: false, online: false, status: status });
+            const userObject = UserFactory.createUser(usertype, username, hashed_password, status);
+            const userSchemaObject = userObject.toSchemaObject();
+            const user = await userCollection.create(userSchemaObject);
             return user;
         } catch (err) {
             throw new Error("Insert failed :", err);
@@ -107,18 +110,18 @@ class DAO {
         }
     }
 
-    search_by_public_messages = async (message) => {
+    search_by_public_messages = async (message, limit) => {
         try{
-            var result = await messageCollection.find({ content: new RegExp(message), receiver: "all"}).sort({ timestamp: -1, username: 1 }).limit(10);
+            var result = await messageCollection.find({ content: new RegExp(message), receiver: "all"}).sort({ timestamp: -1, username: 1 }).limit(limit);
             return result;
         } catch(err) {
             throw new Error("Search did not find results with specified parameters:", err);
         }
     }
 
-    search_by_announcement = async (announcement) => {
+    search_by_announcement = async (announcement, limit) => {
         try{
-            var result = await messageCollection.find({content: new RegExp(announcement), receiver: "announcement"}).sort({timestamp:-1}).limit(10);
+            var result = await messageCollection.find({content: new RegExp(announcement), receiver: "announcement"}).sort({timestamp:-1}).limit(limit);
             return result;
         } catch(err) {
 
@@ -128,7 +131,7 @@ class DAO {
 
     search_by_private_messages = async (message, sender, receiver, limit)=>{
         try{
-            var result = await messageCollection.find({content: new RegExp(message), receiver:{ $eq: receiver}, username: sender}).sort({ timestamp: -1}).limit(10)
+            var result = await messageCollection.find({content: new RegExp(message), receiver:{ $eq: receiver}, username: sender}).sort({ timestamp: -1}).limit(limit)
             return result
         } catch(err) {
 
@@ -170,7 +173,7 @@ class DAO {
     }
     updateUserStatus = async (username, status) => {
         try {
-            await userCollection.findOneAndUpdate({ username: username }, { status: status, statusChangeTimestamp: new Date().toString() }, );
+            await userCollection.findOneAndUpdate({ username: username }, { status: status, statusChangeTimestamp: new Date().toString(), $push:{statusHistory:status} } );
             console.log(username, status);
         } catch (err) {
             throw new Error("Update user status error: ", err);
