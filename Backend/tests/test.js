@@ -3,7 +3,8 @@ import { hashPassword, comparePassword } from "../utils/passwordUtils.js";
 import DAO from '../model/dao.js';
 import { loginRegister } from '../controller/joinCommunity.js';
 import Citizen from '../model/user-Citizen.js';
-
+import {searchByPublicMessage, searchByPrivateMessages, searchPublicMessage} from '../controller/search_info.js';
+import {jest} from '@jest/globals';
 /**
  * Connect to a new in-memory database before running any tests.
  */
@@ -151,3 +152,194 @@ describe("Message Operations", () => {
         expect(msg[0].content).toBe(content)
     })
 });
+
+// search information
+// unit test for the stop word Unit tests for the Stop Words Rule for Search Information written and pass
+
+describe('Search operation for stop words', () => {
+
+    test('Rejects stop words in PublicMessage', async () => {
+        const input = "this";
+        
+        let citizen = 'agron123'
+        let date_now = new Date().toString()
+        let content = 'this is an example'
+        let status = 'ok'
+        let receiver = 'all'
+        let limit = 10
+        await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
+
+
+        const result = await DAO.getInstance().search_by_public_messages(input, limit);
+        expect(result).toBe(null);
+
+    });
+
+    test('Rejects stop words in PrivateMessage', async () => {
+        const input = "this";
+        
+        let citizen = 'agron123'
+        let date_now = new Date().toString()
+        let content = 'this is an example'
+        let status = 'ok'
+        let receiver = 'daniel'
+        let limit = 10
+        await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
+
+
+        const result = await DAO.getInstance().search_by_private_messages(input, citizen, receiver, limit);
+        expect(result).toBe(null);
+
+    })
+    
+})
+
+describe('Search operation', () => {
+    
+    test('Accept search words in public', async () => {
+        const input = "example";
+        let citizen = 'agron123'
+        let date_now = new Date().toString()
+        let content = 'this is an example'
+        let status = 'ok'
+        let receiver = 'all'
+        let limit = 10
+        await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
+  
+        const result = await DAO.getInstance().search_by_public_messages(input, limit);
+        expect(result).not.toBeNull()
+    })
+    test('Accept search words in public', async () => {
+        const input = "@#";
+        let citizen = 'agron123'
+        let date_now = new Date().toString()
+        let content = 'this is an example'
+        let status = 'ok'
+        let receiver = 'all'
+        let limit = 10
+        await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
+  
+        const result = await DAO.getInstance().search_by_public_messages(input, limit);
+        console.log(result)
+        expect(result).not.toBeNull()
+    })
+    test('Rejects stop words in PublicMessage', async () => {
+        const input = "is";
+        
+        let citizen = 'agron123'
+        let date_now = new Date().toString()
+        let content = 'this is an example'
+        let status = 'ok'
+        let receiver = 'all'
+        let limit = 10
+        await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
+
+
+        const result = await DAO.getInstance().search_by_public_messages(input, limit);
+        expect(result).toBe(null);
+
+    });
+    test('Rejects stop words in announcement', async () => {
+        const input = "an";
+        let citizen = 'agron123'
+        let date_now = new Date().toString()
+        let content = 'this is an example'
+        let status = 'ok'
+        let receiver = 'announcement'
+        let limit = 10
+        await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
+        const result = await DAO.getInstance().search_by_announcement(input, citizen, receiver, limit);
+        expect(result).toBeNull()
+
+    });
+    test('Rejects stop multiple words in announcement', async () => {
+        const input = "is an";
+        let citizen = 'agron123'
+        let date_now = new Date().toString()
+        let content = 'this is an example'
+        let status = 'ok'
+        let receiver = 'announcement'
+        let limit = 10
+        await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
+        const result = await DAO.getInstance().search_by_announcement(input, citizen, receiver, limit);
+        expect(result).toBeNull()
+
+    });
+
+    test('Accept search words in private', async () => {
+        const input = "example";
+        let citizen = 'agron123'
+        let date_now = new Date().toString()
+        let content = 'this is an example'
+        let status = 'ok'
+        let receiver = 'daniel'
+        let limit = 10
+        await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
+
+        const result = await DAO.getInstance().search_by_private_messages(input, citizen, receiver, limit);
+        expect(result).not.toBeNull()
+    })
+    test('Reject search mulitple words in private', async () => {
+        const input = "is an";
+        let citizen = 'agron123'
+        let date_now = new Date().toString()
+        let content = 'this is an example'
+        let status = 'ok'
+        let receiver = 'daniel'
+        let limit = 10
+        await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
+
+        const result = await DAO.getInstance().search_by_private_messages(input, citizen, receiver, limit);
+        expect(result).toBeNull()
+    })
+    test('Reject search mulitple words in private', async () => {
+        const input = "is an";
+        let citizen = 'agron123'
+        let date_now = new Date().toString()
+        let content = 'this is an example'
+        let status = 'ok'
+        let receiver = 'daniel'
+        let limit = 10
+        await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
+
+        const result = await DAO.getInstance().search_by_private_messages(input, citizen, receiver, limit);
+        expect(result).toBeNull()
+    })
+
+    test('Accept search words in announcement', async () => {
+        const input = "example";
+        let citizen = 'agron123'
+        let date_now = new Date().toString()
+        let content = 'this is an example'
+        let status = 'ok'
+        let receiver = 'announcement'
+        let limit = 10
+        await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
+        const result = await DAO.getInstance().search_by_announcement(input, limit);
+        console.log(result)
+        expect(result).not.toBeNull()
+    })
+    test('Accept search in status', async () => {
+        let citizen = 'agron123'
+        let status = 'ok'
+        await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen')
+        const result = await DAO.getInstance().search_by_status(status);
+        expect(result).not.toBeNull()
+    })
+    test('Accept search in username', async () => {
+        let citizen = 'agron123'
+        let status = 'ok'
+        await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen')
+        const result = await DAO.getInstance().search_by_username(citizen);
+        expect(result).not.toBeNull()
+    })
+    test('Accept search in username', async () => {
+        let citizen = 'agron123'
+        let status = 'ok'
+        await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen')
+        const result = await DAO.getInstance().search_by_username(citizen);
+        expect(result).not.toBeNull()
+    })
+  
+
+})

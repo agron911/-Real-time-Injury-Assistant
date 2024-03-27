@@ -92,8 +92,32 @@ class DAO {
         }
     }
 
+    filterStopWords = async(input) =>{
+        const stopWords = [
+            "a", "able", "about", "across", "after", "all", "almost", "also", "am", "among", "an", "and", "any", "are",
+            "as", "at", "be", "because", "been", "but", "by", "can", "cannot", "could", "dear", "did", "do", "does",
+            "either", "else", "ever", "every", "for", "from", "get", "got", "had", "has", "have", "he", "her", "hers",
+            "him", "his", "how", "however", "i", "if", "in", "into", "is", "it", "its", "just", "least", "let", "like",
+            "likely", "may", "me", "might", "most", "must", "my", "neither", "no", "nor", "not", "of", "off", "often",
+            "on", "only", "or", "other", "our", "own", "rather", "said", "say", "says", "she", "should", "since", "so",
+            "some", "than", "that", "the", "their", "them", "then", "there", "these", "they", "this", "tis", "to", "too",
+            "twas", "us", "wants", "was", "we", "were", "what", "when", "where", "which", "while", "who", "whom", "why",
+            "will", "with", "would", "yet", "you", "your"
+        ];
+    
+        const words = input.trim().split(" ");
+        const filteredWords = words.filter(word => !stopWords.includes(word.toLowerCase()));
+    
+        if (filteredWords.length == 0) {
+            return "";
+        }
+    
+        return filteredWords.join(" ");
+    }
+    
     search_by_username = async (username,) => {
     try{
+        
         var result = await userCollection.find({ username: new RegExp(username)}).sort({ online: -1, username: 1 });
         return result;
     }catch(err){
@@ -113,6 +137,10 @@ class DAO {
 
     search_by_public_messages = async (message, limit) => {
         try{
+            const msg = await this.filterStopWords(message);
+            if (msg.length === 0) {
+                return null;
+            }            
             var result = await messageCollection.find({ content: new RegExp(message), receiver: "all"}).sort({ timestamp: -1, username: 1 }).limit(limit);
             return result;
         } catch(err) {
@@ -122,6 +150,10 @@ class DAO {
 
     search_by_announcement = async (announcement, limit) => {
         try{
+            const msg = await this.filterStopWords(announcement);
+            if (msg.length === 0) {
+                return null;
+            }
             var result = await messageCollection.find({content: new RegExp(announcement), receiver: "announcement"}).sort({timestamp:-1}).limit(limit);
             return result;
         } catch(err) {
@@ -132,6 +164,10 @@ class DAO {
 
     search_by_private_messages = async (message, sender, receiver, limit)=>{
         try{
+            const msg = await this.filterStopWords(message);
+            if (msg.length === 0) {
+                return null;
+            }
             var result = await messageCollection.find({content: new RegExp(message), receiver:{ $in: [sender, receiver]}, username: {$in:[receiver, sender]}}).sort({ timestamp: -1}).limit(limit)
             return result
         } catch(err) {
