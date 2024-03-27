@@ -6,6 +6,8 @@ let SUSPEND_NORMAL_OPERATION = false;
 let USERS_SEARCH_CONTEXT = "username";
 let USERS_SEARCH_STATUS = "";
 let MESSAGE_RECEIVER = "";
+let PUBLIC_SEARCH_COUNTER = 1;
+let ANNOUNCEMENT_SEARCH_COUNTER = 1
 
 const getPrivateMessages = async (otherUsername) => {
   if(SUSPEND_NORMAL_OPERATION) return [];
@@ -91,8 +93,7 @@ const showPrivateMessage = async (otherUsername) => {
       addMessages(msg);
     }
   }
-  const messageElement = document.getElementById("messages");
-  messageElement.scrollTo(0, messageElement.scrollHeight);
+  messageContainer.scrollTo(0, messageContainer.scrollHeight);
   CHATROOM_USER = otherUsername;
 };
 
@@ -132,6 +133,22 @@ async function getArchive() {
         messages.appendChild(msgCard);
       }
     };
+    // messages.scrollTo(0, messages.scrollHeight);
+}
+
+const createLoadMoreButton = () => {
+  const messagesList = document.getElementById("messages");
+  const loadMoreButton = document.createElement("div");
+  loadMoreButton.id = "load-more";
+  loadMoreButton.className = "text-center";
+
+  const button = document.createElement("button");
+  button.className = "btn btn-primary";
+  button.textContent = "Load More";
+  button.onclick = searchMessages;
+
+  loadMoreButton.appendChild(button);
+  messagesList.appendChild(loadMoreButton);
 }
 
 const createIconElement = (username, status) => {
@@ -421,8 +438,7 @@ const announcement = async () => {
       addMessages(msg);
     }
   }
-  const messageElement = document.getElementById("messages");
-  messageElement.scrollTo(0, messageElement.scrollHeight);
+  messageContainer.scrollTo(0, messageContainer.scrollHeight);
 };
 
 const fetchInitialUserList = async () => {
@@ -447,7 +463,7 @@ const addMessages = (msg) => {
   const messages = document.getElementById("messages");
   let msgCard = createMsgCard(msg);
   messages.appendChild(msgCard);
-  window.scrollTo(0, document.body.scrollHeight);
+  messages.scrollTo(0, messages.scrollHeight);
 };
 
 const getUnreadMessages = async () => {
@@ -622,26 +638,29 @@ function searchUsers() {
 }
 
 function setSearchPublic() {
+  PUBLIC_SEARCH_COUNTER = 1;
   MESSAGE_RECEIVER = "all";
   document.getElementById("messages-search-input").placeholder = "Search Public Messages";
 } 
 
 function setSearchAnnouncement() {
+  ANNOUNCEMENT_SEARCH_COUNTER = 1;
   MESSAGE_RECEIVER = "announcement";
   document.getElementById("messages-search-input").placeholder = "Search Announcement Messages";
 }
 
 function setSearchPrivate(receiver) {
+  PRIVATE_SEARCH_COUNTER = 1;
   MESSAGE_RECEIVER = receiver;
   document.getElementById("messages-search-input").placeholder = "Search Private Messages";
 }
 
-let public_search_counter = 1
+
 
 const searchPublicMessages = async (searchValue) => {
   console.log(`searching by public message: ${searchValue}`);
   try {
-    const response = await fetch(url + "/messages/public/" + searchValue+"/"+(public_search_counter*10).toString(), {
+    const response = await fetch(url + "/messages/public/" + searchValue + "/" + (PUBLIC_SEARCH_COUNTER * 10).toString(), {
       method: "GET",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -650,21 +669,24 @@ const searchPublicMessages = async (searchValue) => {
     const { search_result } = await response.json();
     const messages = document.getElementById("messages");
     messages.innerHTML = "";
-    for (let msg of search_result) {
-      let msgCard = createMsgCard(msg);
-      messages.appendChild(msgCard);
+    if (!search_result.empty) {
+      createLoadMoreButton();
+      for (let msg of search_result) {
+        let msgCard = createMsgCard(msg);
+        messages.appendChild(msgCard);
+      }
     }
   } catch (e) {
     console.log("Database retrieval error", e);
   }
-  public_search_counter+=1;
+  PUBLIC_SEARCH_COUNTER += 1;
 }
 
-let announcement_search_counter = 1
+
 const searchAnnouncementMessages = async (searchValue) => {
   console.log(`searching by announcement message: ${searchValue}`);
   try {
-    const response = await fetch(url + "/messages/announcement/" + searchValue+"/"+(announcement_search_counter*10).toString(), {
+    const response = await fetch(url + "/messages/announcement/" + searchValue + "/" + (ANNOUNCEMENT_SEARCH_COUNTER * 10).toString(), {
       method: "GET",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -673,21 +695,24 @@ const searchAnnouncementMessages = async (searchValue) => {
     const { search_result } = await response.json();
     const messages = document.getElementById("messages");
     messages.innerHTML = "";
-    for (let msg of search_result) {
-      let msgCard = createMsgCard(msg);
-      messages.appendChild(msgCard);
+    if (!search_result.empty) {
+      createLoadMoreButton();
+      for (let msg of search_result) {
+        let msgCard = createMsgCard(msg);
+        messages.appendChild(msgCard);
+      }
     }
   } catch (e) {
     console.log("Database retrieval error", e);
   }
-  announcement_search_counter+=1;
+  ANNOUNCEMENT_SEARCH_COUNTER += 1;
 }
 
-let private_search_counter = 1;
+let PRIVATE_SEARCH_COUNTER = 1;
 const searchPrivateMessages = async (searchValue) => {
   console.log(`searching by private message: ${searchValue}`);
   try {
-    const response = await fetch(url + "/messages/private/" + localStorage.getItem("username") + "/" + MESSAGE_RECEIVER + "/" + searchValue+"/"+(private_search_counter*10).toString(), {
+    const response = await fetch(url + "/messages/private/" + localStorage.getItem("username") + "/" + MESSAGE_RECEIVER + "/" + searchValue + "/" + (PRIVATE_SEARCH_COUNTER * 10).toString(), {
       method: "GET",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -696,18 +721,21 @@ const searchPrivateMessages = async (searchValue) => {
     const { search_result } = await response.json();
     const messages = document.getElementById("messages");
     messages.innerHTML = "";
-    for (let msg of search_result) {
-      let msgCard = createMsgCard(msg);
-      messages.appendChild(msgCard);
+    if (!search_result.empty) {
+      createLoadMoreButton();
+      for (let msg of search_result) {
+        let msgCard = createMsgCard(msg);
+        messages.appendChild(msgCard);
+      }
     }
   } catch (e) {
     console.log("Database retrieval error", e);
   }
   if(searchValue  =="status"){
-    private_search_counter = 0;
+    PRIVATE_SEARCH_COUNTER = 0;
   }
   else{
-    private_search_counter+=1;
+    PRIVATE_SEARCH_COUNTER += 1;
   }
 
 }
