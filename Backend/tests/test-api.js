@@ -320,12 +320,12 @@ describe('Test Search Info API', () => {
             receiver: 'Taige'
         }
         await request(Server.instance.httpServer).post("/messages/private").send(data);
-        const response = (await request(Server.instance.httpServer).get("/messages/private/" + data.username + "/" + data.receiver + "/A_send/1"));
+        const response = (await request(Server.instance.httpServer).get("/messages/private/search?receiver=" + data.username + "&sender=" + data.receiver + "&content=A_send&limit=1"));
         let msg = response.body.search_result.filter(msg => msg.username === data.username)
         expect(response.statusCode).toBe(200);
         expect(msg[0].content).toContain('A_send');
         jest.spyOn(DAO.getInstance(), 'search_by_private_messages').mockImplementation(() => { throw new Error() });
-        const response2 = (await request(Server.instance.httpServer).get("/messages/private/search?receiver=" + data.username + "&cender=" + data.receiver + "&content=A_send&limit=1"));
+        const response2 = (await request(Server.instance.httpServer).get("/messages/private/search?receiver=" + data.username + "&sender=" + data.receiver + "&content=A_send&limit=1"));
         expect(response2.statusCode).toBe(400);
         expect(response2.body.message).toBe('search_by_private_messages failure');
 
