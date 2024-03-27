@@ -78,7 +78,8 @@ class DAO {
             const user = await userCollection.create(userSchemaObject);
             return user;
         } catch (err) {
-            throw new Error("Insert failed :", err);
+            console.error("insert failed", err);
+            return new Error("Insert failed :", err);
         }
     }
 

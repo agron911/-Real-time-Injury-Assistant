@@ -11,7 +11,7 @@ export async function startSpeedTest(req, res){
     // mongod = new MongoMemoryServer();
     await connect();
     DAO.type = "TEST";
-    await DAO.getInstance().createUser('test', 'wqe', 'ok');
+    await DAO.getInstance().createUser('henry', 'wqed', 'ok');
     res.status(200).send("success");
     io.emit("suspendNormalOps", socketID);
 }

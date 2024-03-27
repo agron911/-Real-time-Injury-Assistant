@@ -8,7 +8,7 @@ async function send_post_request(){
     const resp = await fetch(url+"/messages/public", {
         method:"POST",
         body: JSON.stringify({
-            username: "test",
+            username: "henry",
             content: twentycharstr,
             timestamp: new Date().toString(),
             status: "ok",
@@ -132,7 +132,7 @@ const start_speed_test = async () => {
     await fetch(url+'/speedtest', {
         method: 'POST',
         body: JSON.stringify({
-            username: "test",
+            username: "henry",
             socketID: localStorage.getItem('socketID'),
         }),
         headers: {
