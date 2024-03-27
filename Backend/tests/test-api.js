@@ -197,7 +197,7 @@ describe('Test Share Status API', () => {
 })
 
 
-describe('Testing Chat pribately API', () => {
+describe('Testing Chat privately API', () => {
 
     test("/Get all latest private messages", async () => {
         let user1 = 'agron';
@@ -298,13 +298,13 @@ describe('Test Search Info API', () => {
             receiver: 'all'
         }
         await request(Server.instance.httpServer).post("/messages/public").send(data);
-        const response = await request(Server.instance.httpServer).get("/messages/public/hello/1");
+        const response = await request(Server.instance.httpServer).get("/messages/public/search?content=hello&limit=1");
         let msg = response.body.search_result.filter(msg => msg.username === data.username && msg.timestamp === data.timestamp)
         expect(response.statusCode).toBe(200);
         expect(msg[0].content).toBe('hello');
 
         jest.spyOn(DAO.getInstance(), 'search_by_public_messages').mockImplementation(() => { throw new Error() });
-        const response2 = await request(Server.instance.httpServer).get("/messages/public/hello/1");
+        const response2 = await request(Server.instance.httpServer).get("/messages/public/search?content=hello&limit=1");
         expect(response2.statusCode).toBe(400);
         expect(response2.body.message).toBe('search_by_public_messages failure');
 
@@ -325,7 +325,7 @@ describe('Test Search Info API', () => {
         expect(response.statusCode).toBe(200);
         expect(msg[0].content).toContain('A_send');
         jest.spyOn(DAO.getInstance(), 'search_by_private_messages').mockImplementation(() => { throw new Error() });
-        const response2 = (await request(Server.instance.httpServer).get("/messages/private/" + data.username + "/" + data.receiver + "/A_send/1"));
+        const response2 = (await request(Server.instance.httpServer).get("/messages/private/search?receiver=" + data.username + "&cender=" + data.receiver + "&content=A_send&limit=1"));
         expect(response2.statusCode).toBe(400);
         expect(response2.body.message).toBe('search_by_private_messages failure');
 
@@ -338,7 +338,7 @@ describe('Test Search Info API', () => {
             password: '1234'
         }
         await request(Server.instance.httpServer).post("/users").send(data);
-        const response = await request(Server.instance.httpServer).get("/users/username/agron");
+        const response = await request(Server.instance.httpServer).get("/users/username/search?username=agron");
         expect(response.statusCode).toBe(200);
         expect(response.body.search_result[0].username).toBe('agron');
     })
@@ -350,7 +350,7 @@ describe('Test Search Info API', () => {
         }
         await request(Server.instance.httpServer).post("/users").send(data);
         await request(Server.instance.httpServer).put("/user/status/agron").send({ status: 'ok' });
-        const response = await request(Server.instance.httpServer).get("/users/status/ok");
+        const response = await request(Server.instance.httpServer).get("/users/status/search?status=ok");
         expect(response.statusCode).toBe(200);
         console.log(response.body);
         expect(response.body.search_result[0].username).toBe('agron');
@@ -365,13 +365,13 @@ describe('Test Search Info API', () => {
             receiver: 'announcement'
         }
         await request(Server.instance.httpServer).post("/messages/announcement").send(data);
-        const response = await request(Server.instance.httpServer).get("/messages/announcement/hello/1");
+        const response = await request(Server.instance.httpServer).get("/messages/announcement/search?content=hello&limit=1");
         let msg = response.body.search_result.filter(msg => msg.username === data.username && msg.timestamp === data.timestamp)
         expect(response.statusCode).toBe(200);
         expect(msg[0].content).toBe('hello');
 
         jest.spyOn(DAO.getInstance(), 'search_by_announcement').mockImplementation(() => { throw new Error() });
-        const response2 = await request(Server.instance.httpServer).get("/messages/announcement/hello/1");
+        const response2 = await request(Server.instance.httpServer).get("/messages/announcement/search?content=hello&limit=1");
         expect(response2.statusCode).toBe(400);
         expect(response2.body.message).toBe('search_by_announcement failure');
 
