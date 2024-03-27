@@ -25,8 +25,9 @@ function filterStopWords(input) {
 }
 
 export const searchByPublicMessage = async(req,res)=>{
-    var content = req.params.content;
-    const limit = req.params.limit;
+    var content = req.query.content;
+    const limit = req.query.limit;
+    //console.log(req.query)
     content = filterStopWords(content);
     try{
         if(content.length ===0){
@@ -43,11 +44,12 @@ export const searchByPublicMessage = async(req,res)=>{
 }
 
 export const searchByPrivateMessages = async(req,res)=>{
-    //console.log(req.params)
-    let content = req.params.content;
-    const sender = req.params.sender;;
-    const receiver = req.params.receiver;
-    const limit = req.params.limit;
+    console.log(req.query)
+    let content = req.query.content;
+    const sender = req.query.sender;;
+    const receiver = req.query.receiver;
+    const limit = req.query.limit;
+    
     if(content == "status"){
         const result = await DAO.getInstance().search_by_username(receiver)
         let status_hist = result[0].statusHistory;
@@ -74,14 +76,16 @@ export const searchByPrivateMessages = async(req,res)=>{
 }
 
 export const searchByAnnouncement = async(req,res)=>{
-    let content = req.params.content;
+    let content = req.query.content;
+    let limit = req.query.limit
+    console.log(req.query)
     content = filterStopWords(content);
     try{
         if(content.length ===0){
             res.status(200).send({search_result:[]});
         }
         else{
-            const result = await DAO.getInstance().search_by_announcement(req.params.content, req.params.limit);
+            const result = await DAO.getInstance().search_by_announcement(content, limit);
             res.status(200).send({search_result:result});
         }
         
@@ -91,13 +95,13 @@ export const searchByAnnouncement = async(req,res)=>{
 }
 
 export const searchByUsername = async(req, res)=>{
-    const result = await DAO.getInstance().search_by_username(req.params.user);
+    const result = await DAO.getInstance().search_by_username(req.query.user);
     res.status(200).send({search_result:result});
 }
 
 
 export const searchByStatus = async(req, res)=>{
-    const status = req.params.status;
+    const status = req.query.status;
     const result = await DAO.getInstance().search_by_status(status);
     res.status(200).send({search_result:result});
 }
