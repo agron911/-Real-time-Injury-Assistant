@@ -126,4 +126,3 @@ export const UserAcknowledgement = async (req, res) => {
         res.status(400).send({message:"User does not exist"});
     }
 };
-

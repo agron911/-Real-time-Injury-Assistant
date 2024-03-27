@@ -2,11 +2,13 @@ const url = "";
 let CHATROOM_USER = "";
 let ANNOUNCEMENT = false;
 let notificationOpen = false;
+let SUSPEND_NORMAL_OPERATION = false;
 let USERS_SEARCH_CONTEXT = "username";
 let USERS_SEARCH_STATUS = "";
 let MESSAGE_RECEIVER = "";
 
 const getPrivateMessages = async (otherUsername) => {
+  if(SUSPEND_NORMAL_OPERATION) return [];
   const currentUsername = localStorage.getItem("username");
   const data = await fetch(
     url + "/messages/private?username1=" + currentUsername + "&username2=" + otherUsername,
@@ -42,6 +44,7 @@ const sendMessage = async () => {
 };
 
 const sendPrivateMessage = async (receiverUsername, status, message) => {
+  if(SUSPEND_NORMAL_OPERATION) return [];
     await fetch(url + "/messages/private", {
       method: "POST",
       body: JSON.stringify({username: localStorage.getItem("username"),content: message, status: status, receiver: receiverUsername}),
@@ -53,6 +56,7 @@ const sendPrivateMessage = async (receiverUsername, status, message) => {
 
 
 const sendPublicMessage = async (status, message) => {
+    if(SUSPEND_NORMAL_OPERATION) return;
     await fetch(url + "/messages/public", {
       method: "POST",
       body: JSON.stringify({username: localStorage.getItem("username"), content: message, timestamp: new Date().toString(), status: status, receiver: "all"}),
@@ -63,6 +67,7 @@ const sendPublicMessage = async (status, message) => {
 };
 
 const sendAnnouncementMessage = async (message) => {
+  if(SUSPEND_NORMAL_OPERATION) return
   await fetch(url + "/messages/announcement", {
     method: "POST",
     body: JSON.stringify({username: localStorage.getItem("username"), content: message, timestamp: new Date().toString(), status: "undefined", receiver: "announcement"}),
@@ -92,6 +97,7 @@ const showPrivateMessage = async (otherUsername) => {
 };
 
 const getPublicMessages = async () => {
+  if(SUSPEND_NORMAL_OPERATION) return [];
     const response = await fetch(url + "/messages/public", {
         method: "GET",
         headers: {
@@ -102,6 +108,7 @@ const getPublicMessages = async () => {
 }
 
 const getAnnouncement = async () => {
+  if(SUSPEND_NORMAL_OPERATION) return;
   const response = await fetch(url + "/messages/announcement", {
       method: "GET",
       headers: {
@@ -248,6 +255,7 @@ const updateUserStatusIconEverywhere = (status, username) => {
 };
 
 const registerSocket = async (username, socketId) => {
+  if(SUSPEND_NORMAL_OPERATION) return;
   try {
     await fetch(url + "/sockets/users/" + username, {
       method: "POST",
@@ -263,11 +271,13 @@ const registerSocket = async (username, socketId) => {
 
 const connectToSocket = async () => {
   const socket = await io(url);
-  socket.on("connect", async () => {registerSocket(localStorage.getItem("username"), socket.id);});
-  socket.on("chat message", (msg) => {addMessages(msg)});
+  socket.on("connect", async () => {registerSocket(localStorage.getItem("username"), socket.id); localStorage.setItem("socketID", socket.id); });
+  socket.on("chat message", (msg) => {if(!SUSPEND_NORMAL_OPERATION) addMessages(msg)});
   socket.on("updateUserList", async () => {await fetchInitialUserList();});
   socket.on("status-update", (data) => {updateUserStatusIconEverywhere(data.status, data.username);});
   socket.on("private-message", (data) => {showMessageAlert(data, "primary");});
+  socket.on("suspendNormalOperation", (socketID) => {if(socketID != localStorage.getItem('socketID')) SUSPEND_NORMAL_OPERATION=true;});
+  socket.on("enableNormalOperation", (data) => {SUSPEND_NORMAL_OPERATION=false;});
 };
 
 const showMessage = (message)=>{
@@ -331,6 +341,7 @@ const replyToUser = () => {
 };
 
 const getStatus = async (username) => {
+  if(SUSPEND_NORMAL_OPERATION) return;
   try {
     const res = await fetch(url + "/user/status/" + username, {
       method: "GET",
@@ -358,6 +369,7 @@ const setStatusButtonUI = (status) => {
 };
 
 const changeStatus = async (status) => {
+  if(SUSPEND_NORMAL_OPERATION) return;
   try {
     const username = localStorage.getItem("username");
     const res = await fetch(url + "/user/status/" + username, {
@@ -375,6 +387,7 @@ const changeStatus = async (status) => {
 };
 
 const logout = async () => {
+  if(SUSPEND_NORMAL_OPERATION) return;
   try {
     window.location.replace("/");
     await fetch(url + "/auth/users", {
@@ -413,6 +426,7 @@ const announcement = async () => {
 };
 
 const fetchInitialUserList = async () => {
+  if(SUSPEND_NORMAL_OPERATION) return;
   console.log("fetching users");
   const response = await fetch(url + "/users");
   const users = await response.json();
@@ -437,6 +451,7 @@ const addMessages = (msg) => {
 };
 
 const getUnreadMessages = async () => {
+  if(SUSPEND_NORMAL_OPERATION) return [];
   const username = localStorage.getItem("username");
   const data = await fetch(url + "/messages/private/" + username, {
     method: "GET",
@@ -455,6 +470,41 @@ const getAlerts = async () => {
   for (const msg of unreadMessages) {
     console.log("msg", msg);
     showMessageAlert(msg, "primary");
+  }
+};
+
+const checkIfTestOngoing = async () => {
+  const response = await fetch(url + "/speedTest",{
+    method: "GET",
+    headers: {
+      "Content-type": "application/json; charset=UTF-8",
+    },
+  });
+  const responseData = await response.json();
+  console.log("responseData", responseData);
+  if(responseData) {
+    SUSPEND_NORMAL_OPERATION = true;
+  }
+}
+
+window.onload = async () => {
+  try {
+    await checkIfTestOngoing();
+    const username = localStorage.getItem("username");
+    if (username) {
+      const toggleButton = document.getElementById("toggle-btn");
+      await connectToSocket();
+      // toggleButton.addEventListener("click", async (e) => {
+      //   e.preventDefault();
+      //   await logout();
+      //   window.location.replace("/");
+      // });
+      const status = await getStatus(username);
+      if (status) setStatusButtonUI(status);
+      await getAlerts();
+    }
+  } catch (err) {
+    console.log("err", err);
   }
 };
 

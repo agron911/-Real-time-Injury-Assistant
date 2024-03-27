@@ -3,6 +3,7 @@
 <%- include('partials/head.ejs') %>
 <body>
   <%- include ('partials/header'); %>
+  <%- include ('partials/overlay'); %>
   <div class="notification-icon" onclick="handleAlertClick()">
     <i class="la la-bell"></i>
     <span class="notification-dot"></span>
@@ -11,6 +12,7 @@
     <!-- Adjust top padding to avoid overlap with fixed navbar -->
     <div id="liveAlertPlaceholder" class="live-alert-placeholder"></div>
     <%- include ('partials/alertMessageModal'); %>
+    <%- include ('partials/speedTestModal'); %>
     <div class="row row-container">
       <div class="col-md-3 users-container">
         <%- include ('partials/userContainer'); %>
@@ -21,6 +23,7 @@
     </div>
   </div>
   <script src="https://cdn.socket.io/4.7.3/socket.io.min.js"></script>
+  <script src="/js/speedTest.js"></script>
   <script src="/js/chatroom.js"></script>
 </body>
 
