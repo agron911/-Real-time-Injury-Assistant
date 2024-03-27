@@ -1,4 +1,5 @@
 import DAO from "../model/dao.js"
+import MessageObj from "../model/message-class.js";
 
 function filterStopWords(input) {
     const stopWords = [
@@ -28,8 +29,14 @@ export const searchByPublicMessage = async(req,res)=>{
     const limit = req.params.limit;
     content = filterStopWords(content);
     try{
-        const result = await DAO.getInstance().search_by_public_messages(content, limit);
-        res.status(200).send({search_result:result});
+        if(content.length ===0){
+            res.status(200).send({search_result:[]});
+        }
+        else{
+            const result = await DAO.getInstance().search_by_public_messages(content, limit);
+            res.status(200).send({search_result:result});
+        }
+        
     }catch(err){
         res.status(400).send({message: "search_by_public_messages failure"});
     }
@@ -42,14 +49,24 @@ export const searchByPrivateMessages = async(req,res)=>{
     const receiver = req.params.receiver;
     const limit = req.params.limit;
     if(content == "status"){
-        const result = await DAO.getInstance().search_by_username(sender)
-        console.log(typeof result[0])
-        res.status(200).send(result[0])
+        const result = await DAO.getInstance().search_by_username(receiver)
+        let status_hist = result[0].statusHistory;
+        if(status_hist.length > 10){
+            status_hist = status_hist.slice(-10);
+        }
+        status_hist = status_hist.reverse();
+        let status_message = new MessageObj(sender, "Status History: " +status_hist, new Date().toString(), result[0].status, receiver )
+        res.status(200).send({search_result:[status_message.obj]})
     }else{
         content = filterStopWords(content);
         try{
-            const result = await DAO.getInstance().search_by_private_messages(content, sender, receiver, limit);
-            res.status(200).send({search_result:result});
+            if(content.length ===0){
+                res.status(200).send({search_result:[]});
+            }else{
+                const result = await DAO.getInstance().search_by_private_messages(content, sender, receiver, limit);
+                res.status(200).send({search_result:result});
+            }
+            
         }catch(err){
             res.status(400).send({message: "search_by_private_messages failure"});
         }
@@ -60,8 +77,14 @@ export const searchByAnnouncement = async(req,res)=>{
     let content = req.params.content;
     content = filterStopWords(content);
     try{
-        const result = await DAO.getInstance().search_by_announcement(req.params.content, req.params.limit);
-        res.status(200).send({search_result:result});
+        if(content.length ===0){
+            res.status(200).send({search_result:[]});
+        }
+        else{
+            const result = await DAO.getInstance().search_by_announcement(req.params.content, req.params.limit);
+            res.status(200).send({search_result:result});
+        }
+        
     }catch(err){
         res.status(400).send({message: "search_by_announcement failure"});
     }
