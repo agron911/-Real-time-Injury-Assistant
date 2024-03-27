@@ -453,7 +453,7 @@ const addMessages = (msg) => {
 const getUnreadMessages = async () => {
   if(SUSPEND_NORMAL_OPERATION) return [];
   const username = localStorage.getItem("username");
-  const data = await fetch(url + "/messages/private/" + username, {
+  const data = await fetch(url + "/messages/private/unread?username=" + username, {
     method: "GET",
     headers: {
       "Content-type": "application/json; charset=UTF-8",
@@ -577,7 +577,7 @@ function setSearchStatusEmergency() {
 const searchByUsername = async (searchValue) => {
   console.log(`searching by username: ${searchValue}`);
   try {
-    const response = await fetch(url + "/users/username/" + searchValue, {
+    const response = await fetch(url + "/users/username/search?user=" + searchValue, {
       method: "GET",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -595,7 +595,7 @@ const searchByUsername = async (searchValue) => {
 const searchByStatus = async () => {
   console.log(`searching by status: ${USERS_SEARCH_STATUS}`);
   try {
-    const response = await fetch(url + "/users/status/" + USERS_SEARCH_STATUS, {
+    const response = await fetch(url + "/users/status/search?status=" + USERS_SEARCH_STATUS, {
       method: "GET",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -641,7 +641,7 @@ let public_search_counter = 1
 const searchPublicMessages = async (searchValue) => {
   console.log(`searching by public message: ${searchValue}`);
   try {
-    const response = await fetch(url + "/messages/public/" + searchValue+"/"+(public_search_counter*10).toString(), {
+    const response = await fetch(url + "/messages/public/search?content=" + searchValue+"&limit="+(public_search_counter*10).toString(), {
       method: "GET",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -664,7 +664,7 @@ let announcement_search_counter = 1
 const searchAnnouncementMessages = async (searchValue) => {
   console.log(`searching by announcement message: ${searchValue}`);
   try {
-    const response = await fetch(url + "/messages/announcement/" + searchValue+"/"+(announcement_search_counter*10).toString(), {
+    const response = await fetch(url + "/messages/announcement/search?content=" + searchValue+"&limit="+(announcement_search_counter*10).toString(), {
       method: "GET",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -687,7 +687,7 @@ let private_search_counter = 1;
 const searchPrivateMessages = async (searchValue) => {
   console.log(`searching by private message: ${searchValue}`);
   try {
-    const response = await fetch(url + "/messages/private/" + localStorage.getItem("username") + "/" + MESSAGE_RECEIVER + "/" + searchValue+"/"+(private_search_counter*10).toString(), {
+    const response = await fetch(url + "/messages/private/search?receiver=" + localStorage.getItem("username") + "&sender=" + MESSAGE_RECEIVER + "&content=" + searchValue+"&limit="+(private_search_counter*10).toString(), {
       method: "GET",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
