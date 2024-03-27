@@ -15,7 +15,7 @@ export const loginOrLogout = async (req, res) => {
 export const login = async (req, res) => {
     const user = await DAO.getInstance().getUserByName(req.body.username);
     if (user) {
-        const jwtToken = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const jwtToken = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET?process.env.JWT_SECRET:"test_secret", { expiresIn: '1h' });
         await DAO.getInstance().updateUserOnline(user.username);
         const users = await DAO.getInstance().getAllUsers();
         io.emit('updateUserList', users);
@@ -41,6 +41,7 @@ export const logout = async (req, res) => {
 
 export const registerUserSocket = async (req, res) => {
     const username = req.params.username;
+    
     const user = await DAO.getInstance().getUserByName(username);
     if (user) {
         await addActiveUser(username, req.body.socketId);
