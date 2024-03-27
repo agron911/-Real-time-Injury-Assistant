@@ -11,7 +11,7 @@ let ANNOUNCEMENT_SEARCH_COUNTER = 1
 let PRIVATE_SEARCH_COUNTER = 1;
 
 const getPrivateMessages = async (otherUsername) => {
-  if(SUSPEND_NORMAL_OPERATION) return [];
+  if (SUSPEND_NORMAL_OPERATION) return [];
   const currentUsername = localStorage.getItem("username");
   const data = await fetch(
     url + "/messages/private?username1=" + currentUsername + "&username2=" + otherUsername,
@@ -36,44 +36,44 @@ const sendMessage = async () => {
     if (CHATROOM_USER) {
       await sendPrivateMessage(CHATROOM_USER, status, textInput.value);
       showPrivateMessage(CHATROOM_USER);
-    } else if (ANNOUNCEMENT){
+    } else if (ANNOUNCEMENT) {
       // TODO: check for coordinator status
       sendAnnouncementMessage(textInput.value);
     } else {
       sendPublicMessage(status, textInput.value);
     }
     textInput.value = "";
-}
+  }
 };
 
 const sendPrivateMessage = async (receiverUsername, status, message) => {
-  if(SUSPEND_NORMAL_OPERATION) return [];
-    await fetch(url + "/messages/private", {
-      method: "POST",
-      body: JSON.stringify({username: localStorage.getItem("username"),content: message, status: status, receiver: receiverUsername}),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    });
+  if (SUSPEND_NORMAL_OPERATION) return [];
+  await fetch(url + "/messages/private", {
+    method: "POST",
+    body: JSON.stringify({ username: localStorage.getItem("username"), content: message, status: status, receiver: receiverUsername }),
+    headers: {
+      "Content-type": "application/json; charset=UTF-8",
+    },
+  });
 };
 
 
 const sendPublicMessage = async (status, message) => {
-    if(SUSPEND_NORMAL_OPERATION) return;
-    await fetch(url + "/messages/public", {
-      method: "POST",
-      body: JSON.stringify({username: localStorage.getItem("username"), content: message, timestamp: new Date().toString(), status: status, receiver: "all"}),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    });
+  if (SUSPEND_NORMAL_OPERATION) return;
+  await fetch(url + "/messages/public", {
+    method: "POST",
+    body: JSON.stringify({ username: localStorage.getItem("username"), content: message, timestamp: new Date().toString(), status: status, receiver: "all" }),
+    headers: {
+      "Content-type": "application/json; charset=UTF-8",
+    },
+  });
 };
 
 const sendAnnouncementMessage = async (message) => {
-  if(SUSPEND_NORMAL_OPERATION) return
+  if (SUSPEND_NORMAL_OPERATION) return
   await fetch(url + "/messages/announcement", {
     method: "POST",
-    body: JSON.stringify({username: localStorage.getItem("username"), content: message, timestamp: new Date().toString(), status: "undefined", receiver: "announcement"}),
+    body: JSON.stringify({ username: localStorage.getItem("username"), content: message, timestamp: new Date().toString(), status: "undefined", receiver: "announcement" }),
     headers: {
       "Content-type": "application/json; charset=UTF-8",
     },
@@ -100,26 +100,26 @@ const showPrivateMessage = async (otherUsername) => {
 };
 
 const getPublicMessages = async () => {
-  if(SUSPEND_NORMAL_OPERATION) return [];
-    const response = await fetch(url + "/messages/public", {
-        method: "GET",
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-        },
-      });
-    return response;
+  if (SUSPEND_NORMAL_OPERATION) return [];
+  const response = await fetch(url + "/messages/public", {
+    method: "GET",
+    headers: {
+      "Content-type": "application/json; charset=UTF-8",
+    },
+  });
+  return response;
 }
 
 const getAnnouncement = async () => {
-  if(SUSPEND_NORMAL_OPERATION) return;
+  if (SUSPEND_NORMAL_OPERATION) return;
   const response = await fetch(url + "/messages/announcement", {
-      method: "GET",
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    });
-    const { archive } = await response.json();
-    console.log(archive);
+    method: "GET",
+    headers: {
+      "Content-type": "application/json; charset=UTF-8",
+    },
+  });
+  const { archive } = await response.json();
+  console.log(archive);
   return archive;
 }
 
@@ -129,13 +129,13 @@ async function getArchive() {
   document.getElementById("wall").style.display = "flex";
   const response = await getPublicMessages();
   const data = await response.json();
-    if (!data.empty) {
-      for (let msg of data.archive) {
-        let msgCard = createMsgCard(msg);
-        messages.appendChild(msgCard);
-      }
-    };
-    // messages.scrollTo(0, messages.scrollHeight);
+  if (!data.empty) {
+    for (let msg of data.archive) {
+      let msgCard = createMsgCard(msg);
+      messages.appendChild(msgCard);
+    }
+  };
+  // messages.scrollTo(0, messages.scrollHeight);
 }
 
 const createLoadMoreButton = () => {
@@ -161,22 +161,22 @@ const createIconElement = (username, status) => {
   return iconElement;
 };
 
-const createUserBodyHeader = (user) =>{
-    let title = document.createElement("h5");
-    title.className = "card-title";
-    title.textContent = user.username;
-    title.style.cursor = "pointer";
-    title.addEventListener("click", () => showPrivateMessage(user.username));
+const createUserBodyHeader = (user) => {
+  let title = document.createElement("h5");
+  title.className = "card-title";
+  title.textContent = user.username;
+  title.style.cursor = "pointer";
+  title.addEventListener("click", () => showPrivateMessage(user.username));
   let cardHeader = document.createElement("div");
   cardHeader.className = "card-header";
-  const iconElement = createIconElement(user.username , user.status);
+  const iconElement = createIconElement(user.username, user.status);
   cardHeader.appendChild(title);
   cardHeader.appendChild(iconElement);
   return cardHeader;
 }
 
 
-const  createUserCardBody = (user) => {
+const createUserCardBody = (user) => {
   let cardBody = document.createElement("div");
   cardBody.className = "card-body";
   let dot = document.createElement("span");
@@ -199,63 +199,63 @@ function createUserCard(user) {
   return listItem;
 }
 
-const createTimeStampElement = (timestampDate)=> {
-    let timestamp = document.createElement("p");
-    timestamp.className = "card-text text-end";
-    let time = document.createElement("small");
-    time.className = "text-body-secondary";
-    time.textContent = timestampDate;
-    timestamp.appendChild(time);
-    return timestamp;
-} 
-
-const createTitleElement = (username)=> {
-    let title = document.createElement("h5");
-    title.className = "card-title fw-bold";
-    if (username == localStorage.getItem("username")) {
-        title.textContent = "Me";
-    } else {
-        title.textContent = username;
-    }
-    return title;
+const createTimeStampElement = (timestampDate) => {
+  let timestamp = document.createElement("p");
+  timestamp.className = "card-text text-end";
+  let time = document.createElement("small");
+  time.className = "text-body-secondary";
+  time.textContent = timestampDate;
+  timestamp.appendChild(time);
+  return timestamp;
 }
 
-const createMsgCardBody = (msg)=>{
-    let cardBody = document.createElement("div");
-    cardBody.className = "card-body";
-    const iconElement = document.createElement("i");
-    iconElement.classList.add("las");
-    setIconClass(msg.status, iconElement);
-    const titleElement = createTitleElement(msg.username)
-    const timestampElement = createTimeStampElement(msg.timestamp);
-    let text = document.createElement("p");
-    text.className = "card-text";
-    text.textContent = msg.content;
-    cardBody.appendChild(titleElement);
-    cardBody.appendChild(iconElement);
-    cardBody.appendChild(text);
-    cardBody.appendChild(timestampElement);
-    return cardBody;
+const createTitleElement = (username) => {
+  let title = document.createElement("h5");
+  title.className = "card-title fw-bold";
+  if (username == localStorage.getItem("username")) {
+    title.textContent = "Me";
+  } else {
+    title.textContent = username;
+  }
+  return title;
+}
+
+const createMsgCardBody = (msg) => {
+  let cardBody = document.createElement("div");
+  cardBody.className = "card-body";
+  const iconElement = document.createElement("i");
+  iconElement.classList.add("las");
+  setIconClass(msg.status, iconElement);
+  const titleElement = createTitleElement(msg.username)
+  const timestampElement = createTimeStampElement(msg.timestamp);
+  let text = document.createElement("p");
+  text.className = "card-text";
+  text.textContent = msg.content;
+  cardBody.appendChild(titleElement);
+  cardBody.appendChild(iconElement);
+  cardBody.appendChild(text);
+  cardBody.appendChild(timestampElement);
+  return cardBody;
 }
 
 function createMsgCard(msg) {
-    let listItem = document.createElement("li");
-    listItem.className = "list-group-item";
-    const cardBody = createMsgCardBody(msg);
-    let card = document.createElement("div");
-    card.className = "card mx-3 my-3";
-    card.style = "max-width: 36rem;";
-    if (msg.username == localStorage.getItem("username")) {
-        card.className = "card ms-auto my-3 mx-3";
-    }
-    card.appendChild(cardBody);
-    listItem.appendChild(card);
-    return listItem;
+  let listItem = document.createElement("li");
+  listItem.className = "list-group-item";
+  const cardBody = createMsgCardBody(msg);
+  let card = document.createElement("div");
+  card.className = "card mx-3 my-3";
+  card.style = "max-width: 36rem;";
+  if (msg.username == localStorage.getItem("username")) {
+    card.className = "card ms-auto my-3 mx-3";
+  }
+  card.appendChild(cardBody);
+  listItem.appendChild(card);
+  return listItem;
 }
 
 const setIconClass = (status, iconElement) => {
   const classes = ["la-check-circle", "la-exclamation-circle", "la-plus-square", "check-icon", "danger-icon", "plus-icon"];
-  classes.forEach((className)=>{iconElement.classList.remove(className)});
+  classes.forEach((className) => { iconElement.classList.remove(className) });
   if (status === "ok") {
     iconElement.classList.add("la-check-circle");
     iconElement.classList.add("check-icon");
@@ -274,7 +274,7 @@ const updateUserStatusIconEverywhere = (status, username) => {
 };
 
 const registerSocket = async (username, socketId) => {
-  if(SUSPEND_NORMAL_OPERATION) return;
+  if (SUSPEND_NORMAL_OPERATION) return;
   try {
     await fetch(url + "/sockets/users/" + username, {
       method: "POST",
@@ -290,28 +290,28 @@ const registerSocket = async (username, socketId) => {
 
 const connectToSocket = async () => {
   const socket = await io(url);
-  socket.on("connect", async () => {registerSocket(localStorage.getItem("username"), socket.id); localStorage.setItem("socketID", socket.id); });
-  socket.on("chat message", (msg) => {if(!SUSPEND_NORMAL_OPERATION) addMessages(msg)});
-  socket.on("updateUserList", async () => {await fetchInitialUserList();});
-  socket.on("status-update", (data) => {updateUserStatusIconEverywhere(data.status, data.username);});
-  socket.on("private-message", (data) => {showMessageAlert(data, "primary");});
-  socket.on("suspendNormalOperation", (socketID) => {if(socketID != localStorage.getItem('socketID')) SUSPEND_NORMAL_OPERATION=true;});
-  socket.on("enableNormalOperation", (data) => {SUSPEND_NORMAL_OPERATION=false;});
+  socket.on("connect", async () => { registerSocket(localStorage.getItem("username"), socket.id); localStorage.setItem("socketID", socket.id); });
+  socket.on("chat message", (msg) => { if (!SUSPEND_NORMAL_OPERATION) addMessages(msg) });
+  socket.on("updateUserList", async () => { await fetchInitialUserList(); });
+  socket.on("status-update", (data) => { updateUserStatusIconEverywhere(data.status, data.username); });
+  socket.on("private-message", (data) => { showMessageAlert(data, "primary"); });
+  socket.on("suspendNormalOperation", (socketID) => { if (socketID != localStorage.getItem('socketID')) SUSPEND_NORMAL_OPERATION = true; });
+  socket.on("enableNormalOperation", (data) => { SUSPEND_NORMAL_OPERATION = false; });
 };
 
-const showMessage = (message)=>{
-    const titleElement = document.getElementById("message-modal-title");
-    const statusElement = document.getElementById("message-modal-status");
-    const iconElement = createIconElement(message.username, message.status);
-    const timeStampElement = document.getElementById("message-modal-timestamp");
-    const contentElement = document.getElementById("message-modal-content");
-    titleElement.innerHTML = `New Message from ${message.username}`;
-    while (statusElement.firstChild) {
-        statusElement.removeChild(statusElement.firstChild);
-    }
-    statusElement.appendChild(iconElement);
-    timeStampElement.innerHTML = message.timestamp;
-    contentElement.innerHTML = message.content;
+const showMessage = (message) => {
+  const titleElement = document.getElementById("message-modal-title");
+  const statusElement = document.getElementById("message-modal-status");
+  const iconElement = createIconElement(message.username, message.status);
+  const timeStampElement = document.getElementById("message-modal-timestamp");
+  const contentElement = document.getElementById("message-modal-content");
+  titleElement.innerHTML = `New Message from ${message.username}`;
+  while (statusElement.firstChild) {
+    statusElement.removeChild(statusElement.firstChild);
+  }
+  statusElement.appendChild(iconElement);
+  timeStampElement.innerHTML = message.timestamp;
+  contentElement.innerHTML = message.content;
 }
 
 const closeAlert = (message) => {
@@ -325,21 +325,21 @@ const closeAlert = (message) => {
 };
 
 
-const createAlertHTMLElement = (message, type)=>{
-    const wrapper = document.createElement("div");
-    wrapper.id = message._id;
-    wrapper.innerHTML = [
-      `<div class="alert alert-${type} alert-dismissible alert-fse" role="alert">`,
-      `<div>${message.username}: ${message.content}</div>`,
-      `<div class ="alert-button-container">`,
-      `<button type="button" id="button-${message._id}" aria-label="Close" data-bs-toggle="modal"  data-bs-target="#exampleModal" >`,
-      `<i class="las la-eye">`,
-      `</i>`,
-      `</button>`,
-      `</div>`,
-      "</div>",
-    ].join("");
-    return wrapper;  
+const createAlertHTMLElement = (message, type) => {
+  const wrapper = document.createElement("div");
+  wrapper.id = message._id;
+  wrapper.innerHTML = [
+    `<div class="alert alert-${type} alert-dismissible alert-fse" role="alert">`,
+    `<div>${message.username}: ${message.content}</div>`,
+    `<div class ="alert-button-container">`,
+    `<button type="button" id="button-${message._id}" aria-label="Close" data-bs-toggle="modal"  data-bs-target="#exampleModal" >`,
+    `<i class="las la-eye">`,
+    `</i>`,
+    `</button>`,
+    `</div>`,
+    "</div>",
+  ].join("");
+  return wrapper;
 }
 
 const showMessageAlert = (message, type) => {
@@ -360,7 +360,7 @@ const replyToUser = () => {
 };
 
 const getStatus = async (username) => {
-  if(SUSPEND_NORMAL_OPERATION) return;
+  if (SUSPEND_NORMAL_OPERATION) return;
   try {
     const res = await fetch(url + "/user/status/" + username, {
       method: "GET",
@@ -388,7 +388,7 @@ const setStatusButtonUI = (status) => {
 };
 
 const changeStatus = async (status) => {
-  if(SUSPEND_NORMAL_OPERATION) return;
+  if (SUSPEND_NORMAL_OPERATION) return;
   try {
     const username = localStorage.getItem("username");
     const res = await fetch(url + "/user/status/" + username, {
@@ -402,11 +402,11 @@ const changeStatus = async (status) => {
       throw new Error(`Error fetching status: ${response.statusText}`);
     }
     setStatusButtonUI(status);
-  } catch (err) {}
+  } catch (err) { }
 };
 
 const logout = async () => {
-  if(SUSPEND_NORMAL_OPERATION) return;
+  if (SUSPEND_NORMAL_OPERATION) return;
   try {
     window.location.replace("/");
     await fetch(url + "/auth/users", {
@@ -421,7 +421,7 @@ const logout = async () => {
     });
     localStorage.setItem("token", null);
     localStorage.setItem("username", null);
-  } catch (e) {}
+  } catch (e) { }
 };
 
 
@@ -444,7 +444,7 @@ const announcement = async () => {
 };
 
 const fetchInitialUserList = async () => {
-  if(SUSPEND_NORMAL_OPERATION) return;
+  if (SUSPEND_NORMAL_OPERATION) return;
   console.log("fetching users");
   const response = await fetch(url + "/users");
   const users = await response.json();
@@ -469,7 +469,7 @@ const addMessages = (msg) => {
 };
 
 const getUnreadMessages = async () => {
-  if(SUSPEND_NORMAL_OPERATION) return [];
+  if (SUSPEND_NORMAL_OPERATION) return [];
   const username = localStorage.getItem("username");
   const data = await fetch(url + "/messages/private/unread?username=" + username, {
     method: "GET",
@@ -492,7 +492,7 @@ const getAlerts = async () => {
 };
 
 const checkIfTestOngoing = async () => {
-  const response = await fetch(url + "/speedTest",{
+  const response = await fetch(url + "/speedTest", {
     method: "GET",
     headers: {
       "Content-type": "application/json; charset=UTF-8",
@@ -500,7 +500,7 @@ const checkIfTestOngoing = async () => {
   });
   const responseData = await response.json();
   console.log("responseData", responseData);
-  if(responseData) {
+  if (responseData) {
     SUSPEND_NORMAL_OPERATION = true;
   }
 }
@@ -602,7 +602,7 @@ const searchByUsername = async (searchValue) => {
       },
     });
     const { search_result } = await response.json();
-    const data = {users: search_result};
+    const data = { users: search_result };
     console.log("search result", data);
     displayUsers(data);
   } catch (e) {
@@ -620,7 +620,7 @@ const searchByStatus = async () => {
       },
     });
     const { search_result } = await response.json();
-    const data = {users: search_result};
+    const data = { users: search_result };
     console.log("search result", data);
     displayUsers(data);
   } catch (e) {
@@ -643,7 +643,7 @@ function setSearchPublic() {
   PUBLIC_SEARCH_COUNTER = 1;
   MESSAGE_RECEIVER = "all";
   document.getElementById("messages-search-input").placeholder = "Search Public Messages";
-} 
+}
 
 function setSearchAnnouncement() {
   ANNOUNCEMENT_SEARCH_COUNTER = 1;
@@ -658,6 +658,17 @@ function setSearchPrivate(receiver) {
 }
 
 
+function createMessageElement(search_result) {
+  const messages = document.getElementById("messages");
+  messages.innerHTML = "";
+  if (!search_result.empty) {
+    createLoadMoreButton();
+    for (let msg of search_result) {
+      let msgCard = createMsgCard(msg);
+      messages.appendChild(msgCard);
+    }
+  }
+}
 
 const searchPublicMessages = async (searchValue) => {
   console.log(`searching by public message: ${searchValue}`);
@@ -669,15 +680,7 @@ const searchPublicMessages = async (searchValue) => {
       },
     });
     const { search_result } = await response.json();
-    const messages = document.getElementById("messages");
-    messages.innerHTML = "";
-    if (!search_result.empty) {
-      createLoadMoreButton();
-      for (let msg of search_result) {
-        let msgCard = createMsgCard(msg);
-        messages.appendChild(msgCard);
-      }
-    }
+    createMessageElement(search_result);
   } catch (e) {
     console.log("Database retrieval error", e);
   }
@@ -695,15 +698,8 @@ const searchAnnouncementMessages = async (searchValue) => {
       },
     });
     const { search_result } = await response.json();
-    const messages = document.getElementById("messages");
-    messages.innerHTML = "";
-    if (!search_result.empty) {
-      createLoadMoreButton();
-      for (let msg of search_result) {
-        let msgCard = createMsgCard(msg);
-        messages.appendChild(msgCard);
-      }
-    }
+    createMessageElement(search_result);
+
   } catch (e) {
     console.log("Database retrieval error", e);
   }
@@ -722,22 +718,15 @@ const searchPrivateMessages = async (searchValue) => {
       },
     });
     const { search_result } = await response.json();
-    const messages = document.getElementById("messages");
-    messages.innerHTML = "";
-    if (!search_result.empty) {
-      createLoadMoreButton();
-      for (let msg of search_result) {
-        let msgCard = createMsgCard(msg);
-        messages.appendChild(msgCard);
-      }
-    }
+    createMessageElement(search_result);
+
   } catch (e) {
     console.log("Database retrieval error", e);
   }
-  if(searchValue  =="status"){
+  if (searchValue == "status") {
     PRIVATE_SEARCH_COUNTER = 0;
   }
-  else{
+  else {
     PRIVATE_SEARCH_COUNTER += 1;
   }
 
@@ -748,7 +737,7 @@ function searchMessages() {
   const searchInput = document.getElementById("messages-search-input");
   const searchValue = searchInput.value;
   if (searchInput.value) {
-    
+
     if (MESSAGE_RECEIVER === "all") {
       searchPublicMessages(searchValue);
     } else if (MESSAGE_RECEIVER === "announcement") {
