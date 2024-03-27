@@ -43,6 +43,6 @@ router.get("/users/status/search", searchByStatus);
 
 router.get("/speedtest", isSpeedTestOngoing);
 router.post("/speedtest", startSpeedTest);
-router.post("/speedtest/done", stopSpeedTest);
+router.post("/speedtest/end", stopSpeedTest);
 
 export default router;

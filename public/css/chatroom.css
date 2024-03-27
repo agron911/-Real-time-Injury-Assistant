@@ -257,3 +257,46 @@ header, #messageForm {
     background-color: red;
     display: none;
 }
+
+.buttons-container {
+    display: block;
+}
+
+.dropdown-actions{
+    display: none;
+    position: fixed !important;
+    bottom: 100px;
+    left: 2em;
+    width: fit-content;
+}
+
+.kebab-menu{
+    font-size: 24px;
+    border-radius: 50%;
+    background-color: #4CAF50;
+    padding: 10px;
+    color: white;
+}
+
+@media screen and (max-width: 640px) {
+    .buttons-container {
+        display: none;
+    }
+}
+
+
+@media screen and (max-width: 640px) {
+    .dropdown-actions {
+        display: block;
+    }
+}
+
+.speed-test-modal-boy {
+    position: relative;
+}
+
+.speed-test-spinner{
+    position: absolute;
+    top: 40%;
+    right: 45%;
+}

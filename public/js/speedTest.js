@@ -2,7 +2,7 @@ url = ""
 twentycharstr = "aaaaaaaaaaaaaaaaaaaa"
 let postIntervalId;
 let getIntervalId;
-
+let stopTestFlag;
 
 async function send_post_request(){
     const resp = await fetch(url+"/messages/public", {
@@ -67,6 +67,8 @@ async function run_test(interval, duration){
     var post_start = Date.now();
     var post_counter = 0;
     var get_counter = 0;
+    postIntervalId = null;
+    getIntervalId = null;
     postIntervalId = setInterval(async function(){
         const resp = await send_post_request();
         post_counter+=1;
@@ -78,8 +80,8 @@ async function run_test(interval, duration){
             //tell user test was terminated
         }
     }, interval);
-
     await stoptest(postIntervalId, (duration/2)*1000);
+    if(stopTestFlag) return; 
     post_duration = (Date.now() - post_start)/1000;
     if(limitflag){
         // console.log("we here");
@@ -107,16 +109,18 @@ async function run_test(interval, duration){
     performanceData.style.display = 'block';
     document.getElementById('postPerformance').innerHTML = (post_counter / post_duration) + " requests/second";
     document.getElementById('getPerformance').innerHTML = (get_counter / get_duration) + " requests/second";
-    stopSpeedTest();
+    await stopSpeedTest();
     console.log(get_counter, get_duration);
 }
 
 const stopSpeedTest = async () => {
-    clearInterval(postIntervalId);
-    clearInterval(getIntervalId);
-    await fetch(url+"speedTest/done",{
+    stopTestFlag = true;
+    if(postIntervalId) clearInterval(postIntervalId);
+    if(getIntervalId) clearInterval(getIntervalId);
+    await fetch(url+"speedTest/end",{
         method: "POST",
     });
+    showSpinner(false);
     console.log("Speed stopped");
 };
 
@@ -128,7 +132,17 @@ const showSpeedTestModal = () => {
     speedTestModal.show();
 }
 
+const showSpinner = (show) => {
+    const spinner = document.getElementById('speed-test-spinner');
+    show?spinner.style.display = 'block':spinner.style.display = 'none';
+}
+
 const start_speed_test = async () => {
+    stopTestFlag = false;
+    const interval = document.getElementById('interval').value;
+    const duration = document.getElementById('duration').value;
+    if(!interval || !duration || interval == 0 || duration == 0) return;
+    showSpinner(true);
     await fetch(url+'/speedtest', {
         method: 'POST',
         body: JSON.stringify({
@@ -139,11 +153,5 @@ const start_speed_test = async () => {
             "Content-type": "application/json; charset=UTF-8",
         },
     });
-
-    const interval = document.getElementById('interval').value;
-    const duration = document.getElementById('duration').value;
-     
-    // console.log("interval: ",interval, duration);
-
     run_test(interval, duration);
 }
