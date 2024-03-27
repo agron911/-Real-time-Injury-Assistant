@@ -4,7 +4,7 @@ import { io } from "../utils/socketSetup.js";
 import { isUserActive, getSocketIds } from '../model/ActiveUser.js';
 
 export const loadUnreadMessages = async(req, res) => {
-    const messages = await DAO.getInstance().getUnreadMessages(req.params.username);
+    const messages = await DAO.getInstance().getUnreadMessages(req.query.username);
     try{
         res.status(200).send({archive:messages});
     }catch(err){

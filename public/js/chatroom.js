@@ -453,7 +453,7 @@ const addMessages = (msg) => {
 const getUnreadMessages = async () => {
   if(SUSPEND_NORMAL_OPERATION) return [];
   const username = localStorage.getItem("username");
-  const data = await fetch(url + "/messages/private/" + username, {
+  const data = await fetch(url + "/messages/private/unread?username=" + username, {
     method: "GET",
     headers: {
       "Content-type": "application/json; charset=UTF-8",
