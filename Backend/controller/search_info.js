@@ -51,7 +51,7 @@ export const searchByPrivateMessages = async(req,res)=>{
     const limit = req.query.limit;
     
     if(content == "status"){
-        const result = await DAO.getInstance().search_by_username(receiver)
+        const result = await DAO.getInstance().search_by_username(sender)
         let status_hist = result[0].statusHistory;
         if(status_hist.length > 10){
             status_hist = status_hist.slice(-10);
