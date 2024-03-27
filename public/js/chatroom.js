@@ -577,7 +577,7 @@ function setSearchStatusEmergency() {
 const searchByUsername = async (searchValue) => {
   console.log(`searching by username: ${searchValue}`);
   try {
-    const response = await fetch(url + "/users/username/search/" + searchValue, {
+    const response = await fetch(url + "/users/username/" + searchValue, {
       method: "GET",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -595,7 +595,7 @@ const searchByUsername = async (searchValue) => {
 const searchByStatus = async () => {
   console.log(`searching by status: ${USERS_SEARCH_STATUS}`);
   try {
-    const response = await fetch(url + "/users/status/search/" + USERS_SEARCH_STATUS, {
+    const response = await fetch(url + "/users/status/" + USERS_SEARCH_STATUS, {
       method: "GET",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -664,7 +664,7 @@ let announcement_search_counter = 1
 const searchAnnouncementMessages = async (searchValue) => {
   console.log(`searching by announcement message: ${searchValue}`);
   try {
-    const response = await fetch(url + "/messages/announcement/search/" + searchValue+"/"+(announcement_search_counter*10).toString(), {
+    const response = await fetch(url + "/messages/announcement/" + searchValue+"/"+(announcement_search_counter*10).toString(), {
       method: "GET",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -728,22 +728,3 @@ function searchMessages() {
   }
 }
 
-window.onload = async () => {
-  try {
-    const username = localStorage.getItem("username");
-    if (username) {
-      const toggleButton = document.getElementById("toggle-btn");
-      await connectToSocket();
-      // toggleButton.addEventListener("click", async (e) => {
-      //   e.preventDefault();
-      //   await logout();
-      //   window.location.replace("/");
-      // });
-      const status = await getStatus(username);
-      if (status) setStatusButtonUI(status);
-      await getAlerts();
-    }
-  } catch (err) {
-    console.log("err", err);
-  }
-};
