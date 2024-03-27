@@ -132,7 +132,7 @@ class DAO {
 
     search_by_private_messages = async (message, sender, receiver, limit)=>{
         try{
-            var result = await messageCollection.find({content: new RegExp(message), receiver:{ $eq: sender}, username: receiver}).sort({ timestamp: -1}).limit(limit)
+            var result = await messageCollection.find({content: new RegExp(message), receiver:{ $in: [sender, receiver]}, username: {$in:[receiver, sender]}}).sort({ timestamp: -1}).limit(limit)
             return result
         } catch(err) {
 

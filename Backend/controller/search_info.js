@@ -65,7 +65,7 @@ export const searchByPrivateMessages = async(req,res)=>{
             if(content.length ===0){
                 res.status(200).send({search_result:[]});
             }else{
-                const result = await DAO.getInstance().search_by_private_messages(content, sender, receiver, limit);
+                const result = await DAO.getInstance().search_by_private_messages(content, receiver, sender, limit);
                 res.status(200).send({search_result:result});
             }
             
