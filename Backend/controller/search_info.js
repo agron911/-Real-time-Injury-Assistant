@@ -1,4 +1,5 @@
 import DAO from "../model/dao.js"
+import MessageObj from "../model/message-class.js";
 
 function filterStopWords(input) {
     const stopWords = [
@@ -40,11 +41,13 @@ export const searchByPrivateMessages = async(req,res)=>{
     const limit = req.params.limit;
     if(content == "status"){
         const result = await DAO.getInstance().search_by_username(sender)
-        console.log(typeof result[0])
-        res.status(200).send(result[0])
+        let status_message = new MessageObj(sender, "Status History: " +result[0].statusHistory.join(','), Date.now(), result[0].status, receiver )
+        console.log( result[0].statusHistory)
+        res.status(200).send({search_result:[status_message.obj]})
     }else{
         content = filterStopWords(content);
         const result = await DAO.getInstance().search_by_private_messages(content, sender, receiver, limit);
+     
         res.status(200).send({search_result:result});
     }
 }
