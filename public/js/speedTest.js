@@ -105,8 +105,8 @@ async function run_test(interval, duration){
 
     const performanceData = document.getElementById('performanceData');
     performanceData.style.display = 'block';
-    document.getElementById('postPerformance').innerHTML = post_counter / post_duration;
-    document.getElementById('getPerformance').innerHTML = get_counter / get_duration;
+    document.getElementById('postPerformance').innerHTML = (post_counter / post_duration) + " requests/second";
+    document.getElementById('getPerformance').innerHTML = (get_counter / get_duration) + " requests/second";
     stopSpeedTest();
     console.log(get_counter, get_duration);
 }
