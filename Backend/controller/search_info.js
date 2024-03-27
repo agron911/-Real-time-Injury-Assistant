@@ -27,9 +27,12 @@ export const searchByPublicMessage = async(req,res)=>{
     var content = req.params.content;
     const limit = req.params.limit;
     content = filterStopWords(content);
-    const result = await DAO.getInstance().search_by_public_messages(content, limit);
-    res.status(200).send({search_result:result});
-    res.status(402).send();
+    try{
+        const result = await DAO.getInstance().search_by_public_messages(content, limit);
+        res.status(200).send({search_result:result});
+    }catch(err){
+        res.status(400).send({message: "search_by_public_messages failure"});
+    }
 }
 
 export const searchByPrivateMessages = async(req,res)=>{
@@ -44,16 +47,24 @@ export const searchByPrivateMessages = async(req,res)=>{
         res.status(200).send(result[0])
     }else{
         content = filterStopWords(content);
-        const result = await DAO.getInstance().search_by_private_messages(content, sender, receiver, limit);
-        res.status(200).send({search_result:result});
+        try{
+            const result = await DAO.getInstance().search_by_private_messages(content, sender, receiver, limit);
+            res.status(200).send({search_result:result});
+        }catch(err){
+            res.status(400).send({message: "search_by_private_messages failure"});
+        }
     }
 }
 
 export const searchByAnnouncement = async(req,res)=>{
     let content = req.params.content;
     content = filterStopWords(content);
-    const result = await DAO.getInstance().search_by_announcement(req.params.content, req.params.limit);
-    res.status(200).send({search_result:result});
+    try{
+        const result = await DAO.getInstance().search_by_announcement(req.params.content, req.params.limit);
+        res.status(200).send({search_result:result});
+    }catch(err){
+        res.status(400).send({message: "search_by_announcement failure"});
+    }
 }
 
 export const searchByUsername = async(req, res)=>{

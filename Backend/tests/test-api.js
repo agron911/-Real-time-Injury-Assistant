@@ -4,7 +4,7 @@ import Server from '../../server.js';
 import request from 'supertest';
 import DAO from '../model/dao.js';
 import { hashPassword, comparePassword } from "../utils/passwordUtils.js";
-
+import {jest} from '@jest/globals';
 
 /**
  * Connect to a new in-memory database before running any tests.
@@ -231,6 +231,124 @@ describe('Testing Chat pribately API', () => {
         const user2_msg = await DAO.getInstance().getUnreadMessages(user2);
         expect(response.statusCode).toBe(200);
         expect(user2_msg[0].content).toBe('a send to T');
+    })
+
+})
+
+
+// post announcement
+// /messages/announcement
+
+describe('Test Post Announcement API', () => {
+    test('/Post announcement', async () => {
+        const data = {
+            username: 'agron',
+            content: 'hello',
+            timestamp: '100',
+            status: 'ok',
+            receiver: 'all'
+        }
+        const response = await request(Server.instance.httpServer).post("/messages/announcement").send(data);
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toBe('message received');
+
+        const data2 = {
+            username: 'agron',
+            content: 'hello',
+            timestamp: '100',
+            status: 'ok',
+        }
+        const response2 = await request(Server.instance.httpServer).post("/messages/announcement").send(data2);
+        expect(response2.statusCode).toBe(400);
+        expect(response2.body.message).toBe("database failure");
+    })
+
+    test('/Get all announcement messages', async () => {
+        const data = {
+            username: 'agron',
+            content: 'hello',
+            timestamp: '100',
+            status: 'ok',
+            receiver: 'announcement'
+        }
+        await request(Server.instance.httpServer).post("/messages/announcement").send(data);
+        const response = await request(Server.instance.httpServer).get("/messages/announcement");
+        let msg = response.body.archive.filter(msg => msg.username === data.username && msg.timestamp === data.timestamp)
+        expect(response.statusCode).toBe(200);
+        expect(msg[0].content).toBe('hello');
+
+        jest.spyOn(DAO.getInstance(), 'getAllMessages').mockImplementation(() => { throw new Error() });
+        const response2 = await request(Server.instance.httpServer).get("/messages/announcement");
+        expect(response2.statusCode).toBe(400);
+        expect(response2.body.message).toBe('search_by_announcement failure');
+
+    })
+})
+
+// search information
+// router.get("/messages/public/:content/:limit", searchByPublicMessage);
+// router.get("/messages/private/:sender/:receiver/:content/:limit", searchByPrivateMessages);
+
+describe('Test Search Info API', () => {
+    test('/Get public messages by content', async () => {
+        const data = {
+            username: 'agron',
+            content: 'hello',
+            timestamp: '100',
+            status: 'ok',
+            receiver: 'all'
+        }
+        await request(Server.instance.httpServer).post("/messages/public").send(data);
+        const response = await request(Server.instance.httpServer).get("/messages/public/hello/1");
+        let msg = response.body.search_result.filter(msg => msg.username === data.username && msg.timestamp === data.timestamp)
+        expect(response.statusCode).toBe(200);
+        expect(msg[0].content).toBe('hello');
+
+        jest.spyOn(DAO.getInstance(), 'search_by_public_messages').mockImplementation(() => { throw new Error() });
+        const response2 = await request(Server.instance.httpServer).get("/messages/public/hello/1");
+        expect(response2.statusCode).toBe(400);
+        expect(response2.body.message).toBe('database failure');
+
+    })
+
+    test('/Get private messages by content', async () => {
+
+        const data ={
+            username: 'agron',
+            content: "A_send",
+            timestamp: "100",
+            status: 'ok',
+            receiver: 'Taige'
+        }
+        await request(Server.instance.httpServer).post("/messages/private").send(data);
+        const response = (await request(Server.instance.httpServer).get("/messages/private/" + data.username + "/" + data.receiver + "/A_send/1"));
+        let msg = response.body.search_result.filter(msg => msg.username === data.username)
+        expect(response.statusCode).toBe(200);
+        expect(msg[0].content).toContain('A_send');
+        jest.spyOn(DAO.getInstance(), 'search_by_private_messages').mockImplementation(() => { throw new Error() });
+        const response2 = (await request(Server.instance.httpServer).get("/messages/private/" + data.username + "/" + data.receiver + "/A_send/1"));
+        expect(response2.statusCode).toBe(400);
+        expect(response2.body.message).toBe('search_by_private_messages failure');
+
+    })
+
+
+    test('/Get all users by username', async () => {
+        const data = {
+            username: 'agron',
+            password: '1234'
+        }
+        await request(Server.instance.httpServer).post("/users").send(data);
+        const response = await request(Server.instance.httpServer).get("/users/username/search/agron");
+        expect(response.statusCode).toBe(200);
+        expect(response.body.search_result[0].username).toBe('agron');
+    })
+
+    test('/Get all users by status', async () => {
+        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok')
+        const response = await request(Server.instance.httpServer).get("/users/status/search/ok");
+        expect(response.statusCode).toBe(200);
+        expect(response.body.search_result[0].username).toBe('agron');
     })
 
 })

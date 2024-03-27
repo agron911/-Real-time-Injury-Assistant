@@ -641,7 +641,7 @@ let public_search_counter = 1
 const searchPublicMessages = async (searchValue) => {
   console.log(`searching by public message: ${searchValue}`);
   try {
-    const response = await fetch(url + "/messages/public/search/" + searchValue+"/"+(public_search_counter*10).toString(), {
+    const response = await fetch(url + "/messages/public/" + searchValue+"/"+(public_search_counter*10).toString(), {
       method: "GET",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -687,7 +687,7 @@ let private_search_counter = 1;
 const searchPrivateMessages = async (searchValue) => {
   console.log(`searching by private message: ${searchValue}`);
   try {
-    const response = await fetch(url + "/messages/private/search/" + localStorage.getItem("username") + "/" + MESSAGE_RECEIVER + "/" + searchValue+"/"+(private_search_counter*10).toString(), {
+    const response = await fetch(url + "/messages/private/" + localStorage.getItem("username") + "/" + MESSAGE_RECEIVER + "/" + searchValue+"/"+(private_search_counter*10).toString(), {
       method: "GET",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
