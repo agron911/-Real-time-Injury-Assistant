@@ -34,7 +34,7 @@ router.post("/sockets/users/:username", registerUserSocket);
 router.get("/messages/public/search/:content/:limit", searchByPublicMessage);
 router.get("/messages/private/search/:receiver/:sender/:content/:limit", searchByPrivateMessages);
 router.get("/users/username/search/:user", searchByUsername);
-router.get("/users/messages/announcement/search/:username/:limit", searchByAnnouncement);
+router.get("/messages/announcement/search/:username/:limit", searchByAnnouncement);
 router.get("/users/status/search/:status", searchByStatus);
 
 

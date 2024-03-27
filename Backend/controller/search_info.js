@@ -41,7 +41,12 @@ export const searchByPrivateMessages = async(req,res)=>{
     const limit = req.params.limit;
     if(content == "status"){
         const result = await DAO.getInstance().search_by_username(sender)
-        let status_message = new MessageObj(sender, "Status History: " +result[0].statusHistory.join(','), Date.now(), result[0].status, receiver )
+        let status_hist = result[0].statusHistory;
+        if(status_hist.length > 10){
+            status_hist = status_hist.slice(-10);
+        }
+        status_hist = status_hist.reverse();
+        let status_message = new MessageObj(sender, "Status History: " +status_hist, Date.now(), result[0].status, receiver )
         console.log( result[0].statusHistory)
         res.status(200).send({search_result:[status_message.obj]})
     }else{
