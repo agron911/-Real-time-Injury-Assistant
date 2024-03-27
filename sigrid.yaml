@@ -2,6 +2,7 @@ component_depth: 1
 exclude:
   - ".*/views/.*"
   - "./*.json"
+  - ".*/Backend/utils/user-config.js"
   - "./*.md"
 languages:
   - name: javascript
