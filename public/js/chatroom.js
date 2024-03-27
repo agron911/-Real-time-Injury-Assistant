@@ -586,10 +586,12 @@ function setSearchPrivate(receiver) {
   document.getElementById("messages-search-input").placeholder = "Search Private Messages";
 }
 
+let public_search_counter = 1
+
 const searchPublicMessages = async (searchValue) => {
   console.log(`searching by public message: ${searchValue}`);
   try {
-    const response = await fetch(url + "/messages/public/search/" + searchValue, {
+    const response = await fetch(url + "/messages/public/search/" + searchValue+"/"+(public_search_counter*10).toString(), {
       method: "GET",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -605,12 +607,14 @@ const searchPublicMessages = async (searchValue) => {
   } catch (e) {
     console.log("Database retrieval error", e);
   }
+  public_search_counter+=1;
 }
 
+let announcement_search_counter = 1
 const searchAnnouncementMessages = async (searchValue) => {
   console.log(`searching by announcement message: ${searchValue}`);
   try {
-    const response = await fetch(url + "/messages/announcement/search/" + searchValue, {
+    const response = await fetch(url + "/messages/announcement/search/" + searchValue+"/"+(announcement_search_counter*10).toString(), {
       method: "GET",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -626,12 +630,14 @@ const searchAnnouncementMessages = async (searchValue) => {
   } catch (e) {
     console.log("Database retrieval error", e);
   }
+  announcement_search_counter+=1;
 }
 
+let private_search_counter = 1;
 const searchPrivateMessages = async (searchValue) => {
   console.log(`searching by private message: ${searchValue}`);
   try {
-    const response = await fetch(url + "/messages/private/search/" + localStorage.getItem("username") + "/" + MESSAGE_RECEIVER + "/" + searchValue, {
+    const response = await fetch(url + "/messages/private/search/" + localStorage.getItem("username") + "/" + MESSAGE_RECEIVER + "/" + searchValue+"/"+(private_search_counter*10).toString(), {
       method: "GET",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -647,6 +653,13 @@ const searchPrivateMessages = async (searchValue) => {
   } catch (e) {
     console.log("Database retrieval error", e);
   }
+  if(searchValue  =="status"){
+    private_search_counter = 0;
+  }
+  else{
+    private_search_counter+=1;
+  }
+
 }
 
 

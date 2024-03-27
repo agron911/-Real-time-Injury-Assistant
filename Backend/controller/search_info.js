@@ -23,43 +23,37 @@ function filterStopWords(input) {
     return filteredWords.join(" ");
 }
 
-export const searchByPublicMessage = async(req, res)=>{
-    const content = filterStopWords(req.params.content);
-    if (content == "") {
-        res.status(201).send({search_result:[]});
-    } else {
-        const result = await DAO.getInstance().search_by_public_messages(content);
-
-        res.status(200).send({search_result:result});
-    }
+export const searchByPublicMessage = async(req,res)=>{
+    var content = req.params.content;
+    const limit = req.params.limit;
+    content = filterStopWords(content);
+    const result = await DAO.getInstance().search_by_public_messages(content, limit);
+    res.status(200).send({search_result:result});
+    res.status(402).send();
 }
 
-export const searchByPrivateMessages = async(req, res)=>{
-    const content = filterStopWords(req.params.content);
+export const searchByPrivateMessages = async(req,res)=>{
+    //console.log(req.params)
+    let content = req.params.content;
     const sender = req.params.sender;;
     const receiver = req.params.receiver;
-    if (content == "") {
-        res.status(201).send({search_result:[]});
-    } else {
-        const result = await DAO.getInstance().search_by_private_messages(content, sender, receiver);
+    const limit = req.params.limit;
+    if(content == "status"){
+        const result = await DAO.getInstance().search_by_username(sender)
+        console.log(typeof result[0])
+        res.status(200).send(result[0])
+    }else{
+        content = filterStopWords(content);
+        const result = await DAO.getInstance().search_by_private_messages(content, sender, receiver, limit);
         res.status(200).send({search_result:result});
-
     }
-    
-    
 }
 
 export const searchByAnnouncement = async(req,res)=>{
-    const content = filterStopWords(req.params.content);
-    if (content == ""){
-        res.status(201).send({search_result:[]});
-    } else {
-        console.log(content);
-        const result = await DAO.getInstance().search_by_announcement(content);
-        console.log(result);
-
-        res.status(200).send({search_result:result});
-    }
+    let content = req.params.content;
+    content = filterStopWords(content);
+    const result = await DAO.getInstance().search_by_announcement(req.params.content, req.params.limit);
+    res.status(200).send({search_result:result});
 }
 
 export const searchByUsername = async(req, res)=>{
@@ -68,11 +62,9 @@ export const searchByUsername = async(req, res)=>{
 }
 
 
-
 export const searchByStatus = async(req, res)=>{
     const status = req.params.status;
     const result = await DAO.getInstance().search_by_status(status);
-    res.status(200).send({search_result:result}); 
-
+    res.status(200).send({search_result:result});
 }
 
