@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import userCollection from "./user-schema.js"
 import messageCollection from "./message-schema.js";
+import UserFactory from './userFactory.js'; 
 
 class DAO {
 
@@ -69,9 +70,11 @@ class DAO {
         }
     }
 
-    createUser = async (username, hashed_password, status) => {
+    createUser = async (username, hashed_password, status, usertype) => {
         try {
-            const user = await userCollection.insertMany({ username: username, password: hashed_password, acknowledged: false, online: false, status: status });
+            const userObject = UserFactory.createUser(usertype, username, hashed_password, status);
+            const userSchemaObject = userObject.toSchemaObject();
+            const user = await userCollection.create(userSchemaObject);
             return user;
         } catch (err) {
             throw new Error("Insert failed :", err);

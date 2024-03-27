@@ -24,6 +24,7 @@ function saveUser(){
         }
     })
     .then(async(response)=>{
+        console.log(response);
         const {data} = await response.json();
         localStorage.setItem("username", data.username);
         document.getElementById("acknowlegementmodal").style.display="none";
@@ -91,7 +92,7 @@ const submitJoinForm = async ()=>{
         const response = await verifyUser(usernameInput.value, passwordInput.value);
         if (response.status == 201) {
             document.getElementById("acknowlegementmodal").style.display="block";
-        } else if (response.status == 205){
+        } else if (response.status == 206){
             login(usernameInput.value, passwordInput.value)
         } else {
             alertUser(response.statusCode);
