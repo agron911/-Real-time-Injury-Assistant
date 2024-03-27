@@ -94,6 +94,7 @@ const showPrivateMessage = async (otherUsername) => {
       addMessages(msg);
     }
   }
+  window.scrollTo(0, document.body.scrollHeight);
   messageContainer.scrollTo(0, messageContainer.scrollHeight);
   CHATROOM_USER = otherUsername;
 };
