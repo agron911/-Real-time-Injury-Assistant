@@ -135,7 +135,7 @@ async function getArchive() {
       messages.appendChild(msgCard);
     }
   };
-  // messages.scrollTo(0, messages.scrollHeight);
+  messages.scrollTo(0, messages.scrollHeight);
 }
 
 const createLoadMoreButton = () => {

@@ -60,9 +60,15 @@ header, #messageForm {
     background-color: rgb(251, 58, 58);
 }
 
+#chatroom {
+    position: relative;
+    overflow: hidden;
+}
+
 #users {
+    flex-grow: 1;
     overflow-y: auto;
-    height: 67%;
+    max-height: 100%;
 }
 
 .dropdown-fse {
