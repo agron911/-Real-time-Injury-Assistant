@@ -4,6 +4,7 @@
 <body>
   <%- include ('partials/header'); %>
   <%- include ('partials/overlay'); %>
+  <div id="main">
   <div class="notification-icon" onclick="handleAlertClick()">
     <i class="la la-bell"></i>
     <span class="notification-dot"></span>
@@ -22,10 +23,12 @@
       </div>
     </div>
   </div>
+</div>
   <%- include ('partials/actionsDropdown'); %>
   <script src="https://cdn.socket.io/4.7.3/socket.io.min.js"></script>
   <script src="/js/speedTest.js"></script>
   <script src="/js/chatroom.js"></script>
+  <script src="/js/facilities.js"></script>
 </body>
 
 </html>

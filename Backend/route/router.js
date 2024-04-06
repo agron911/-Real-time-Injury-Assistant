@@ -8,6 +8,7 @@ import { loadPrivateMessages } from '../controller/chatPrivately.js';
 import  { searchByPublicMessage, searchByPrivateMessages, searchByAnnouncement, searchByStatus, searchByUsername } from '../controller/search_info.js';
 import { startSpeedTest, stopSpeedTest, isSpeedTestOngoing } from '../controller/speedtest.js';
 import {loadAnnouncementMessages, receiveAnnouncementMessage} from '../controller/postAnnouncement.js'
+import { Facilities } from '../controller/facilities.js';
 const router = express.Router();
 
 router.get("/", HomeView);
@@ -39,7 +40,7 @@ router.get("/users/username/search", searchByUsername);
 router.get("/users/status/search", searchByStatus);
 
 
-
+router.get("/facilities", Facilities)
 
 router.get("/speedtest", isSpeedTestOngoing);
 router.post("/speedtest", startSpeedTest);

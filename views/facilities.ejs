@@ -1,11 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+<%- include('partials/head.ejs') %>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/facilities.css" rel="stylesheet">
+    <%- include ('partials/header'); %>
+    <%- include ('partials/overlay'); %>  
 </head>
 <body>
-    
+    <div class="dropdown d-sm-none"> <!-- d-sm-none class hides the menu on screens larger than small -->
+        <button class="btn btn-primary dropdown-toggle" type="button" id="toggleMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-labelledby="toggleMenu">
+          Toggle Container
+        </button>
+        <div class="dropdown-menu" aria-labelledby="toggleMenu">
+          <a class="dropdown-item" href="#" onclick="toggleContainer('facilities')">Facilities</a>
+          <a class="dropdown-item" href="#" onclick="toggleContainer('information')">Information</a>
+        </div>
+    </div>
+   
+    <div class="container-fluid">
+        <div class="row">
+          <!-- Facilities Container -->
+          <div class="col-sm-3" id="facilities-container">
+            <h2>Facilities</h2>
+            <!-- Facility List -->
+            <div id="facilities-list">
+                <div class="facility" data-name="Facility 1" data-address="Address 1" data-type="Type 1">
+                    <h3 id="facility-name">Name 1</h3>
+                    <p id="facility-address">Address 1</p>
+                    <p id="facility-type">Type 1</p>
+                  </div>
+                  <div class="facility" data-name="Facility 2" data-address="Address 2" data-type="Type 2">
+                    <h3>Name 2</h3>
+                    <p>Address 2</p>
+                    <p>Type 2</p>
+                  </div>
+              <!-- Facilities will be dynamically added here -->
+            </div>
+          </div>
+          <!-- Information Container -->
+          <div class="col-sm-9" id="information-container">
+            <h2>Information</h2>
+            <div id="facility-info" class="container">
+              <!-- Information Content -->
+              <p>This is where the information about the selected facility will be displayed.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script src="/js/facilities.js"></script>
+      <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 </body>
 </html>
