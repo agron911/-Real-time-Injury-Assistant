@@ -69,7 +69,8 @@ class User {
             status: this.status,
             online: false, 
             acknowledged: false, 
-            usertype: this.usertype
+            usertype: this.usertype,
+            waitlistRole: 'undefined',
         };
     }
 }

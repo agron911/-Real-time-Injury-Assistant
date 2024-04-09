@@ -8,6 +8,8 @@ import { loadPrivateMessages } from '../controller/chatPrivately.js';
 import  { searchByPublicMessage, searchByPrivateMessages, searchByAnnouncement, searchByStatus, searchByUsername } from '../controller/search_info.js';
 import { startSpeedTest, stopSpeedTest, isSpeedTestOngoing } from '../controller/speedtest.js';
 import {loadAnnouncementMessages, receiveAnnouncementMessage} from '../controller/postAnnouncement.js'
+import { firstaidView, loadInjuryByUsernames, receiveInjury, createChatMsg} from '../controller/seekFirstAid.js';
+import { getWaitlistRole, waitlistCitizenView, waitlistElectView, waitlistProviderView, setWaitlistRole, getWaitlist, joinWaitlist, leaveWaitlist} from '../controller/manageWaitlists.js';
 const router = express.Router();
 
 router.get("/", HomeView);
@@ -38,11 +40,23 @@ router.get("/messages/announcement/search", searchByAnnouncement);
 router.get("/users/username/search", searchByUsername);
 router.get("/users/status/search", searchByStatus);
 
-
-
-
 router.get("/speedtest", isSpeedTestOngoing);
 router.post("/speedtest", startSpeedTest);
 router.post("/speedtest/end", stopSpeedTest);
+
+router.get("/firstaid", firstaidView);
+router.get("/injuries/:username", loadInjuryByUsernames);
+router.post("/injuries/:username", receiveInjury);
+router.get("/injuries/instructions/:username", createChatMsg);
+
+router.get("/waitlists", waitlistElectView);
+router.get("/waitlists/citizens", waitlistCitizenView);
+router.get("/waitlists/providers", waitlistProviderView);
+router.get("/waitlists/:username", getWaitlistRole);
+router.post("/waitlists/:username/:role", setWaitlistRole);
+router.get("/waitlists/citizens/:username", getWaitlist);
+router.post("/waitlists/citizens/:username/:medname", joinWaitlist);
+router.delete("/waitlists/citizens/:username/:medname", leaveWaitlist);
+
 
 export default router;
