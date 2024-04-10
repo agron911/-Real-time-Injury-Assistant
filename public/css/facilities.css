@@ -1,0 +1,84 @@
+
+#facilities-container {
+    min-width: 20%;
+    display:flex;
+    flex-direction: column;
+    border: 1px solid #ccc; /* Add border to the facilities container */
+    padding: 10px; /* Add padding to the facilities container */
+    height: 100hv;
+    
+    overflow-x: auto; /* Add horizontal scroll if content overflows */
+    overflow-y: auto; /* Add vertical scroll if content overflows */
+  }
+
+  #facilities-container h2{
+    text-align:center;
+  }
+
+  .facility-container{
+    border: 1px solid #ccc; /* Add border to the facilities container */
+    display: flex;
+  }
+
+  /* Add border to the information container */
+  #information-container {
+    display:flex;
+    flex-direction: column;
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+    flex:1;
+    position:relative;
+    top: 30;
+  }
+  #search-container{
+    
+    display: none;
+    flex-direction: column;
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+    flex:1;
+    position:relative;
+    top: 30;
+  }
+
+  #submit-button {
+    display: inline-block; /* Display the button as a block-level element */
+    margin-top: 10px; /* Add space above the button */
+}
+
+#add-facility-container{
+    display: none;
+}
+
+  .facility {
+    border: 1px solid #ddd; /* Add border to each facility */
+    padding: 5px; /* Add padding to each facility */
+  }
+  @media (max-width: 768px) {
+    #facilities-container {
+      display: block; /* Hide facilities container on smaller viewports */
+    }
+    #information-container {
+      display: none; /* Hide information container on smaller viewports */
+    }
+  }
+
+  #map-container{
+    width: 100%; 
+    height: 400px; 
+    display: none; 
+  }
+  #search-results-container{
+    display:none;
+    flex-direction: column;
+    position:relative;
+    top: 30;
+  }
+  #edit-facility-container{
+    display:none;
+    flex-direction: column;
+    position:relative;
+    top: 30;
+  }

@@ -748,3 +748,7 @@ function searchMessages() {
   }
 }
 
+const loadFacilities = async ()=>{
+  window.location.href='/facilities'
+  console.log("here")
+}
