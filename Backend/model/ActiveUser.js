@@ -7,14 +7,19 @@ const activeUserSchema = new mongoose.Schema({
     socketId:{
         type:String,
         required: true,
+    },
+    esp:{
+        type:Boolean,
+        required: true,
     }
 })
 
 const ActiveUser = mongoose.model('ActiveUser', activeUserSchema)
 
 
-export async function addActiveUser(username, socketid){
-    const activeuser = await ActiveUser.insertMany({username: username, socketId:socketid});
+export async function addActiveUser(username, socketid, esp){
+    
+    const activeuser = await ActiveUser.insertMany({username: username, socketId:socketid, esp: esp});
     return activeuser;
 }
 
@@ -47,4 +52,10 @@ export const getSocketIds = async (username) => {
     }
 }
 
+export const getEspSocketIds = async () => {
+    const activeUsers = await ActiveUser.find({esp: true});
+    if (activeUsers.length > 0) {
+        return activeUsers.map((activeUser)=>activeUser.socketId);
+    }
+}
 export default ActiveUser

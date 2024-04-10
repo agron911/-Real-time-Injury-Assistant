@@ -24,15 +24,20 @@ afterEach(async () => await clearDatabase());
  * Remove and close the db and server.
  */
 afterAll(async () => {
-    await new Promise((resolve, reject) => {
-        Server.instance.httpServer.close((err) => {
-            if (err) {
-                reject(err);
-                return;
-            }
-            resolve();
+    try{
+        await new Promise((resolve, reject) => {
+            Server.instance.httpServer.close((err) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve();
+            });
         });
-    });
+    } catch(err){
+
+    }
+    
     await closeDatabase();
 });
 
@@ -178,7 +183,7 @@ describe('Test Chat Public API', () => {
 describe('Test Share Status API', () => {
 
     test("/Get user status", async () => {
-        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok')
+        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok', 'Citizen', false);
         const response = await request(Server.instance.httpServer).get("/user/status/agron");
         expect(response.statusCode).toBe(200);
         expect(response.body.status).toBe('ok');
@@ -186,7 +191,7 @@ describe('Test Share Status API', () => {
 
 
     test('/Update user status', async () => {
-        await DAO.getInstance().createUser('agron1', await hashPassword('1234'), 'ok')
+        await DAO.getInstance().createUser('agron1', await hashPassword('1234'), 'ok', 'Citizen', false)
         const response = (await request(Server.instance.httpServer).put('/user/status/agron1').send({ status: 'help' }));
         const user_status = await DAO.getInstance().getUserByName('agron1');
         expect(response.statusCode).toBe(200);
@@ -377,4 +382,51 @@ describe('Test Search Info API', () => {
 
     })
 
+})
+
+
+describe('Emergency services', ()=>{
+    
+    test("/Get emergencyServices", async () => {
+        const response = await request(Server.instance.httpServer).get("/emergencyServices");
+        expect(response.statusCode).toBe(200);
+    });
+
+    test("/post registerAsEsp: Register user as ESP", async () => {
+        const username = 'testuser';
+        await DAO.getInstance().createUser(username, '1234', 'ok', 'Citizen', false);
+        const response = (await request(Server.instance.httpServer).post('/registerAsEsp').send({ username: username }));
+        expect(response.status).toBe(200);
+    })
+
+    test("/post request", async () => {
+        const username = 'testuser';
+        await DAO.getInstance().createUser(username, '1234', 'ok', 'Citizen', false);
+        const response = (await request(Server.instance.httpServer).post('/request').send({ username: username, content: "help", severity: "Dog" }));
+        expect(response.status).toBe(200);
+    })
+
+    test("/put request", async () => {
+        const username = 'testuser';
+        await DAO.getInstance().createUser(username, '1234', 'ok', 'Citizen', false);
+        const request1 = (await request(Server.instance.httpServer).post('/request').send({ username: username, content: "help", severity: "Dog" }));
+        const response = (await request(Server.instance.httpServer).put('/request/'+request1.body.id).send({ status: "RESOLVED" }));
+        expect(response.body.status).toBe("RESOLVED");
+    })
+
+    test("/delete request", async () => {
+        const username = 'testuser';
+        await DAO.getInstance().createUser(username, '1234', 'ok', 'Citizen', false);
+        const request1 = (await request(Server.instance.httpServer).post('/request').send({ username: username, content: "help", severity: "Dog" }));
+        const response = (await request(Server.instance.httpServer).delete('/request/'+request1.body.id));
+        expect(response.status).toBe(201);
+    })
+    
+    test("/get request", async () => {
+        const username = 'testuser';
+        await DAO.getInstance().createUser(username, '1234', 'ok', 'Citizen', false);
+        const request1 = (await request(Server.instance.httpServer).post('/request').send({ username: username, content: "help", severity: "Dog" }));
+        const response = (await request(Server.instance.httpServer).get('/request?status=UNRESOLVED'));
+        expect(response.body[0].id).toBe(request1.body.id);
+    })
 })

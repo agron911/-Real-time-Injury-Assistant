@@ -1,0 +1,30 @@
+<div class="modal" tabindex="-1" role="dialog" id="emergencyRequestModal">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New Request</h5>
+            </div>
+            <div class="modal-body">
+                <form id="emergencyRequestForm">
+                    <div class="mb-3">
+                        <label for="contentTextarea" class="form-label">Content</label>
+                        <textarea class="form-control" id="contentTextarea" rows="3" name="content" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="severitySelect" class="form-label">Severity</label>
+                        <select class="form-select" id="severitySelect" name="severity" required>
+                            <option value="">Choose severity level...</option>
+                            <option value="Dog">Dog</option>
+                            <option value="Tiger">Tiger</option>
+                            <option value="Monster">Monster</option>
+                            <option value="God">God</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="createRequest()">Create Emergency Request</button>
+            </div>
+        </div>
+    </div>
+</div>

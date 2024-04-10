@@ -1,0 +1,46 @@
+.request-wall {
+    display: block;
+    border: solid 2px black;
+}
+
+.request-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease-in-out;
+    position: relative;
+}
+
+.request-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.request-card-body {
+    padding: 1.25rem;
+}
+
+.request-card-title {
+    margin-bottom: 0.75rem;
+    color: #333;
+    font-size: 1.25rem;
+    font-weight: 500;
+}
+
+.request-card-text {
+    margin-bottom: 0.5rem;
+    color: #666;
+    font-size: 1rem;
+}
+
+#request-wall {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.request-actions-dropdown{
+    position: absolute;
+    right: 1em;
+    bottom: 1em;
+    background-color: wheat;
+}

@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import userCollection from "./user-schema.js"
 import messageCollection from "./message-schema.js";
+import requestCollection from "./request-schema.js";
 import UserFactory from './userFactory.js'; 
 import { stopWords } from '../utils/user-config.js';
 
@@ -72,10 +73,18 @@ class DAO {
         }
     }
 
-    createUser = async (username, hashed_password, status, usertype) => {
+    createUser = async (username, hashed_password, status, usertype, esp) => {
         try {
-            const userObject = UserFactory.createUser(usertype, username, hashed_password, status);
-            const userSchemaObject = userObject.toSchemaObject();
+            const userSchemaObject = {
+                username: username,
+                password: hashed_password,
+                status: status,
+                online: false, 
+                acknowledged: false, 
+                usertype: usertype,
+                esp: esp
+            }
+            console.log('before',userSchemaObject);
             const user = await userCollection.create(userSchemaObject);
             return user;
         } catch (err) {
@@ -190,7 +199,7 @@ class DAO {
             throw new Error("Update user online error: ", err);
         }
     }
-    //comment
+
     updateUserOffline = async (username) => {
         try {
             const user = await userCollection.findOneAndUpdate({ username: username }, { online: false });
@@ -198,6 +207,7 @@ class DAO {
             throw new Error("Update user offline error: ", err);
         }
     }
+    
     updateUserStatus = async (username, status) => {
         try {
             await userCollection.findOneAndUpdate({ username: username }, { status: status, statusChangeTimestamp: new Date().toString(), $push:{statusHistory:status} } );
@@ -207,6 +217,16 @@ class DAO {
         }
     }
 
+    updateUserEsp = async (username, esp) => {
+        try {
+            const user = await userCollection.findOneAndUpdate(
+                { username: username }, 
+                { $set: { esp: esp } },);
+            return user;
+        } catch (err) { 
+            throw new Error("Update user esp error: ", err.message);
+        }
+    }
     createMessage = async (username, content, timestamp, status, receiver, viewed) => {
         try {
             const msg = await messageCollection.insertMany({ username: username, content: content, timestamp: timestamp, status: status, receiver: receiver, viewed: viewed });
@@ -272,6 +292,71 @@ class DAO {
         return msgs;
     }
 
+    // Create a new request
+    createRequest = async (requestData) => {
+        try {
+            const newRequest = new requestCollection(requestData);
+            const reqObj = await newRequest.save();
+            return reqObj;
+        } catch (error) {
+            throw new Error(`Error creating request`);
+        }
+    };
+
+    getRequestsByUsername = async (username) => {
+        try {        
+            const requests = await requestCollection.find({ username: { $eq: username } });
+            return requests;
+        } catch (error) {
+            throw new Error(`Error getting requests: ${error.message}`);
+        }
+    }
+    
+
+    getRequestsByStatus = async (statuses) =>{
+        try {        
+            const requests = await requestCollection.find({ status: { $in: statuses } });
+            return requests;
+        } catch (error) {
+            throw new Error(`Error getting requests: ${error.message}`);
+        }
+    }
+// Update an existing request by ID
+    updateRequest = async (requestId, updatedData) => {
+        try {
+            const updatedRequest = await requestCollection.findByIdAndUpdate(
+                requestId,
+                updatedData,
+                { new: true } // Return the updated document
+            );
+            if (!updatedRequest) {
+                throw new Error('Request not found');
+            }
+            return updatedRequest;
+        } catch (error) {
+            throw new Error(`Error updating request: ${error.message}`);
+        }
+    };
+
+    // Remove a request by ID
+    removeRequest = async (requestId) => {
+        try {
+            await requestCollection.findByIdAndDelete(requestId);
+        } catch (error) {
+            throw new Error(`Error removing request: ${error.message}`);
+        }
+    };
+
+    getRequestById = async (requestId) => {
+        try {
+            const req = await requestCollection.findById(requestId);
+            if(!req) throw new Error('Request not found');
+            return req;
+        } catch (error) {
+            throw new Error(`Request not found`);
+        }
+    }
+    
 }
 
 export default DAO;

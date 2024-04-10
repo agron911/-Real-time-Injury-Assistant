@@ -359,6 +359,10 @@ const replyToUser = () => {
   showPrivateMessage(CHATROOM_USER);
 };
 
+const navigateToEmergencyServices = () => {
+  window.location.replace('/emergencyServices');
+}
+
 const getStatus = async (username) => {
   if (SUSPEND_NORMAL_OPERATION) return;
   try {

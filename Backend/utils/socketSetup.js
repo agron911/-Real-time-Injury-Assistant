@@ -23,6 +23,7 @@ export const setupSocket = (server) => {
       console.log("Socket disconnected", socket.id, MainServer.instance.testSocketID);
     });
     
+    
 
     socket.on("chat message", async (data)=>{
           try{

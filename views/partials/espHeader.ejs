@@ -1,0 +1,25 @@
+<header class="navbar navbar-expand-lg navbar-light navbar-parent">
+    <div class="container-fluid nav-bar-container">
+        <a class="navbar-brand" href="/chatroom">Emergency Serviecs</a>
+        <div class="options-container">
+            <div class="buttons-container">
+                <!--TODO: If not esp then show esp-->
+                <button class="btn btn-outline-primary my-2 my-sm-0" style="display: none;" onclick="openRegisterEspModal()" id="register-esp-btn">
+                    Register as ESP
+                </button>
+                <button class="btn btn-outline-primary my-2 my-sm-0" onclick="openMyRequestWall()" id="speed-test-btn">
+                    My requests
+                </button>
+                <button class="btn btn-outline-primary my-2 my-sm-0" onclick="openEmergencyRequestModal()" id="speed-test-btn">
+                    New Request
+                </button>
+                <button class="btn btn-outline-primary my-2 my-sm-0" onclick="navigateToChatroom()" id="toggle-btn">
+                    Chatroom
+                </button>
+                <button class="btn btn-outline-primary my-2 my-sm-0" style="display: none;" id="request-wall-btn" onclick="openRequestWall()">
+                    Request Wall
+                </button>
+            </div>
+        </div>
+    </div>
+</header>

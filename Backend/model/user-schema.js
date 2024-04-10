@@ -31,6 +31,10 @@ const UserSchema = new mongoose.Schema({
         required: true,
         enum: ['Citizen', 'Administrator', 'Coordinator'],
     },
+    esp: {
+        type: Boolean,
+        required: true,
+    }
 
 })
 

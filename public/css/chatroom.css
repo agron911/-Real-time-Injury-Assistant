@@ -265,7 +265,7 @@ header, #messageForm {
 }
 
 .buttons-container {
-    display: block;
+    display: flex;
 }
 
 .dropdown-actions{
