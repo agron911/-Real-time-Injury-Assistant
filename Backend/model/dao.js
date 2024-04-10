@@ -2,7 +2,10 @@ import mongoose from "mongoose";
 import userCollection from "./user-schema.js"
 import messageCollection from "./message-schema.js";
 import UserFactory from './userFactory.js'; 
+import facilityCollection from "./Facility-schema.js";
 import { stopWords } from '../utils/user-config.js';
+
+
 
 class DAO {
 
@@ -271,7 +274,87 @@ class DAO {
         
         return msgs;
     }
+    
+    addFacility = async(facilityname, facilitylatitude, facilitylongitude, facilitytype, facilityaddress, facilityHours)=>{
+        const santaClaraCountyBoundary = {
+            north: 37.7186, // Adjusted to positive latitude
+            south: 36.9034, // Adjusted to positive latitude
+            east: -121.3716, // Adjusted to negative longitude
+            west: -122.1291, // Adjusted to negative longitude
+        };
+        
+        function isInSantaClaraCounty(latitude, longitude) {
+            console.log(latitude)
+            console.log(longitude)
+            if (
+                latitude >= santaClaraCountyBoundary.south &&
+                latitude <= santaClaraCountyBoundary.north &&
+                longitude >= santaClaraCountyBoundary.west &&
+                longitude <= santaClaraCountyBoundary.east
+            ) {
+                console.log("true")
+                return true;
+            } else {
+                console.log("false")
+                return false;
+            }
+        }
+        try{
+            let check = await facilityCollection.find({ name: facilityname}); 
+            if(check.length ==0 && isInSantaClaraCounty(facilitylatitude, facilitylongitude)){
+                const facility = await facilityCollection.insertMany({ name: facilityname, latitude: facilitylatitude, longitude: facilitylongitude, type: facilitytype, address:facilityaddress, hours:facilityHours });
+            return facility;
+            }
+            else{
+                return ;
+            }
+            
+        }catch(err){
+            console.log(err)
+        }
+    }
+    getFacilities = async()=>{
+        const facilities = await facilityCollection.find({})
+        return facilities
+    }
+    getFacility = async(facilityname)=>{
+        const facility = await facilityCollection.findOne({name: facilityname})
+        return facility
+    }
+    searchFacility = async(description, mobility)=>{
+        console.log("searching facilities...");
+        if(description === "Open-Wound"|| description ==="Difficulty-Breathing"){
+            return await facilityCollection.find({type:"Emergency Room"});
+        }else if((description ==="Sprain"|| description==="Limb-Pain"||description ==="Head-Injury") && mobility ==="No"){
+            return await facilityCollection.find({type:"Urgent Care"});
+        }
+        else{
+            return await facilityCollection.find({type:"Emergency Room"});
+        }
+    }
+    deleteFacility = async(fname)=>{
+        try{
+            await facilityCollection.updateOne({name:fname},{
+                $set:{reportedclosed:true}
+            })
+            return
+        }catch(err){
+            throw new Error("Delete Facility Error: ", err)
+        }
+        
+    }
 
+    updateFacilityInfo = async(name, hours)=>{
+        try{
+            await facilityCollection.updateOne({name:name},{
+                $set:{hours:hours}
+            })
+            return;
+        }catch(err){
+            throw new Error("Update Facility Info Error: ", err)
+        }
+        
+    }
 }
 
 export default DAO;
