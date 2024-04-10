@@ -295,7 +295,7 @@ const connectToSocket = async () => {
   socket.on("updateUserList", async () => { await fetchInitialUserList(); });
   socket.on("status-update", (data) => { updateUserStatusIconEverywhere(data.status, data.username); });
   socket.on("private-message", (data) => { showMessageAlert(data, "primary"); });
-  socket.on("suspendNormalOperation", (socketID) => { if (socketID != localStorage.getItem('socketID')) SUSPEND_NORMAL_OPERATION = true; });
+  socket.on("suspendNormalOps", (socketID) => { if (socketID != localStorage.getItem('socketID')) logout();});
   socket.on("enableNormalOperation", (data) => { SUSPEND_NORMAL_OPERATION = false; });
 };
 
