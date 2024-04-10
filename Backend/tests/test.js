@@ -377,7 +377,7 @@ describe("Facility operations tests", () => {
         let type = "Emergency Room"
         let hours = "24/7"
         await DAO.getInstance().addFacility(name, latitude, longitude, type, address, hours);
-        let facility = DAO.getInstance().getFacilityByName(name);
+        let facility = DAO.getInstance().getFacility(name);
         expect(facility.reportedclosed).toBe(false)
     })
     test("Mark Facility Requested to Delete", async()=>{
