@@ -15,43 +15,121 @@
         <div class="dropdown-menu" aria-labelledby="toggleMenu">
           <a class="dropdown-item" href="#" onclick="toggleContainer('facilities')">Facilities</a>
           <a class="dropdown-item" href="#" onclick="toggleContainer('information')">Information</a>
+          <a class="dropdown-item" href="#" onclick="toggleContainer('search')">Search</a>
         </div>
     </div>
    
     <div class="container-fluid">
         <div class="row">
           <!-- Facilities Container -->
-          <div class="col-sm-3" id="facilities-container">
-            <h2>Facilities</h2>
-            <!-- Facility List -->
-            <div id="facilities-list">
-                <div class="facility" data-name="Facility 1" data-address="Address 1" data-type="Type 1">
-                    <h3 id="facility-name">Name 1</h3>
-                    <p id="facility-address">Address 1</p>
-                    <p id="facility-type">Type 1</p>
-                  </div>
-                  <div class="facility" data-name="Facility 2" data-address="Address 2" data-type="Type 2">
-                    <h3>Name 2</h3>
-                    <p>Address 2</p>
-                    <p>Type 2</p>
-                  </div>
-              <!-- Facilities will be dynamically added here -->
+            <div class="col-sm-3" id="facilities-container">
+                <h2>Facilities</h2>
+                <!-- Facility List -->
+                <div id="facilities-list">
+                    <!-- <div class="facility" data-name="Facility 1" data-address="Address 1" data-type="Type 1">
+                        <h3 id="facility-name">Name 1</h3>
+                        <p id="facility-address">Address 1</p>
+                        <p id="facility-type">Type 1</p>
+                    </div> -->
+
+                </div>
+                <div id="add-facility-button">
+                    <button class="btn btn-primary" onclick="addNewFacility()">Add Facility</button>
+                </div>
             </div>
-          </div>
+        
           <!-- Information Container -->
           <div class="col-sm-9" id="information-container">
             <h2>Information</h2>
             <div id="facility-info" class="container">
               <!-- Information Content -->
               <p>This is where the information about the selected facility will be displayed.</p>
+              <div id="map-container">
+                <p>Map</p>
+              </div>
+            </div>
+            
+          </div>
+        
+        <div id="search-container">
+            <!-- Dropdown Menu 1 -->
+            <p>Select injury type</p>
+            <select id="injury-type">
+                <option value="Open-Wound">Open Wound</option>
+                <option value="Sprain">Sprain</option>
+                <option value="Difficulty-Breathing">Difficulty Breathing</option>
+                <option value="Limb-Pain">Limb Pain</option>
+                <option value="Head-Injury">Head Injury</option>
+            </select>
+        
+            <p> Does your injury prevent you from functioning normaly?</p>
+            <select id="mobility">
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+            <div id="search-button-container">
+            <button id="submit-button" onclick="searchFacilities()">Submit</button>
             </div>
           </div>
+          <div id="add-facility-container">
+                <div>
+                    <label for="longitude">Longitude:</label>
+                    <input type="text" id="longitude" name="longitude">
+                </div>
+                
+                <div>
+                    <label for="latitude">Latitude:</label>
+                    <input type="text" id="latitude" name="latitude">
+                </div>
+          
+                <div>
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name">
+                </div>
+
+                <div>
+                    <label for="address">Address:</label>
+                    <input type="text" id="address" name="address">
+                </div>
+                <div>
+                    <label for="hours">Hours:</label>
+                    <input type="text" id="hours" name="hours">
+                </div>
+            
+                <div>
+                    <label for="type">Type:</label>
+                    <select id="type" name="type">
+                        <option value="Emergency Room">Emergency Room</option>
+                        <option value="Urgent Care">Urgent Care</option>
+                    </select>
+                </div>
+                <div>
+                <button id="add-facility-button" onclick="addFacility()">Add Facility</button>
+                </div>
+          </div>
+          <div id="search-results-container"></div>
+          <div id="edit-facility-container">
+            <div>
+                <label for="name">Name:</label>
+                <input type="text" id="name-change" name="name" >
+            </div>
+    
+            <div>
+                <label for="hours">Hours:</label>
+                <input type="text" id="hours-change" name="hours" >
+            </div>
+            <button id="edit-submmit" onclick="editFacility()">Submit Edit</button>
+          </div>
         </div>
-      </div>
-      <script src="/js/facilities.js"></script>
-      <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </div>
+
+    <script src="/js/facilities.js"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBCHc5X0yDQ3EMXzH8_we-BBE-rgGaESqQ&loading=async&callback=initMap"></script>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+     
 
 </body>
 </html>
