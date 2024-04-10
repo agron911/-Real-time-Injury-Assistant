@@ -48,7 +48,6 @@ describe('Password Operations', () => {
         const new_user = await DAO.getInstance().createUser('daniel', hashedpasssword, 'ok', 'Citizen', false)
         const passwordresult =  await comparePassword(new_user.password, '12345')
         expect(passwordresult).toBe(false);
-        
     })
 })
 

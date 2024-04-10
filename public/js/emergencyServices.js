@@ -24,11 +24,12 @@ const createRequest = async () => {
             }),
             headers: {"Content-type": "application/json; charset=UTF-8",},
         })
+        closeEmergencyRequestModal();
     } else { alert("Empty severity");}
 }
 
 const registerAsEsp = async ()=>{
-    const result = await fetch('/registerAsEsp',{
+    const result = await fetch('/user/'+localStorage.getItem('username')+"/esp",{
         method: 'POST',
         body: JSON.stringify({username: this.localStorage.getItem('username')}),
         headers: {
@@ -336,14 +337,15 @@ const notifyCitizen = async (requestId) => {
     const buttonElement = document.getElementById('notification-modal-button');
     titleElement.innerHTML = 'Help is on the way!';
     contentElement.innerHTML = request.assignedTo + " is on the way!";
-    buttonElement.innerHTML = 'Chat with '+request.assignedTo;
+    buttonElement.innerHTML = 'Close';
     buttonElement.addEventListener('click', () => {
-        console.log("Open chatroom");
+        closeNotificationModal();
     });
     openNotificationModal();
 }
 
 const appendTitleAndContentToEspNotification = (contentElement, request) => {
+    contentElement.innerHTML = "";
     const severity = document.createElement('p');
     severity.className = 'request-card-text';   
     severity.textContent = `Severity: ${request.severity}`;

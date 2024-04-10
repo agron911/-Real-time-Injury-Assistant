@@ -50,7 +50,7 @@ router.get("/speedtest", isSpeedTestOngoing);
 router.post("/speedtest", startSpeedTest);
 router.post("/speedtest/end", stopSpeedTest);
 
-router.post("/registerAsEsp", registerAsEsp);
+router.post("/user/:username/esp", registerAsEsp);
 router.get("/request/:id", getRequest);
 router.get("/request", getRequests);
 router.post("/request", createRequest);
