@@ -353,7 +353,7 @@ describe("Facility operations tests", () => {
         let type = "Emergency Room"
         let hours = "24/7"
         await DAO.getInstance().addFacility(name, latitude, longitude, type, address, hours);
-        let facility = DAO.getInstance().getFacilityByName(name);
+        let facility = DAO.getInstance().getFacility(name);
         expect(facility.name).toBe('Some facility')
     })
     test("Update Facility info Updates facility Info", async()=>{
@@ -388,8 +388,8 @@ describe("Facility operations tests", () => {
         let type = "Emergency Room"
         let hours = "24/7"
         await DAO.getInstance().addFacility(name, latitude, longitude, type, address, hours);
-        await DAO.getInstance().DeleteFacility(name);
-        let facility = DAO.getInstance().getFacilityByName(name);
+        await DAO.getInstance().deleteFacility(name);
+        let facility = DAO.getInstance().getFacility(name);
         expect(facility.reportedclosed).toBe(true);
     })
     test("Search for Facilities for open wounds/difficulty breathing only returns Emergency rooms", async()=>{
