@@ -40,17 +40,15 @@ describe('Password Operations', () => {
         const new_user = await DAO.getInstance().createUser('daniel', '1234', 'ok', 'administrator')
         console.log("kkpassword", new_user.password);
         const passwordresult =  await comparePassword(new_user.password, '1234')
-        return Citizen.retrieve('daniel').then((citizen) => {
-            expect(passwordresult).toBe(true);
-        })
+        expect(passwordresult).toBe(true);
+        
     })
     test('Test existing user password mismatch', async() => {
         const hashedpasssword = await hashPassword('1234')
-        const new_user = await DAO.getInstance().createUser('daniel', hashedpasssword, 'ok', 'Citizen')
+        const new_user = await DAO.getInstance().createUser('daniel', hashedpasssword, 'ok', 'Citizen', false)
         const passwordresult =  await comparePassword(new_user.password, '12345')
-        return Citizen.retrieve('daniel').then((citizen) => {
-            expect(passwordresult).toBe(false);
-        })
+        expect(passwordresult).toBe(false);
+        
     })
 })
 
@@ -77,13 +75,13 @@ describe('Username Operations', () => {
     })
 
     test('Username is not case sensitive', async() => {
-        await DAO.getInstance().createUser('daniel', await hashPassword('1234'), 'ok','Citizen')
+        await DAO.getInstance().createUser('daniel', await hashPassword('1234'), 'ok','Citizen', false)
         const citizen = await DAO.getInstance().getUserByName('Daniel')
         expect(citizen).not.toBeNull()
     });
 
     test('Successfully creates and retrieves a user', async() => {
-        await DAO.getInstance().createUser('daniel2', await hashPassword('1234'), 'ok','Citizen')
+        await DAO.getInstance().createUser('daniel2', await hashPassword('1234'), 'ok','Citizen', false)
         const citizen = await DAO.getInstance().getUserByName('daniel2')
         expect(citizen).not.toBeNull()
     });
@@ -92,7 +90,7 @@ describe('Username Operations', () => {
 
 describe('Update information', () => {
     test("Update user's online ", async () => {
-        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok','Citizen')
+        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok','Citizen', false)
         await DAO.getInstance().updateUserOnline('agron')
         let citizen = await DAO.getInstance().getUserByName('agron')
         let online_sts = citizen.online;
@@ -105,7 +103,7 @@ describe('Update information', () => {
     });
 
     test("Update user's Acknowledgement", async () => {
-        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok','Citizen')
+        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok','Citizen', false)
         await DAO.getInstance().updateUserAcknowledgement('agron')
         let citizen = await DAO.getInstance().getUserByName('agron')
         let acknowledged = citizen.acknowledged;
@@ -113,8 +111,8 @@ describe('Update information', () => {
     })
 
     test("Update user's status", async () => {
-        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok','Citizen')
-        let citizen = await DAO.getInstance().getUserByName('agron')
+        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok','Citizen', false)
+        let citizen = await DAO.getInstance().getUserByName('agron');
         let status = citizen.status;
         expect(status).toBe('ok')
         await DAO.getInstance().updateUserStatus('agron', 'help')
