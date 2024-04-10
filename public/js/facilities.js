@@ -232,12 +232,20 @@ function addFacility(){
                 "hours":hours
             })
         }).then(resp=>{
-            alert( "Facility Added");
+            return resp.json()
+        }).then(resp=>{
+            alert( resp.added);
             document.getElementById('facilities-container').style.display = "block";
             document.getElementById('information-container').style.display = "none";
             document.getElementById('search-container').style.display = "none";
             document.getElementById('add-facility-container').style.display = "none";
             document.getElementById('edit-facility-container').style.display = "none";
+            document.getElementById('longitude').value;
+            document.getElementById('latitude').value='';
+            document.getElementById('name').value='';
+            document.getElementById('type').value='';
+            document.getElementById('hours').value='';
+            document.getElementById('address').value='';
         })
     }
 }
