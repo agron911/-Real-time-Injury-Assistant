@@ -12,7 +12,10 @@ let ANNOUNCEMENT_SEARCH_COUNTER = 1
 let PRIVATE_SEARCH_COUNTER = 1;
 let SEARCH_COUNTER = 1;
 let IS_SPECIALIST = false;
-
+let Anxiety_rule = "You're not alone in your feelings of anxiety; here, you'll find a compassionate space to explore your experiences, learn coping strategies, and connect with others who truly understand."
+let Depression_rule ="Welcome to a place of understanding and support, where we can share our struggles with depression without judgment, and together, find moments of light and hope."
+let Stress_rule = "Join us in discovering effective ways to manage stress, where we share tools, experiences, and support to help each other navigate life's pressures more calmly and confidently"
+let Grief_rule = "In this group, you'll find a comforting community ready to hold space for your grief, share in your memories, and support you through your journey of healing and remembrance"
 const getPrivateMessages = async (otherUsername) => {
   if (SUSPEND_NORMAL_OPERATION) return [];
   const currentUsername = localStorage.getItem("username");
@@ -186,6 +189,17 @@ const ConfirmGroupChat = async (group) => {
 
     if (data.message == "No consent") {
       let confirmationModal = new bootstrap.Modal(document.getElementById('confirmJoinGroup'), {});
+      document.getElementById('confirmJoinGroupLabel').innerText = `Confirm Joining ${group} Group`;
+      document.getElementById('selectedGroup').innerText = `${group} group`;
+      if (group == "Anxiety" ){
+        document.getElementById('groupRules').innerText = Anxiety_rule;
+      }else if (group == "Depression"){
+        document.getElementById('groupRules').innerText = Depression_rule;
+      }else if (group == "Stress"){
+        document.getElementById('groupRules').innerText = Stress_rule;
+      }else if (group == "Grief"){
+        document.getElementById('groupRules').innerText = Grief_rule;
+      }
       confirmationModal.show();
       document.getElementById('JoinGroupConfirm').addEventListener('click', async function () {
         console.log("JoinGroupConfirm", group);
