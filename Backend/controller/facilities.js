@@ -8,6 +8,9 @@ export const Facilities = async (req, res)=>{
     res.render('facilities', {data})
 }
 
+
+
+
 export const addFacility = async (req, res)=>{
     try{
         const facilityname = req.body.name;
@@ -16,9 +19,16 @@ export const addFacility = async (req, res)=>{
         const facilitytype = req.body.type;
         const facilityaddress = req.body.address;
         const facilityHours = req.body.hours
-        await DAO.getInstance().addFacility(facilityname,facilitylatitude, facilitylongitude, facilitytype, facilityaddress, facilityHours);
-        res.status(200).send();
+        let result = await DAO.getInstance().addFacility(facilityname,facilitylatitude, facilitylongitude, facilitytype, facilityaddress, facilityHours);
+
+        if(result){
+            res.status(200).send({added: "Facility Added"});
+        } 
+        else{
+            res.status(401).send({added: "Facility was not Added. Cannot add facilities outside of Santa Clara County, CA"});
+        }
     }catch(err){
+        console.log(err)
         res.status(400).send(err);
     }
 }
@@ -32,6 +42,7 @@ export const getAllFacilities = async(req, res)=>{
 }
 export const getFacilityByName = async(req, res)=>{
     try{
+        console.log("searching")
         const facilities = await DAO.getInstance().getFacility(req.params.facilityname);
         res.status(200).send(facilities);
     }catch(err){

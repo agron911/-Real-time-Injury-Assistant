@@ -5,6 +5,8 @@ import UserFactory from './userFactory.js';
 import facilityCollection from "./Facility-schema.js";
 import { stopWords } from '../utils/user-config.js';
 
+
+
 class DAO {
 
     #configured = false; // private
@@ -272,12 +274,43 @@ class DAO {
         
         return msgs;
     }
-    addFacility = async(facityname, facilitylatitude, facilitylongitude, facilitytype, facilityaddress, facilityHours)=>{
+    
+    addFacility = async(facilityname, facilitylatitude, facilitylongitude, facilitytype, facilityaddress, facilityHours)=>{
+        const santaClaraCountyBoundary = {
+            north: 37.7186, // Adjusted to positive latitude
+            south: 36.9034, // Adjusted to positive latitude
+            east: -121.3716, // Adjusted to negative longitude
+            west: -122.1291, // Adjusted to negative longitude
+        };
+        
+        function isInSantaClaraCounty(latitude, longitude) {
+            console.log(latitude)
+            console.log(longitude)
+            if (
+                latitude >= santaClaraCountyBoundary.south &&
+                latitude <= santaClaraCountyBoundary.north &&
+                longitude >= santaClaraCountyBoundary.west &&
+                longitude <= santaClaraCountyBoundary.east
+            ) {
+                console.log("true")
+                return true;
+            } else {
+                console.log("false")
+                return false;
+            }
+        }
         try{
-            const facility = await facilityCollection.insertMany({ name: facityname, latitude: facilitylatitude, longitude: facilitylongitude, type: facilitytype, address:facilityaddress, hours:facilityHours });
+            let check = await facilityCollection.find({ name: facilityname}); 
+            if(check.length ==0 && isInSantaClaraCounty(facilitylatitude, facilitylongitude)){
+                const facility = await facilityCollection.insertMany({ name: facilityname, latitude: facilitylatitude, longitude: facilitylongitude, type: facilitytype, address:facilityaddress, hours:facilityHours });
             return facility;
+            }
+            else{
+                return ;
+            }
+            
         }catch(err){
-            throw new Error("Add facility error: ", err);
+            console.log(err)
         }
     }
     getFacilities = async()=>{
