@@ -392,10 +392,10 @@ describe('Emergency services', ()=>{
         expect(response.statusCode).toBe(200);
     });
 
-    test("/post registerAsEsp: Register user as ESP", async () => {
+    test("/put /user/:username/esp: Register user as ESP", async () => {
         const username = 'testuser';
         await DAO.getInstance().createUser(username, '1234', 'ok', 'Citizen', false);
-        const response = (await request(Server.instance.httpServer).post('/registerAsEsp').send({ username: username }));
+        const response = (await request(Server.instance.httpServer).put('/user/'+username+"/esp").send({esp: true}));
         expect(response.status).toBe(200);
     })
 

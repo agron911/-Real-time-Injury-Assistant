@@ -36,9 +36,8 @@ describe('Password Operations', () => {
         expect(isvalid).toBe(0);
     })
     test('Test existing user password match', async() => {
-        // const hashedpasssword = await hashPassword('1234')
-        const new_user = await DAO.getInstance().createUser('daniel', '1234', 'ok', 'administrator')
-        console.log("kkpassword", new_user.password);
+        const hashedpassword = await hashPassword('1234')
+        const new_user = await DAO.getInstance().createUser('daniel2', hashedpassword, 'ok', 'Citizen', false);
         const passwordresult =  await comparePassword(new_user.password, '1234')
         expect(passwordresult).toBe(true);
         

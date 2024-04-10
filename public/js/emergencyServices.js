@@ -30,8 +30,8 @@ const createRequest = async () => {
 
 const registerAsEsp = async ()=>{
     const result = await fetch('/user/'+localStorage.getItem('username')+"/esp",{
-        method: 'POST',
-        body: JSON.stringify({username: this.localStorage.getItem('username')}),
+        method: 'PUT',
+        body: JSON.stringify({esp: true}),
         headers: {
             "Content-type": "application/json; charset=UTF-8",
         },        

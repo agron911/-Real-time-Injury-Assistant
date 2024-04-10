@@ -86,6 +86,7 @@ class DAO {
             }
             console.log('before',userSchemaObject);
             const user = await userCollection.create(userSchemaObject);
+            console.log('createdkk',user);
             return user;
         } catch (err) {
             console.error("insert failed", err);
