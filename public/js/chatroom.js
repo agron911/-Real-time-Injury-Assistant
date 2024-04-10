@@ -503,13 +503,16 @@ const connectToSocket = async () => {
   socket.on("enableNormalOperation", (data) => { SUSPEND_NORMAL_OPERATION = false; });
   socket.on("group-message", async (data) => {
     if (!SUSPEND_NORMAL_OPERATION) {
-      console.log("123123123")
 
       IS_SPECIALIST = true;
 
       addMessages(data.msg);
-      if ( data.specialist_online){
+      if(data.specialist_online && data.msg.username != localStorage.getItem("username")){
         showMessageAlert(data.msg, "primary");
+      }else if (data.specialist_online){
+        showMessageAlert(data.msg, "secondary");
+      }else{
+        showMessageAlert(data.msg, "info");
       }
     }
   });
@@ -553,9 +556,19 @@ const createAlertHTMLElement = (message, type) => {
   }else{
     button = `<button type="button" id="button-${message._id}" aria-label="Close" data-bs-toggle="modal"  data-bs-target="#exampleModal" >`
   }
+  
+  if(type === "primary"){
+    alert_msg = `<div>${message.username}: ${message.content}</div>`
+  }else if(type === "secondary"){
+    alert_msg = `<div>There're specialists online, he'll reply to you very soon.</div>`
+  }else{
+    alert_msg = `<div>There's no specialist online yet, please be patience.</div>`
+
+  }
+
   wrapper.innerHTML = [
     `<div class="alert alert-${type} alert-dismissible alert-fse" role="alert">`,
-    `<div>${message.username}: ${message.content}</div>`,
+    alert_msg,
     `<div class ="alert-button-container">`,
     button,
     `<i class="las la-eye">`,
@@ -991,5 +1004,11 @@ function searchMessages() {
   }
 }
 
-
+function closeNavbar() {
+  const navbarCollapse = document.getElementById('navbarSupportedActions');
+  const bsCollapse = new bootstrap.Collapse(navbarCollapse, {
+    toggle: false 
+  });
+  bsCollapse.hide(); 
+}
 

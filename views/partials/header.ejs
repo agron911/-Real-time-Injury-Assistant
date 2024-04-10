@@ -2,6 +2,10 @@
 <header class="navbar navbar-expand-lg navbar-light navbar-parent  fixed-top">
     <div class="container-fluid nav-bar-container">
         <a class="navbar-brand" href="/chatroom">FSE Chat Room</a>
+        <div class="notification-icon" onclick="handleAlertClick()">
+            <i class="la la-bell"></i>
+            <span class="notification-dot"></span>
+          </div>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedActions"
             aria-controls="navbarSupportedActions" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -14,21 +18,21 @@
                         Status
                     </button>
                     <ul class="dropdown-menu">
-                        <li><button class="dropdown-item" onclick="changeStatus('ok')">Ok<i
+                        <li><button class="dropdown-item" onclick="changeStatus('ok'); closeNavbar() ">Ok<i
                                     class="las la-check-circle check-icon"></i></button></li>
-                        <li><button class="dropdown-item" onclick="changeStatus('help')">Help<i
+                        <li><button class="dropdown-item" onclick="changeStatus('help'); closeNavbar() ">Help<i
                                     class="las la-exclamation-circle danger-icon"></i></button></li>
-                        <li><button class="dropdown-item" onclick="changeStatus('emergency')">Emergency<i
+                        <li><button class="dropdown-item" onclick="changeStatus('emergency'); closeNavbar() ">Emergency<i
                                     class="las la-plus-square plus-icon"></i></button></li>
                     </ul>
                 </li>
             </ul>
             <div class="buttons-container">
-                <button class="btn btn-outline-primary" onclick="getArchive()" id="alert-btn">Public Chat</button>
-                <button class="btn btn-outline-primary" onclick="announcement()" id="announcement-toggle-btn">Announcement</button>
-                <button class="btn btn-outline-primary" onclick="showSpeedTestModal()" id="speed-test-btn">Start Speed Test</button>
+                <button class="btn btn-outline-primary" onclick="getArchive(); closeNavbar() " id="alert-btn">Public Chat</button>
+                <button class="btn btn-outline-primary" onclick="announcement(); closeNavbar() " id="announcement-toggle-btn">Announcement</button>
+                <button class="btn btn-outline-primary" onclick="showSpeedTestModal(); closeNavbar() " id="speed-test-btn">Start Speed Test</button>
                 <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ShowGroupChoices">Counsel Group</button>
-                <button class="btn btn-outline-primary" onclick="logout()" id="toggle-btn">Logout</button>
+                <button class="btn btn-outline-primary" onclick="logout(); closeNavbar() " id="toggle-btn">Logout</button>
             </div>
             
         </div>

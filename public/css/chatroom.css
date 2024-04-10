@@ -255,13 +255,13 @@ header,#messageForm {
 }
 
 .notification-icon {
-    position: fixed;
-    bottom: 100px;
-    right: 20px;
+    /* position: fixed;
+    top: 10px;
+    right: 80px; */
     cursor: pointer;
-    width: 60px;
+    width: 50px;
     /* Adjust based on the size of your icon */
-    height: 60px;
+    height: 50px;
     /* Adjust based on the size of your icon */
     border-radius: 50%;
     background-color: #f0f0f0;
@@ -269,15 +269,15 @@ header,#messageForm {
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 2px solid #000;
-    z-index: 999;
+    /* border: 2px solid #000; */
+    z-index: 9999;
     /* Adjust border color and thickness as needed */
 }
 
 .notification-dot {
-    position: absolute;
+    /* position: f;
     top: -5px;
-    right: -5px;
+    right: -5px; */
     width: 10px;
     height: 10px;
     border-radius: 50%;

@@ -1,10 +1,10 @@
 import { io } from "../utils/socketSetup.js";
 import DAO from "../model/dao.js"
-import { isUserActive, getSocketIds  } from '../model/ActiveUser.js';
+import { isUserActive, getSocketIds } from '../model/ActiveUser.js';
 
 
 
-export async function loadGroupMessages (req, res) {
+export async function loadGroupMessages(req, res) {
     try {
         const messages = await DAO.getInstance().getAllGroupMessages(req.params.group);
         res.send({ archive: messages })
@@ -14,7 +14,7 @@ export async function loadGroupMessages (req, res) {
     }
 }
 
-export async function CheckConfirmation (req, res) {
+export async function CheckConfirmation(req, res) {
     const message = await DAO.getInstance().CheckGroupConfirmation(req.params.group, req.params.username);
     if (message) {
         res.status(200).send({ message: "Confirm given" })
@@ -23,7 +23,7 @@ export async function CheckConfirmation (req, res) {
     }
 }
 
-export async function ConfirmGroup  (req, res)  {
+export async function ConfirmGroup(req, res) {
     const message = await DAO.getInstance().ConfirmGroup(req.params.group, req.params.username);
     if (message) {
         res.status(200).send({ message: "Confirm given" })
@@ -33,7 +33,7 @@ export async function ConfirmGroup  (req, res)  {
 }
 
 
-export async function receiveGroupMessage  (req, res)  {
+export async function receiveGroupMessage(req, res) {
     const timestamp = new Date().toString();
     // new MessageObj(req.body.username, req.body.content, req.body.timestamp, req.body.status, req.body.receiver, req.body.group);
     const mess = await DAO.getInstance().createGroupMessage(req.body.username, req.body.content, timestamp, req.body.status, req.body.receiver, false, req.body.group);
@@ -59,13 +59,14 @@ export async function receiveGroupMessage  (req, res)  {
                 if (count_specialist <= 0) {
                     const msg = await DAO.getInstance().updateMessageById(mess[0]._id, { viewed: false });
                     socketIds.forEach(socketId => {
-                        io.to(socketId).emit('group-message', { msg: msg, specialist_online: true });
+                        io.to(socketId).emit('group-message', { msg: msg, specialist_online: false });
                     });
                 } else {
                     const msg = await DAO.getInstance().updateMessageById(mess[0]._id, { viewed: true });
                     socketIds.forEach(socketId => {
-                        io.to(socketId).emit('group-message', { msg: msg, specialist_online: false });
-                    });                }
+                        io.to(socketId).emit('group-message', { msg: msg, specialist_online: true });
+                    });
+                }
             } else if (UserActive) {
                 const socketIds = await getSocketIds(user.username);
                 const msg = await DAO.getInstance().updateMessageById(mess[0]._id, { viewed: true });
@@ -86,7 +87,7 @@ export async function receiveGroupMessage  (req, res)  {
 }
 
 
-export async function getSpecialists (req, res)  {
+export async function getSpecialists(req, res) {
     try {
         const specialists = await DAO.getInstance().getSpecialists(req.params.group);
         res.send({ specialists })
@@ -96,7 +97,7 @@ export async function getSpecialists (req, res)  {
 }
 
 
-export async function editGroupMessage (req, res) {
+export async function editGroupMessage(req, res) {
     const message = await DAO.getInstance().updateMessageById(req.params.messageId, req.body);
     const users = await DAO.getInstance().getGroupUsers(req.body.group);
     let notificationsSent = 0;
@@ -121,7 +122,7 @@ export async function editGroupMessage (req, res) {
 }
 
 
-export async function deleteGroupMessage (req, res) {
+export async function deleteGroupMessage(req, res) {
     const messageId = req.body.messageId;
     const users = await DAO.getInstance().getGroupUsers(req.body.group);
 
