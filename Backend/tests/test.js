@@ -366,7 +366,7 @@ describe("Facility operations tests", () => {
         let newhours = "6-18"
         await DAO.getInstance().addFacility(name, latitude, longitude, type, address, hours);
         await DAO.getInstance().updateFacilityInfo(name, newhours);
-        let facility = DAO.getInstance().getFacilityByName(name);
+        let facility = DAO.getInstance().getFacility(name);
         expect(facility.hours).toBe(newhours)
     })
     test("Facility reportedclosed is by default initialized to false", async()=>{
@@ -389,6 +389,7 @@ describe("Facility operations tests", () => {
         let hours = "6-69"
         await DAO.getInstance().addFacility(name, latitude, longitude, type, address, hours);
         await DAO.getInstance().deleteFacility(name);
+        await DAO.getInstance().DeleteFacility(name);
         let facility = DAO.getInstance().getFacility(name);
         expect(facility.reportedclosed).toBe(true);
     })
