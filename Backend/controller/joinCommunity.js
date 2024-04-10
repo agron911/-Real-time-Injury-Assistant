@@ -27,10 +27,12 @@ export async function loginRegister(user_data){
         let un = user_data.username;
         const data = {
             username: un.toLowerCase(),
-            password: user_data.password
+            password: user_data.password,
+            specialists: user_data.specialists,
         };
         const hashed_password = await hashPassword(data.password);
-        const userdata = await DAO.getInstance().createUser(data.username, hashed_password, "undefined");
+        console.log("logingreg",data)
+        const userdata = await DAO.getInstance().createUser(data.username, hashed_password, "undefined","citizen", data.specialists);
         // res.status(202).send({ data });
         return data;
     } else {
@@ -69,7 +71,8 @@ export const UserConfirmation = async (req, res) => {
 export const UserJoin = async (req, res) => {
     const data = {
         username: req.body.username,
-        password: req.body.password
+        password: req.body.password,
+        specialists: req.body.specialists || [],
     };
 
     var status = 0;

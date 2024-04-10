@@ -3,8 +3,7 @@ import { hashPassword, comparePassword } from "../utils/passwordUtils.js";
 import DAO from '../model/dao.js';
 import { loginRegister } from '../controller/joinCommunity.js';
 import Citizen from '../model/user-Citizen.js';
-import {searchByPublicMessage, searchByPrivateMessages, searchPublicMessage} from '../controller/search_info.js';
-import {jest} from '@jest/globals';
+
 /**
  * Connect to a new in-memory database before running any tests.
  */
@@ -316,7 +315,6 @@ describe('Search operation', () => {
         let limit = 10
         await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
         const result = await DAO.getInstance().search_by_announcement(input, limit);
-        console.log(result)
         expect(result).not.toBeNull()
     })
     test('Accept search in status', async () => {
@@ -341,5 +339,113 @@ describe('Search operation', () => {
         expect(result).not.toBeNull()
     })
   
+})
+
+
+
+describe("Counsel Group Operations", () => {
+    test('Check Citizen did not accept group confirmation returns false', async () => {
+        let citizen = 'agron123'
+        let status = 'ok'
+        const group = 'Anxiety';
+        await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen')
+
+        let result = await DAO.getInstance().CheckGroupConfirmation(group, citizen );
+        expect(result).toBe(false)
+    });
+    test('Check Citizen accepted group confirmation returns true', async () => {
+        let citizen = 'agron123'
+        let status = 'ok'
+        let group = 'Anxiety';
+        await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen')
+        await DAO.getInstance().ConfirmGroup(group, citizen)
+        let result = await DAO.getInstance().CheckGroupConfirmation(group, citizen );
+        expect(result).toBe(true)
+    })
+    test('Success create group message', async () => {
+        let citizen = 'agron123'
+        let content = "test cnt"
+        let status = 'ok'
+        let group = 'Anxiety';
+        await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen')
+        const msg = await DAO.getInstance().createGroupMessage(citizen, content, new Date().toString(), 'ok', group, false, group)
+        // Assuming there are messages sent to 'existingGroup'
+        expect(msg[0].content).toBe(content);
+    });
+    test('Success Retrieve group messages', async () => {
+        let citizen = 'agron123'
+        let content = "test cnt"
+        let status = 'ok'
+        let group = 'Anxiety';
+        await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen')
+        await DAO.getInstance().createGroupMessage(citizen, content, new Date().toString(), 'ok', group, false, group)
+        const messages = await DAO.getInstance().getAllGroupMessages(group)
+        expect(messages.length).toBe(1)
+    });
+    test('Get all users in a group', async () => {
+        let citizen = 'agron123'
+        let status = 'ok'
+        let group = 'Anxiety';
+
+        await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen')
+        await DAO.getInstance().ConfirmGroup(group, citizen)
+        const groupUsers = await DAO.getInstance().getGroupUsers(group);
+        expect(groupUsers[0].username).toBe(citizen);
+    });
+    test('Create a specialist in a group', async () => {
+        let citizen = 'agron123'
+        let status = 'ok'
+        let group = 'Anxiety';
+        const user = await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen',group)
+        expect(user.username).toBe(citizen);
+    })
+    test('Create a specialist in multiple group', async () => {
+        let citizen = 'agron123'
+        let status = 'ok'
+        let group = ['Anxiety','Stress','Depression'];
+        const user = await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen',group)
+        expect(user.username).toBe(citizen);
+        console.log(user.specialist)
+        expect(user.specialist).toEqual(group);
+    })
+    test('Retrieve all specialists in a group', async () => {
+        let citizen = 'specialist1'
+        let status = 'ok'
+        let group = 'Anxiety';
+        await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen',group)
+        let citizen2 = 'specialist2'
+        let status2 = 'ok'
+        await DAO.getInstance().createUser(citizen2, await hashPassword('1234'), status2,'citizen',group)
+
+        const specialists = await DAO.getInstance().getSpecialists(group);
+        expect(specialists[0]).toBe(citizen);
+        expect(specialists[1]).toBe(citizen2);
+    });
+    test('Delete a message by ID', async () => {
+        let citizen = 'agron123'
+        let content = "test cnt"
+        let group = 'Anxiety';
+        await DAO.getInstance().createGroupMessage(citizen, content, new Date().toString(), 'ok', group, false, group)
+        let messages = await DAO.getInstance().getAllGroupMessages(group)
+        expect(messages[0].content).toBe(content);
+        const messageId = messages[0]._id;
+        await DAO.getInstance().deleteMessageById(messageId);
+        messages = await DAO.getInstance().getAllGroupMessages(group)
+        expect(messages.length).toBe(0);
+    });
+    test('Update a message by ID', async () => { 
+        let citizen = 'agron123'
+        let content = "test cnt"
+        let group = 'Anxiety';
+        await DAO.getInstance().createGroupMessage(citizen, content, new Date().toString(), 'ok', group, false, group)
+        let messages = await DAO.getInstance().getAllGroupMessages(group)
+        expect(messages[0].content).toBe(content);
+        const messageId = messages[0]._id;
+        await DAO.getInstance().updateMessageById(messageId, {content: "new content"});
+        messages = await DAO.getInstance().getAllGroupMessages(group)
+        expect(messages[0].content).toBe("new content");
+    });
+
+    
 
 })

@@ -6,9 +6,12 @@ import { receivePrivateMessage, loadUnreadMessages } from '../controller/chatPri
 import { updateUserStatus, getStatus } from '../controller/shareStatus.js';
 import { loadPrivateMessages } from '../controller/chatPrivately.js';
 import  { searchByPublicMessage, searchByPrivateMessages, searchByAnnouncement, searchByStatus, searchByUsername } from '../controller/search_info.js';
+import { loadAnnouncementMessages, receiveAnnouncementMessage} from '../controller/postAnnouncement.js';
+import { loadGroupMessages, receiveGroupMessage, CheckConfirmation, ConfirmGroup, getSpecialists, editGroupMessage, deleteGroupMessage} from '../controller/counselGroup.js';
 import { startSpeedTest, stopSpeedTest, isSpeedTestOngoing } from '../controller/speedtest.js';
-import {loadAnnouncementMessages, receiveAnnouncementMessage} from '../controller/postAnnouncement.js'
 const router = express.Router();
+
+
 
 router.get("/", HomeView);
 router.get("/community", indexView);
@@ -40,9 +43,18 @@ router.get("/users/status/search", searchByStatus);
 
 
 
-
-router.get("/speedtest", isSpeedTestOngoing);
 router.post("/speedtest", startSpeedTest);
 router.post("/speedtest/end", stopSpeedTest);
+router.get("/speedtest", isSpeedTestOngoing);
+
+
+router.get("/specialists/:group", getSpecialists);
+router.get("/chatrooms/:group", loadGroupMessages);
+router.get("/chatrooms/:group/:username", CheckConfirmation);
+router.post("/chatrooms/:group/:username", ConfirmGroup);
+router.post("/chatrooms/:group", receiveGroupMessage);
+router.put("/chatrooms/:group/:messageId", editGroupMessage);
+router.delete("/chatrooms/:group/:messageId", deleteGroupMessage);
+
 
 export default router;

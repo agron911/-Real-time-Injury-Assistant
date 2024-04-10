@@ -1,42 +1,36 @@
 <!--header.ejs-->
-<header class="navbar navbar-expand-lg navbar-light navbar-parent">
+<header class="navbar navbar-expand-lg navbar-light navbar-parent  fixed-top">
     <div class="container-fluid nav-bar-container">
         <a class="navbar-brand" href="/chatroom">FSE Chat Room</a>
-        <div class="options-container">
-            <div class="dropdown dropdown-fse dropstart">
-                <button id="status-button" class="btn btn-secondary dropdown-toggle status-button" type="button"
-                    data-bs-toggle="dropdown" aria-expanded="false">
-                    Status
-                </button>
-                <ul class="dropdown-menu">
-                    <li class="menu-item dropdown-item" onclick="changeStatus('ok')">
-                        <div class="" href="#">Ok</div>
-                        <i class="las la-check-circle check-icon"></i>
-                    </li>
-                    <li class="menu-item dropdown-item" onclick="changeStatus('help')">
-                        <div class="" href="#">Help</div>
-                        <i class="las la-exclamation-circle danger-icon"></i>
-                    </li>
-                    <li class="menu-item dropdown-item" onclick="changeStatus('emergency')">
-                        <div class="" href="#">Emergency</div>
-                        <i class="las la-plus-square plus-icon"></i>
-                    </li>
-                </ul>
-            </div>
-
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedActions"
+            aria-controls="navbarSupportedActions" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedActions">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item dropdown">
+                    <button id="status-button" class="btn btn-secondary dropdown-toggle status-button" type="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        Status
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><button class="dropdown-item" onclick="changeStatus('ok')">Ok<i
+                                    class="las la-check-circle check-icon"></i></button></li>
+                        <li><button class="dropdown-item" onclick="changeStatus('help')">Help<i
+                                    class="las la-exclamation-circle danger-icon"></i></button></li>
+                        <li><button class="dropdown-item" onclick="changeStatus('emergency')">Emergency<i
+                                    class="las la-plus-square plus-icon"></i></button></li>
+                    </ul>
+                </li>
+            </ul>
             <div class="buttons-container">
-                <button class="btn btn-outline-primary my-2 my-sm-0" onclick="announcement()" id="announcement-toggle-btn">
-                    Announcement
-                </button>
-
-                <button class="btn btn-outline-primary my-2 my-sm-0" onclick="showSpeedTestModal()" id="speed-test-btn">
-                    Start Speed Test
-                </button>
-
-                <button class="btn btn-outline-primary my-2 my-sm-0" onclick="logout()" id="toggle-btn">
-                    Logout
-                </button>
+                <button class="btn btn-outline-primary" onclick="getArchive()" id="alert-btn">Public Chat</button>
+                <button class="btn btn-outline-primary" onclick="announcement()" id="announcement-toggle-btn">Announcement</button>
+                <button class="btn btn-outline-primary" onclick="showSpeedTestModal()" id="speed-test-btn">Start Speed Test</button>
+                <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ShowGroupChoices">Counsel Group</button>
+                <button class="btn btn-outline-primary" onclick="logout()" id="toggle-btn">Logout</button>
             </div>
+            
         </div>
     </div>
 </header>

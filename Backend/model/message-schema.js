@@ -28,7 +28,12 @@ const messageSchema  = new mongoose.Schema({
     viewed:{
         type: Boolean,
         required: true
-    }
+    },
+    group:{
+        type: String,
+        required: false
+    },
+
 })
 const messageCollection = new mongoose.model("Message", messageSchema);
 

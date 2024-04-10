@@ -5,7 +5,7 @@ body {
     box-sizing: border-box;
 }
 
-header, #messageForm {
+header,#messageForm {
     background-color: rgb(168, 196, 244);
     backdrop-filter: blur(10px);
 }
@@ -71,8 +71,15 @@ header, #messageForm {
     max-height: 100%;
 }
 
-.dropdown-fse {
+/* .dropdown-fse {
     margin-right: 2em;
+} */
+
+#GroupButtons ul{
+    list-style: none;
+}
+#GroupButtons ul li{
+    padding: 3px;
 }
 
 .nav-bar-container {
@@ -152,15 +159,16 @@ header, #messageForm {
     position: relative;
 }
 
+
 .chatroom-container {
     overflow: auto;
-    height: 90%;
+    height: 100%;
     border: 1px solid;
     padding: 0;
 }
 
 .users-container {
-    /* overflow: auto; */
+    overflow: auto;
     height: 100%;
 }
 
@@ -180,7 +188,7 @@ header, #messageForm {
 }
 
 .chatroom-card {
-    height: 95%;
+    height: 100%;
 }
 
 .alert-fse {
@@ -230,7 +238,20 @@ header, #messageForm {
 }
 
 .navbar-parent {
-    z-index: 999;
+    position: fixed;
+}
+
+@media screen and (max-width: 640px) {
+    .nav-item {
+        position: relative;
+    }
+
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        z-index: 1000;
+    }
 }
 
 .notification-icon {
@@ -264,19 +285,19 @@ header, #messageForm {
     display: none;
 }
 
-.buttons-container {
+/* .buttons-container {
     display: block;
-}
+} */
 
-.dropdown-actions{
+/* .dropdown-actions{
     display: none;
     position: fixed !important;
     bottom: 100px;
     left: 2em;
     width: fit-content;
-}
+} */
 
-.kebab-menu{
+.kebab-menu {
     font-size: 24px;
     border-radius: 50%;
     background-color: #4CAF50;
@@ -284,24 +305,25 @@ header, #messageForm {
     color: white;
 }
 
-@media screen and (max-width: 640px) {
+/* @media screen and (max-width: 640px) {
     .buttons-container {
         display: none;
     }
-}
+} */
 
 
-@media screen and (max-width: 640px) {
+/* @media screen and (max-width: 640px) {
     .dropdown-actions {
         display: block;
+        position: static;
     }
-}
+} */
 
 .speed-test-modal-boy {
     position: relative;
 }
 
-.speed-test-spinner{
+.speed-test-spinner {
     position: absolute;
     top: 40%;
     right: 45%;

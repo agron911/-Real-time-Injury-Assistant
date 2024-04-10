@@ -2,14 +2,14 @@ import DAO from "./dao.js"
 import { prohibitedUsernames } from '../utils/user-config.js';
 
 class User {
-    constructor(username, password, status, usertype) {
+    constructor(username, password, status, usertype, specialists) {
         if (User.validate(username, password)) throw "Invalid username or password"
 
         this.username = username;
         this.status = status;
         this.password = password;
         this.usertype = usertype;
-
+        this.specialists = specialists;
     }
 
     static get dao() {
@@ -69,7 +69,9 @@ class User {
             status: this.status,
             online: false, 
             acknowledged: false, 
-            usertype: this.usertype
+            usertype: this.usertype,
+            specialist: this.specialists,
+            confirmGroup: [],
         };
     }
 }

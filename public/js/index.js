@@ -1,7 +1,7 @@
 
 const url = ""
 let SUSPEND_NORMAL_OPERATION = false;
-
+let specialistCategories = [];
 function cancelUser(){
     usernameInput.value = '';
     passwordInput.value = '';
@@ -16,6 +16,7 @@ function saveUser(){
         body: JSON.stringify({
             "username": usernameInput.value,
             "password": passwordInput.value,
+            "specialists": specialistCategories,
         }),
         headers: {
         "Content-type": "application/json; charset=UTF-8"
@@ -58,7 +59,7 @@ const login = async (username, password) => {
     }
 }
 
-const verifyUser = async (username, password) => {
+const verifyUser = async (username, password, specialistCategories) => {
     await checkIfTestOngoing();
     if(SUSPEND_NORMAL_OPERATION) return;
     return await fetch(url+"/users/verification", {
@@ -66,6 +67,7 @@ const verifyUser = async (username, password) => {
         body: JSON.stringify({
             "username": username,
             "password": password,
+            "specialists": specialistCategories
         }),
         headers: {
             "Content-type": "application/json; charset=UTF-8"
@@ -87,11 +89,20 @@ const alertUser = (statusCode) =>{
     }
 } 
 
+const getSpecialistCategories = async () => {
+    const categories = [];
+    document.querySelectorAll('.form-check-input').forEach(input => {
+        if(input.checked) categories.push(input.value);
+    });
+    return categories;
+};
+
 const submitJoinForm = async ()=>{
     const usernameInput = document.getElementById('usernameInput');
     const passwordInput = document.getElementById('passwordInput');
+    specialistCategories = await getSpecialistCategories();
     if (usernameInput && passwordInput) {
-        const response = await verifyUser(usernameInput.value, passwordInput.value);
+        const response = await verifyUser(usernameInput.value, passwordInput.value, specialistCategories);
         if (response.status == 201) {
             document.getElementById("acknowlegementmodal").style.display="block";
         } else if (response.status == 206){
