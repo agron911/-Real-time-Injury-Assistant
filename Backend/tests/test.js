@@ -344,7 +344,7 @@ describe('Search operation', () => {
 
 })
 
-describe("Facility operations tests", () => {
+describe("Facility operations tests", async() => {
     test("Facility is stored", async ()=>{
         let name = "Some-facility"
         let address = "Some street irrelevant"
@@ -378,7 +378,7 @@ describe("Facility operations tests", () => {
         let hours = "24/7"
         await DAO.getInstance().addFacility(name, latitude, longitude, type, address, hours);
         let facility = await DAO.getInstance().getFacility(name);
-        expect(facility.reportedclosed).toBe(false)
+        expect(facility.reportedclosed).toBe(false);
     })
     test("Mark Facility Requested to Delete", async()=>{
         let name = "Some facility"
