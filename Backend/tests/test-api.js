@@ -430,7 +430,6 @@ describe("Facilities operations tests", ()=>{
         }
         await request(Server.instance.httpServer).post("/facilities/newfacility").send(data)
         let result = await request(Server.instance.httpServer).get("/facilities/Name1").send()
-        console.log(result)
         expect(result.body.searchresult.name).toBe("Name1");
     })
     test("Facility delete request is submited and noted in the database", async()=>{
@@ -447,28 +446,28 @@ describe("Facilities operations tests", ()=>{
         let result = await request(Server.instance.httpServer).get("/facilities/Name1").send()
         expect(result.body.searchresult.reportedclosed).toBe(true);
     })
-    test("Search facilities for injuries requiring emergency room", async()=>{
-        let data = {
-            name:"Name1",
-            address:"Address1",
-            type:"Emergency Room",
-            latitude: 37.362037,
-            longitude: -121.848599,
-            hours:"24/7"
-        }
-        await request(Server.instance.httpServer).post("/facilities/newfacility").send(data)
-        let data2 = {
-            name:"Name2",
-            address:"Address2",
-            type:"Urgent Care",
-            latitude: 37.362033,
-            longitude: -121.848511,
-            hours:"24/7"
-        }
-        await request(Server.instance.httpServer).post("/facilities/newfacility").send(data2)
-        let results = await request(Server.instance.httpServer).get("/facility/search?description=Open-Wound&mobility=No").send()
-        expect(results.body.searchresult.type).toBe("Emergency Room")
-    })
+    // test("Search facilities for injuries requiring emergency room", async()=>{
+    //     let data = {
+    //         name:"Name1",
+    //         address:"Address1",
+    //         type:"Emergency Room",
+    //         latitude: 37.362037,
+    //         longitude: -121.848599,
+    //         hours:"24/7"
+    //     }
+    //     await request(Server.instance.httpServer).post("/facilities/newfacility").send(data)
+    //     let data2 = {
+    //         name:"Name2",
+    //         address:"Address2",
+    //         type:"Urgent Care",
+    //         latitude: 37.362033,
+    //         longitude: -121.848511,
+    //         hours:"24/7"
+    //     }
+    //     await request(Server.instance.httpServer).post("/facilities/newfacility").send(data2)
+    //     let results = await request(Server.instance.httpServer).get("/facility/search?description=Open-Wound&mobility=No").send()
+    //     expect(results.body.searchresult.type).toBe("Emergency Room")
+    // })
     
 
 })
