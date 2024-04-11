@@ -353,7 +353,7 @@ describe("Facility operations tests", () => {
         let type = "Emergency Room"
         let hours = "24/7"
         await DAO.getInstance().addFacility(name, latitude, longitude, type, address, hours);
-        let facility = DAO.getInstance().getFacility(name);
+        let facility = await DAO.getInstance().getFacility(name);
         expect(facility.name).toBe('Some facility')
     })
     test("Update Facility info Updates facility Info", async()=>{
@@ -366,7 +366,7 @@ describe("Facility operations tests", () => {
         let newhours = "6-18"
         await DAO.getInstance().addFacility(name, latitude, longitude, type, address, hours);
         await DAO.getInstance().updateFacilityInfo(name, newhours);
-        let facility = DAO.getInstance().getFacility(name);
+        let facility = await DAO.getInstance().getFacility(name);
         expect(facility.hours).toBe(newhours)
     })
     test("Facility reportedclosed is by default initialized to false", async()=>{
@@ -377,7 +377,7 @@ describe("Facility operations tests", () => {
         let type = "Emergency Room"
         let hours = "24/7"
         await DAO.getInstance().addFacility(name, latitude, longitude, type, address, hours);
-        let facility = DAO.getInstance().getFacility(name);
+        let facility = await DAO.getInstance().getFacility(name);
         expect(facility.reportedclosed).toBe(false)
     })
     test("Mark Facility Requested to Delete", async()=>{
@@ -389,7 +389,7 @@ describe("Facility operations tests", () => {
         let hours = "24/7"
         await DAO.getInstance().addFacility(name, latitude, longitude, type, address, hours);
         await DAO.getInstance().DeleteFacility(name);
-        let facility = DAO.getInstance().getFacility(name);
+        let facility = await DAO.getInstance().getFacility(name);
         expect(facility.reportedclosed).toBe(true);
     })
     test("Search for Facilities for open wounds/difficulty breathing only returns Emergency rooms", async()=>{
@@ -425,7 +425,7 @@ describe("Facility operations tests", () => {
         let type2 = "Emergency Room"
         let hours2 = "24/7"
         await DAO.getInstance().addFacility(name2, latitude2, longitude2, type2, address2, hours2);
-        let result = DAO.getInstance().getFacilities();
+        let result = await DAO.getInstance().getFacilities();
         expect(result.length).toBe(1);
     })
     test("Facility not in santa clara county is not added", async()=>{
