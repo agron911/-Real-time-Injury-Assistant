@@ -457,7 +457,7 @@ describe("Facilities operations tests", ()=>{
             hours:"24/7"
         }
         await request(Server.instance.httpServer).post("/facilities/newfacility").send(data)
-        let dat2 = {
+        let data2 = {
             name:"Name2",
             address:"Address2",
             type:"Urgent Care",
