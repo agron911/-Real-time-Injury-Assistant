@@ -369,17 +369,17 @@ describe("Facility operations tests", () => {
         let facility = await DAO.getInstance().getFacility(name);
         expect(facility.hours).toBe(newhours)
     })
-    // test("Facility reportedclosed is by default initialized to false", async()=>{
-    //     let name = "Some facility"
-    //     let address = "Some street irrelevant"
-    //     let latitude = 37.396276
-    //     let longitude = -121.893756
-    //     let type = "Emergency Room"
-    //     let hours = "24/7"
-    //     await DAO.getInstance().addFacility(name, latitude, longitude, type, address, hours);
-    //     let facility = await DAO.getInstance().getFacility(name);
-    //     expect(facility.reportedclosed).toBe(false);
-    // })
+    test("Facility reportedclosed is by default initialized to false", async()=>{
+        let name = "Some facility"
+        let address = "Some street irrelevant"
+        let latitude = 37.396276
+        let longitude = -121.893756
+        let type = "Emergency Room"
+        let hours = "24/7"
+        await DAO.getInstance().addFacility(name, latitude, longitude, type, address, hours);
+        let facility = await DAO.getInstance().getFacility(name);
+        expect(facility.reportedclosed).toBe(false);
+    })
     test("Mark Facility Requested to Delete", async()=>{
         let name = "Some facility"
         let address = "Some street irrelevant"

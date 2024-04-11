@@ -379,7 +379,7 @@ describe('Test Search Info API', () => {
 
 })
 
-describe("Facilities operations tests", async()=>{
+describe("Facilities operations tests", ()=>{
     test("Facility outside of Santa Clara County not added", async()=>{
         let data = {
             name:"Name1",
