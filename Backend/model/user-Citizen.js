@@ -6,8 +6,8 @@ class Citizen extends User {
         super(username, password, status, "Citizen", esp, false);
     }
 
-    async setAsEsp(){
-        const user = await DAO.getInstance().updateUserEsp(this.username, true);
+    async modifyEsp(esp){
+        const user = await DAO.getInstance().updateUserEsp(this.username, esp);
         const citizen = new Citizen(user.username, user.password, user.status, user.esp);
         return citizen;
     };

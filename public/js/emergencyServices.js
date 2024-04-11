@@ -11,6 +11,42 @@ const getUser = async (username) => {
     return user;
 }
 
+// Function to toggle the mobile menu and icons
+function openMainMenu() {
+    const menu = document.getElementById('mobile-menu');
+    const openIcon = document.querySelector('.block.h-6.w-6');
+    const closeIcon = document.querySelector('.hidden.h-6.w-6');
+  
+    // Toggle the display of the mobile menu
+    if (menu.style.display === 'block') {
+        menu.style.display = 'none';
+    } else {
+        menu.style.display = 'block';
+    }
+
+    openIcon.classList.toggle('block');
+    closeIcon.classList.toggle('hidden');
+    openIcon.classList.toggle('hidden');
+    closeIcon.classList.toggle('block');
+  
+    // Toggle the icons
+  }
+  
+function toggleDropdownMenu() {
+    var dropdownMenu = document.getElementById('dropDownMenu');
+
+    if (dropdownMenu.style.display === 'block') {
+        dropdownMenu.style.display = 'none';
+        dropdownMenu.style.opacity = '0';
+        dropdownMenu.style.transform = 'scale(0.95)';
+    } else {
+        dropdownMenu.style.display = 'block';
+        dropdownMenu.style.opacity = '1';
+        dropdownMenu.style.transform = 'scale(1)';
+    }
+}
+  
+
 const createRequest = async () => {
     const form = document.getElementById("emergencyRequestForm");
     const severity = form.elements["severity"].value;
@@ -39,6 +75,22 @@ const registerAsEsp = async ()=>{
     if(result.status==200){
         openEspSuccessModal();
         $('#espRegisterSuccessModal').on('hidden.bs.modal', function (e) {
+            window.location.reload();
+        })
+    }
+}
+
+const deregisterAsEsp = async ()=>{
+    const result = await fetch('/user/'+localStorage.getItem('username')+"/esp",{
+        method: 'PUT',
+        body: JSON.stringify({esp: false}),
+        headers: {
+            "Content-type": "application/json; charset=UTF-8",
+        },        
+    })
+    if(result.status==200){
+        openDeregisterSuccessModal();
+        $('#espDeregisterSuccessModal').on('hidden.bs.modal', function (e) {
             window.location.reload();
         })
     }
@@ -102,9 +154,57 @@ const showAlert = (message)=>{
     console.log('alert', message);
 }
 
+const toggleRegisterAndDeregisterEspButton = (isEsp)=>{
+    if(isESP) {
+        document.getElementById('user-menu-item-0').style.display = 'none';
+        document.getElementById('user-menu-item-1').style.display = 'block';
+    }
+    else {
+        document.getElementById('user-menu-item-0').style.display = 'block';
+        document.getElementById('user-menu-item-1').style.display = 'none';
+    }
+}
+
+const logout = async () => {
+    if (SUSPEND_NORMAL_OPERATION) return;
+    try {
+      window.location.replace("/");
+      await fetch(url + "/auth/users", {
+        method: "PATCH",
+        body: JSON.stringify({
+          isOnline: false,
+          username: localStorage.getItem("username"),
+        }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+      });
+      localStorage.setItem("token", null);
+      localStorage.setItem("username", null);
+    } catch (e) { }
+  };
+
 const openEspSuccessModal = ()=>{
     closeRegisterEspModal();
     $('#espRegisterSuccessModal').modal('show');
+}
+
+const openInformCitizenModal = ()=>{
+    closeInformCitizenModal();
+    $('#severityModal').modal('show');
+}
+
+const closeInformCitizenModal = ()=>{
+    $('#severityModal').modal('hide');
+}
+
+const openDeregisterSuccessModal = ()=>{
+    closeDeregisterEspModal();
+    $('#espDeregisterSuccessModal').modal('show');
+}
+
+const closeDeregisterEspModal = ()=>{
+    $('#espDeregisterSuccessModal').modal('hide');
 }
 
 const hideEspSuccessModal = ()=>{
@@ -120,6 +220,9 @@ const closeRegisterEspModal = ()=>{
 }
 
 const openEmergencyRequestModal = ()=>{
+    const form = document.getElementById("emergencyRequestForm");
+    form.elements["severity"].value = "Dog";
+    form.elements["content"].value = null;
     $('#emergencyRequestModal').modal('show');
 }
 
@@ -137,6 +240,11 @@ const closeNotificationModal = () => {
 
 const navigateToChatroom = ()=>{
     location.replace('/chatroom');
+}
+
+const closeInformModalAndOpenEmergencyServicesModal = () => {
+    closeInformCitizenModal();
+    openEmergencyRequestModal();
 }
 
 function clearAllRequestCards() {
@@ -158,28 +266,17 @@ const getAndDisplayRequestsESP = async ()=>{
     const requests = await getRequestsForESP();
     if(requests.length>0) {
         requests.forEach(request => {
-            addRequestCard({
-                username: request.username,
-                status: request.status,
-                severity: request.severity,
-                content: request.content,
-                id: request.id,
-            }, 'ESP');
+            addRequestCard(request, 'ESP');
         });    
     }
 }
 
-const getAndDisplayMyRequests = async (type) => {
+const getAndDisplayMyRequests = async () => {
+    console.log("here");
     const requests = await getRequestsForMe();
     if(requests.length>0) {
         requests.forEach(request => {
-            addRequestCard({
-                username: request.username,
-                status: request.status,
-                severity: request.severity,
-                content: request.content,
-                id: request.id,
-            }, 'my');
+            addRequestCard(request, 'MY');
         });    
     }
 }
@@ -188,24 +285,26 @@ const openRequestWall = ()=>{
     clearAllRequestCards();
     displayRequestContainer();
     getAndDisplayRequestsESP();
-    currentWall = "esp";
+    currentWall = "ESP";
 }
 
 const openMyRequestWall = ()=>{
+    console.log("open request");
     clearAllRequestCards();
     displayRequestContainer();
     getAndDisplayMyRequests();
-    currentWall = "my";
+    currentWall = "MY";
 }
 
 const getAllowedOptions = (status, type)=>{
-    if(type == "my") {
+    console.log("typedas    ", type);
+    if(type == "MY") {
         if(status == "UNRESOLVED") {
             return ['resolve', 'remove'];
         } else if (status == "RESOLVED") {
             return ['reset', 'remove'];
         } else if (status == "ONGOING") {
-            return ['reset', 'remove'];    
+            return ['resolve', 'reset', 'remove'];    
         }
     } else {
         if(status == "UNRESOLVED") {
@@ -214,12 +313,67 @@ const getAllowedOptions = (status, type)=>{
     }
 }
 
+function appendClassAccordingToSeverity(severity){
+    if(severity == "Dog"){
+        return " border-yellow-200 bg-yellow-50"
+    } else if(severity == "Tiger"){
+        return " border-red-200 bg-red-50"
+    } else if(severity == "Monster"){
+        return " border-blue-200 bg-blue-50"
+    } else if(severity == "God"){
+        return " border-black-200 bg-black-50"
+    }
+}
+
+function createCardElementForCitizen(request, type) {
+    const card = document.createElement('div');
+    classes = 'request-card border-2 border-solid rounded-lg shadow-md';
+    classes += appendClassAccordingToSeverity(request.severity);    
+    card.className = classes;
+    const cardBody = document.createElement('div');
+    cardBody.className = 'request-card-body p-4 ';
+
+    const allowedOptions = getAllowedOptions(request.status, type);
+    if (allowedOptions){
+        console.log('ao', allowedOptions);
+        const kebabMenu = createKebabMenu(allowedOptions, request.id);
+        cardBody.appendChild(kebabMenu);
+    }
+    
+    const username = document.createElement('h5');
+    username.className = 'request-card-title font-bold text-lg mb-2';
+    username.textContent = `${request.content}`;
+
+    const status = document.createElement('p');
+    status.className = 'request-card-text text-sm mb-1';
+    status.textContent = `Status: ${request.status=='ONGOING'?request.assignedTo+' is on the way':request.status}`;
+
+    const severity = document.createElement('p');
+    severity.className = 'request-card-text text-sm mb-1';
+    severity.textContent = `Severity: ${request.severity}`;
+
+    // const content = document.createElement('p');
+    // content.className = 'request-card-text text-sm';
+    // content.textContent = `Content: ${request.content}`;
+
+    cardBody.appendChild(username);
+    cardBody.appendChild(status);
+    cardBody.appendChild(severity);
+    // cardBody.appendChild(content);
+    card.appendChild(cardBody);
+
+    return card;
+}
+
+
 function createCardElement(request, type) {
     const card = document.createElement('div');
-    card.className = 'request-card mb-3';
-
+    classes = 'request-card border-2 border-solid rounded-lg shadow-md';
+    classes += appendClassAccordingToSeverity(request.severity);    
+    card.className = classes;
+    
     const cardBody = document.createElement('div');
-    cardBody.className = 'request-card-body';
+    cardBody.className = 'request-card-body p-4';
 
     const allowedOptions = getAllowedOptions(request.status, type);
     if (allowedOptions){
@@ -228,36 +382,54 @@ function createCardElement(request, type) {
     }
     
     const username = document.createElement('h5');
-    username.className = 'request-card-title';
+    username.className = 'request-card-title font-bold text-xl mb-2';
     username.textContent = `${request.username}`;
 
     const status = document.createElement('p');
-    status.className = 'request-card-text';
-    status.textContent = `Status: ${request.status}`;
+    status.className = `request-card-text text-sm mb-1 ${request.status=="UNRESOLVED"?'bg-red-600 text-white w-fit p-2':''}`;
+    status.textContent = `Status: ${request.status=='ONGOING'?request.assignedTo+' is on the way':request.status}`;
 
     const severity = document.createElement('p');
-    severity.className = 'request-card-text';   
+    severity.className = 'request-card-text text-sm mb-1';
     severity.textContent = `Severity: ${request.severity}`;
 
     const content = document.createElement('p');
-    content.className = 'request-card-text';
-    content.textContent = `Content: ${request.content}`;
+    content.className = 'request-card-text text-lg text-gray-800';
+    content.textContent = `${request.content}`;
 
     cardBody.appendChild(username);
+    cardBody.appendChild(content);
     cardBody.appendChild(status);
     cardBody.appendChild(severity);
-    cardBody.appendChild(content);
     card.appendChild(cardBody);
 
     return card;
 }
 
+
 function addRequestCard(request, type) {
     const cardContainer = document.getElementById('request-wall');
-    const cardElement = createCardElement(request, type);
+    const cardElement = type=="ESP"?createCardElement(request, type):createCardElementForCitizen(request, type);
     cardElement.id = request.id;
     cardContainer.appendChild(cardElement);
 }
+
+// Function to highlight the selected menu item
+function highlightMenuItem(selectedItem) {
+    // Get all menu items
+    const menuItems = document.querySelectorAll('#mobile-menu a');
+  
+    // Remove the active class from all menu items
+    menuItems.forEach(item => {
+      item.classList.remove('bg-gray-900', 'text-white');
+      item.classList.add('text-gray-300', 'hover:bg-gray-700', 'hover:text-white');
+    });
+  
+    // Add the active class to the selected menu item
+    selectedItem.classList.remove('text-gray-300', 'hover:bg-gray-700', 'hover:text-white');
+    selectedItem.classList.add('bg-gray-900', 'text-white');
+  }
+  
 
 const resolveRequest = async (requestId)=>{
     updateRequestById = await updateRequestById(requestId, {status: 'RESOLVED'});
@@ -323,9 +495,9 @@ function createKebabMenu(allowedOptions, cardId) {
 
 const updateEspRequests = () => {
     clearAllRequestCards();
-    if(currentWall=="my"){
+    if(currentWall=="MY"){
         getAndDisplayMyRequests();
-    } else if(currentWall=="esp"){
+    } else if(currentWall=="ESP"){
         getAndDisplayRequestsESP();
     }
 } 
@@ -381,7 +553,8 @@ const connectToSocket = async () => {
         console.log("isEsp", isESP);
         if(isESP) {
             await registerSocket(localStorage.getItem("username"), socket.id, true); 
-            document.getElementById("request-wall-btn").style.display = "block";
+            document.getElementById("esp-requests-action-mobile").style.display = "block";
+            document.getElementById("esp-requests-action-desktop").style.display = "block";
         } else {
             await registerSocket(localStorage.getItem("username"), socket.id, false); 
         }
@@ -420,12 +593,16 @@ const execute = async ()=>{
     console.log('Emergency services loaded successfully');
     await checkifCititzenIsESP();
     if(isESP){
-        const requestWallBtn = document.getElementById("request-wall-btn");
-        requestWallBtn.style.display = "inline";
+        document.getElementById("esp-requests-action-mobile").style.display = "block";
+        document.getElementById("esp-requests-action-desktop").style.display = "block";
     } else {
-        document.getElementById("register-esp-btn").style.display = "inline";
+        document.getElementById("esp-requests-action-mobile").style.display = "none";
+        document.getElementById("esp-requests-action-desktop").style.display = "none";
     }
+    toggleRegisterAndDeregisterEspButton();
     await connectToSocket();
 }
+
+
 window.onload = execute;
 

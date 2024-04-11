@@ -1,6 +1,15 @@
+
 .request-wall {
     display: block;
-    border: solid 2px black;
+    padding: 2em;
+    /* border: solid 2px black; */
+}
+
+@media screen and (max-width: 640px) {
+    .request-wall {
+        display: block;
+        padding: 1em;
+    }    
 }
 
 .request-card {

@@ -10,14 +10,12 @@ export const EmergencyServicesView = (req, res) => {
 export const registerAsEsp = async (req, res) => {
     const username = req.params.username;
     const esp = req.body.esp;
-    if(esp){
-        try{
-            let citizen = await Citizen.retrieveUserByUsername(username);
-            citizen = await citizen.setAsEsp();
-            res.status(200).send(citizen.toSchemaObject());
-        } catch(err){
-            console.log('registerAsEsp',err);
-            res.status(404).send("User not found");
-        }    
-    }
+    try{
+        let citizen = await Citizen.retrieveUserByUsername(username);
+        citizen = await citizen.modifyEsp(esp);
+        res.status(200).send(citizen.toSchemaObject());
+    } catch(err){
+        console.log('registerAsEsp',err);
+        res.status(404).send("User not found");
+    }    
 }

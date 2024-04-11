@@ -349,7 +349,7 @@ describe('Esp registration', () => {
         const username = 'testuser';
         await DAO.getInstance().createUser(username, 'wqed', 'ok', 'Citizen', false);
         let citizen = await Citizen.retrieveUserByUsername(username);
-        citizen = await citizen.setAsEsp();
+        citizen = await citizen.modifyEsp(true);
         citizen = await Citizen.retrieveUserByUsername(username);
         expect(citizen.esp).toEqual(true);
     });
@@ -360,7 +360,7 @@ describe('Esp registration', () => {
         // await DAO.getInstance().createUser(username, 'wqed', 'ok', 'Citizen', false);
         try{
             let citizen = await Citizen.retrieveUserByUsername(username);
-            citizen = await citizen.setAsEsp();
+            citizen = await citizen.modifyEsp(true);
             citizen = await Citizen.retrieveUserByUsername(username);
         } catch(e){
             expect(e.message).toEqual('User not found');
@@ -375,7 +375,7 @@ describe('Request handling', () => {
         const username = 'testuser';
         await DAO.getInstance().createUser(username, 'wqed', 'ok', 'Citizen', false);
         let citizen = await Citizen.retrieveUserByUsername(username);
-        citizen = await citizen.setAsEsp();
+        citizen = await citizen.modifyEsp(true);
         citizen = await Citizen.retrieveUserByUsername(username);
         const request = new Request(username, 'content', 'Dog', null, "UNRESOLVED");
         await request.save(); 
@@ -386,7 +386,7 @@ describe('Request handling', () => {
         const username = 'testuser';
         await DAO.getInstance().createUser(username, 'wqed', 'ok', 'Citizen', false);
         let citizen = await Citizen.retrieveUserByUsername(username);
-        citizen = await citizen.setAsEsp();
+        citizen = await citizen.modifyEsp(true);
         citizen = await Citizen.retrieveUserByUsername(username);
         const request = new Request(username, 'content', 'Dog', null, "UNRESOLVED");
         await request.save(); 
@@ -398,7 +398,7 @@ describe('Request handling', () => {
         const username = 'testuser';
         await DAO.getInstance().createUser(username, 'wqed', 'ok', 'Citizen', false);
         let citizen = await Citizen.retrieveUserByUsername(username);
-        citizen = await citizen.setAsEsp();
+        citizen = await citizen.modifyEsp(true);
         citizen = await Citizen.retrieveUserByUsername(username);
         let request = new Request(username, 'content', 'Dog', null, "UNRESOLVED");
         await request.save(); 
@@ -413,7 +413,7 @@ describe('Request handling', () => {
         const username = 'testuser';
         await DAO.getInstance().createUser(username, 'wqed', 'ok', 'Citizen', false);
         let citizen = await Citizen.retrieveUserByUsername(username);
-        citizen = await citizen.setAsEsp();
+        citizen = await citizen.modifyEsp(true);
         citizen = await Citizen.retrieveUserByUsername(username);
         let request = new Request(username, 'content', 'Dog', null, "UNRESOLVED");
         await request.save(); 
@@ -430,7 +430,7 @@ describe('Request handling', () => {
         const username = 'testuserusername';
         await DAO.getInstance().createUser(username, 'wqed', 'ok', 'Citizen', false);
         let citizen = await Citizen.retrieveUserByUsername(username);
-        citizen = await citizen.setAsEsp();
+        citizen = await citizen.modifyEsp(true);
         citizen = await Citizen.retrieveUserByUsername(username);
         let request = new Request(username, 'content', 'Dog', null, "UNRESOLVED");
         await request.save(); 
@@ -444,7 +444,7 @@ describe('Request handling', () => {
         const username = 'testuser';
         await DAO.getInstance().createUser(username, 'wqed', 'ok', 'Citizen', false);
         let citizen = await Citizen.retrieveUserByUsername(username);
-        citizen = await citizen.setAsEsp();
+        citizen = await citizen.modifyEsp(true);
         citizen = await Citizen.retrieveUserByUsername(username);
         let request = new Request(username, 'content', 'Dog', null, "WEIRD");
         try{
@@ -458,7 +458,7 @@ describe('Request handling', () => {
         const username = 'testuser';
         await DAO.getInstance().createUser(username, 'wqed', 'ok', 'Citizen', false);
         let citizen = await Citizen.retrieveUserByUsername(username);
-        citizen = await citizen.setAsEsp();
+        citizen = await citizen.modifyEsp(true);
         citizen = await Citizen.retrieveUserByUsername(username);
         let request = new Request(username, 'content', 'Bug', null, "UNRESOLVED");
         try{
@@ -472,7 +472,7 @@ describe('Request handling', () => {
         const username = 'testuserunique';
         await DAO.getInstance().createUser(username, 'wqed', 'ok', 'Citizen', false);
         let citizen = await Citizen.retrieveUserByUsername(username);
-        citizen = await citizen.setAsEsp();
+        citizen = await citizen.modifyEsp(true);
         citizen = await Citizen.retrieveUserByUsername(username);
         let request = new Request(username, 'content', 'Dog', null, "UNRESOLVED");
         await request.save(); 
