@@ -408,7 +408,7 @@ describe("Facility operations tests", () => {
         let type2 = "Emergency Room"
         let hours2 = "24/7"
         await DAO.getInstance().addFacility(name2, latitude2, longitude2, type2, address2, hours2);
-        let result = await DAO.searchFacility("Open-Wound", "Yes");
+        let result = await DAO.getInstance().searchFacility("Open-Wound", "Yes");
         expect(result).not.toBeNull();
     })
     test("If name exists new facility is not added", async()=>{
@@ -417,7 +417,7 @@ describe("Facility operations tests", () => {
         let latitude = 37.396276
         let longitude = -121.893756
         let type = "Emergency Room"
-        let hours = "24/7"
+        let hours = "9-17"
         await DAO.getInstance().addFacility(name, latitude, longitude, type, address, hours);
         let name2 = "Some facility"
         let address2 = "Some street irrelevant 2"
