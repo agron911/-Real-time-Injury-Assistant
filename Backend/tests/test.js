@@ -380,6 +380,9 @@ describe('Request handling', () => {
         const request = new Request(username, 'content', 'Dog', null, "UNRESOLVED");
         await request.save(); 
         expect(request.id).not.toBeNull(); 
+        expect(request.username).toBe(username);
+        expect(request.content).toBe('content');
+        expect(request.status).toBe('UNRESOLVED'); 
     })
 
     test('A citizen can retreive a request by id', async () => {
@@ -438,6 +441,9 @@ describe('Request handling', () => {
         await request2.save(); 
         const requests = await DAO.getInstance().getRequestsByUsername(username);
         expect(requests.length).toEqual(2); 
+        expect(requests[0].id).toEqual(request.id);
+        expect(requests[1].id).toEqual(request2.id);
+         
     })
 
     test('A request status cannot be anything except the predefined ones', async () => {

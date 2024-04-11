@@ -397,20 +397,34 @@ describe('Emergency services', ()=>{
         await DAO.getInstance().createUser(username, '1234', 'ok', 'Citizen', false);
         const response = (await request(Server.instance.httpServer).put('/user/'+username+"/esp").send({esp: true}));
         expect(response.status).toBe(200);
+        // Check if user updated in database;
+        const citizen = await DAO.getInstance().getUserByName(username);
+        expect(citizen.esp).toBe(true);
     })
 
-    test("/post request", async () => {
+    test("/post request, also ensure the when request is created it is set to unresolved", async () => {
         const username = 'testuser';
         await DAO.getInstance().createUser(username, '1234', 'ok', 'Citizen', false);
         const response = (await request(Server.instance.httpServer).post('/request').send({ username: username, content: "help", severity: "Dog" }));
         expect(response.status).toBe(200);
+        // Check if request exists in database;
+        let req = await DAO.getInstance().getRequestById(response.body.id);
+        expect(req.username).toBe(username);
+        expect(req.content).toBe('help');
+        expect(req.status).toBe('UNRESOLVED');
+        expect(req.severity).toBe('Dog');
     })
 
-    test("/put request", async () => {
+    test("/put request, ensure that only the field that is being attempted to update has updated", async () => {
         const username = 'testuser';
         await DAO.getInstance().createUser(username, '1234', 'ok', 'Citizen', false);
         const request1 = (await request(Server.instance.httpServer).post('/request').send({ username: username, content: "help", severity: "Dog" }));
         const response = (await request(Server.instance.httpServer).put('/request/'+request1.body.id).send({ status: "RESOLVED" }));
+        let req = await DAO.getInstance().getRequestById(response.body.id);
+        expect(req.username).toBe(username);
+        expect(req.content).toBe('help');
+        expect(req.status).toBe('RESOLVED');
+        expect(req.severity).toBe('Dog');
         expect(response.body.status).toBe("RESOLVED");
     })
 
@@ -420,13 +434,22 @@ describe('Emergency services', ()=>{
         const request1 = (await request(Server.instance.httpServer).post('/request').send({ username: username, content: "help", severity: "Dog" }));
         const response = (await request(Server.instance.httpServer).delete('/request/'+request1.body.id));
         expect(response.status).toBe(201);
+        try{
+            let req = await DAO.getInstance().getRequestById(response.body.id);
+        } catch (e){
+            expect(e.message).toBe('Request not found');
+        }
+        
     })
     
-    test("/get request", async () => {
+    test("/get request, returns all requests that have been created", async () => {
         const username = 'testuser';
         await DAO.getInstance().createUser(username, '1234', 'ok', 'Citizen', false);
         const request1 = (await request(Server.instance.httpServer).post('/request').send({ username: username, content: "help", severity: "Dog" }));
+        const request2 = (await request(Server.instance.httpServer).post('/request').send({ username: username, content: "help", severity: "Dog" }));
+        
         const response = (await request(Server.instance.httpServer).get('/request?status=UNRESOLVED'));
         expect(response.body[0].id).toBe(request1.body.id);
+        expect(response.body[1].id).toBe(request2.body.id);
     })
 })
