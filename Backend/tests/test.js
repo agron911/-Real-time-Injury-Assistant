@@ -346,21 +346,21 @@ describe('Search operation', () => {
 
 describe("Facility operations tests", () => {
     test("Facility is stored", async ()=>{
-        let name = "Some facility"
+        let name = "Some-facility"
         let address = "Some street irrelevant"
-        let latitude = 54.45
-        let longitude = -228.4
+        let latitude = 37.396276
+        let longitude = -121.893756
         let type = "Emergency Room"
         let hours = "24/7"
         await DAO.getInstance().addFacility(name, latitude, longitude, type, address, hours);
         let facility = await DAO.getInstance().getFacility(name);
-        expect(facility.name).toBe('Some facility')
+        expect(facility.name).toBe('Some-facility')
     })
     test("Update Facility info Updates facility Info", async()=>{
         let name = "Some facility"
         let address = "Some street irrelevant"
-        let latitude = 54.45
-        let longitude = -228.4
+        let latitude = 37.396276
+        let longitude = -121.893756
         let type = "Emergency Room"
         let hours = "24/7"
         let newhours = "6-18"
@@ -372,8 +372,8 @@ describe("Facility operations tests", () => {
     test("Facility reportedclosed is by default initialized to false", async()=>{
         let name = "Some facility"
         let address = "Some street irrelevant"
-        let latitude = 54.45
-        let longitude = -228.4
+        let latitude = 37.396276
+        let longitude = -121.893756
         let type = "Emergency Room"
         let hours = "24/7"
         await DAO.getInstance().addFacility(name, latitude, longitude, type, address, hours);
@@ -383,8 +383,8 @@ describe("Facility operations tests", () => {
     test("Mark Facility Requested to Delete", async()=>{
         let name = "Some facility"
         let address = "Some street irrelevant"
-        let latitude = 54.45
-        let longitude = -228.4
+        let latitude = 37.396276
+        let longitude = -121.893756
         let type = "Emergency Room"
         let hours = "6-69"
         await DAO.getInstance().addFacility(name, latitude, longitude, type, address, hours);
@@ -396,15 +396,15 @@ describe("Facility operations tests", () => {
     test("Search for Facilities for open wounds/difficulty breathing only returns Emergency rooms", async()=>{
         let name = "Some facility"
         let address = "Some street irrelevant"
-        let latitude = 54.45
-        let longitude = -228.4
+        let latitude = 37.396276
+        let longitude = -121.893756
         let type = "Emergency Room"
         let hours = "24/7"
         await DAO.getInstance().addFacility(name, latitude, longitude, type, address, hours);
         let name2 = "Some facility 2"
         let address2 = "Some street irrelevant 2"
-        let latitude2 = 54.49
-        let longitude2 = -228.47
+        let latitude2 = 37.396276
+        let longitude2 = -121.893756
         let type2 = "Emergency Room"
         let hours2 = "24/7"
         await DAO.getInstance().addFacility(name2, latitude2, longitude2, type2, address2, hours2);
@@ -414,15 +414,15 @@ describe("Facility operations tests", () => {
     test("If name exists new facility is not added", async()=>{
         let name = "Some facility"
         let address = "Some street irrelevant"
-        let latitude = 54.45
-        let longitude = -228.4
+        let latitude = 37.396276
+        let longitude = -121.893756
         let type = "Emergency Room"
         let hours = "24/7"
         await DAO.getInstance().addFacility(name, latitude, longitude, type, address, hours);
         let name2 = "Some facility"
         let address2 = "Some street irrelevant 2"
-        let latitude2 = 54.49
-        let longitude2 = -228.47
+        let latitude2 = 37.396276
+        let longitude2 = -121.893756
         let type2 = "Emergency Room"
         let hours2 = "24/7"
         await DAO.getInstance().addFacility(name2, latitude2, longitude2, type2, address2, hours2);
