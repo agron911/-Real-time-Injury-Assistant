@@ -431,7 +431,7 @@ describe("Facilities operations tests", ()=>{
         await request(Server.instance.httpServer).post("/facilities/newfacility").send(data)
         let result = await request(Server.instance.httpServer).get("/facilities/Name1").send()
         console.log(result)
-        expect(result[0].name).toBe("Name1");
+        expect(result.body[0].name).toBe("Name1");
     })
     test("Facility delete request is submited and noted in the database", async()=>{
         let data = {
