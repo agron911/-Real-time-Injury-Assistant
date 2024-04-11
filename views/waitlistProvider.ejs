@@ -20,7 +20,7 @@
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
   <!-- Template Main CSS Files -->
-  <link rel="stylesheet" href="/css/firstaid.css" />
+  <link rel="stylesheet" href="/css/waitlist.css" />
   <link rel="stylesheet" href="/css/variables.css" />
 </head>
 
@@ -63,25 +63,48 @@
             <div><a href="/waitlists/providers" class="more">Back</a></div>
           </div>
       </div>
-    </section>
-
-    <section id="provider-elect">
-      <div class="container-md" data-aos="fade-up">
-        <div class="row">
-          <div class="col-12">
-            <h2 id="past_report">Click to join the Medicine Waitlists as a Provider</h2>
-          </div>
-        </div>
+      <div class="text-center" style="display: block;">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addWaitlistModal">Add Waitlist</button>
       </div>
 
+    </section>
+
+    <section style="margin-bottom: 4rem;">
       <div class="container-md" data-aos="fade-up">
         <div class="row">
-          <div class="text-center" style="padding: 5px;">
-            <button class="btn btn-primary" ><h4>Join as Provider</h4></button>
+          <div class="col-lg-8" id="main-waitlists">
+
           </div>
         </div>
       </div>
     </section>
+
+    <!-- Modal -->
+    <div class="modal fade" id="addWaitlistModal" tabindex="-1" aria-labelledby="submitModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="addWaitlistModalLabel">Create new Medicine Waitlist</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form>
+            <div class="mb-3" style="margin: 1rem;">
+              <label class="form-label">Medicine Name</label>
+              <input class="form-control" id="medNameInput">
+            </div>
+            <div class="mb-3" style="margin: 1rem;">
+              <label class="form-label">Medicine Description</label>
+              <input class="form-control" id="descriptionInput">
+              <div class="form-text">Description on the situation when the Medicine can be used.</div>
+            </div>
+          </form>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" onclick="createNewWaitlist()">Create</button>
+          </div>
+        </div>
+      </div>
+    </div>
     
 
 
@@ -96,11 +119,11 @@
   <!-- Vendor JS Files -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="https://cdn.socket.io/4.7.3/socket.io.min.js"></script>
 
 
   <!-- Template Main JS File -->
   <script src="/js/waitlistsProvider.js"></script>
-
 </body>
 
 </html>

@@ -11,12 +11,20 @@ const WaitlistSchema = new mongoose.Schema({
     },
     citizens: [{
         username: String,
-        timestamp: Date,
+        timestamp: String,
     }],
     count: {
         type: Number,
         default: 0
-    }
+    },
+    default: {
+        type: Boolean,
+        default: false
+    },
+    supplier: [{
+        username: String,
+        count: Number
+    }]
 })
 
 const waitlistCollection = new mongoose.model('Waitlist', WaitlistSchema);

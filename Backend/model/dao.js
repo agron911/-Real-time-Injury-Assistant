@@ -5,6 +5,7 @@ import UserFactory from './userFactory.js';
 import { stopWords } from '../utils/user-config.js';
 import injuryCollection from "./injury-schema.js";
 import waitlistCollection from "./waitlist-schema.js";
+import notificationCollection from "./notification-schema.js";
 
 class DAO {
 
@@ -285,7 +286,7 @@ class DAO {
             return injury;
         } catch (err) {
             console.error("Insert failed for create injury", err);
-            return new Error("Insert failed :", err);
+            throw new Error("Insert failed :", err);
         }
     }
 
@@ -295,7 +296,7 @@ class DAO {
             return injury;
         } catch (err) {
             console.error("Injury not found: ", err);
-            return new Error("Injury not found: ", err);
+            throw new Error("Injury not found: ", err);
         }
     }
 
@@ -318,7 +319,7 @@ class DAO {
 
     createWaitlist = async (name, description) => {
         try {
-            const waitlist = await waitlistCollection.create({ name: name, description: description, citizens: [] });
+            const waitlist = await waitlistCollection.create({ name: name, description: description, citizens: [], supplier: []});
             return waitlist;
         } catch (err) {
             console.error("Insert failed for create waitlist", err);
@@ -329,7 +330,6 @@ class DAO {
     getWaitlist = async () => {
         try {
             const waitlist = await waitlistCollection.find();
-            console.log(waitlist);
             return waitlist;
         } catch (err) {
             console.error("Waitlist not found: ", err);
@@ -355,6 +355,30 @@ class DAO {
         }
     }
 
+    addSupplierToWaitlist = async (waitlistName, username, count) => {
+        try {
+            await waitlistCollection.findOneAndUpdate({ name: waitlistName }, { $push: { supplier: { username: username, count: count } } });
+        } catch (err) {
+            throw new Error("Add supplier to waitlist error: ", err);
+        }
+    }
+
+    removeSupplierFromWaitlist = async (waitlistName, username) => {
+        try {
+            await waitlistCollection.findOneAndUpdate({ name: waitlistName }, { $pull: { supplier: { username: username } } });
+        } catch (err) {
+            throw new Error("Remove supplier from waitlist error: ", err);
+        }
+    }
+
+    updateCountByName = async (medname, count) => {
+        try {
+            await waitlistCollection.findOneAndUpdate({ name: medname }, { count: count });
+        } catch (err) {
+            throw new Error("Update count by name error: ", err);
+        }
+    }
+
     removeCitizenFromWaitlist = async (waitlistName, username) => {
         try {
             await waitlistCollection.findOneAndUpdate({ name: waitlistName }, { $pull: { citizens: { username: username } } });
@@ -363,6 +387,41 @@ class DAO {
         }
     }
 
+    emptyCitizensByName = async (medname) => {
+        try {
+            await waitlistCollection.findOneAndUpdate({ name: medname }, { citizens: [] });
+        } catch (err) {
+            throw new Error("Empty citizens by name error: ", err);
+        }
+    }
+
+    createNotification = async (username, supplier, medname, timestamp) => {
+        try {
+            const notification = await notificationCollection.create({ username: username, supplier: supplier, medname: medname, timestamp: timestamp, viewed: false });
+            return notification;
+        } catch (err) {
+            console.error("Insert failed for create notification", err);
+            return new Error("Insert failed :", err);
+        }
+    }
+
+    getNotificationByUser = async (username) => {
+        try {
+            const notifications = await notificationCollection.find({ username: username, viewed: false });
+            return notifications;
+        } catch (err) {
+            console.error("Notification not found: ", err);
+            return new Error("Notification not found: ", err);
+        }
+    }
+
+    deleteNotificationById = async (id) => {
+        try {
+            await notificationCollection.findByIdAndDelete(new mongoose.Types.ObjectId(id));
+        } catch (err) {
+            console.error(err);
+        }
+    }
 
 }
 export default DAO;

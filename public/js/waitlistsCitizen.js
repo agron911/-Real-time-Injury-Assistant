@@ -1,7 +1,5 @@
-let USER_REPORTED = false;
-let USER_BLEEDING = false;
-let USER_NUMBNESS = false;
-let USER_CONSCIOUS = true;
+
+let url = "";
 
 document.addEventListener('DOMContentLoaded', () => {
   "use strict";
@@ -104,17 +102,190 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
-
-
-function leaveWaitlist(name) {
+const getNotification = async () => {
   try {
-    fetch("/waitlists/citizens/" + localStorage.getItem("username") + "/" + name, {
+    const response = await fetch(url + "/waitlists/notifications/" + localStorage.getItem("username"), {
+      method: "GET",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    });
+    const { notifications } = await response.json();
+    console.log("notifications", notifications);
+    if (notifications.length == 0) {
+      document.getElementById("bell-count").style.display = "none";
+    }
+    document.getElementById("bell-count").innerHTML = notifications.length;
+    handleNotification(notifications);
+  } catch (err) {
+    console.log("err", err);
+  }
+}
+
+const deleteNotification = async (id) => {
+  try {
+    const response = await fetch(url + "/waitlists/notifications/" + id, {
       method: "DELETE",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
       },
     });
-    
+    if (response.status == 200) {
+      document.getElementById("notification-" + id).remove();
+    }
+  } catch (err) {
+    console.log("err", err);
+  }
+}
+
+const handleNotification = async (notifications) => {
+  const mainSection = document.getElementById('main-notifications');
+  if (mainSection) {
+    mainSection.innerHTML = "";
+    notifications.forEach(notification => {
+      console.log("notification", notification);
+      const postEntry = document.createElement('div');
+      postEntry.id = "notification-" + notification._id.toString();
+      postEntry.classList.add('post-entry-1','border-bottom');
+      postEntry.innerHTML = `Your request for <h3>${notification.medname}</h3> has been fulfilled by <h3>${notification.supplier}</h3> at ${notification.timestamp}`;
+      postEntry.innerHTML += `
+        <p id="notification-id" style="display: None;">${notification._id.toString()}</p>
+        <div class="text-center">
+        <button type="button" class="btn btn-primary" style="margin: .5rem" >dismiss</button></div>
+      `;
+      postEntry.querySelector("button").onclick = () => {
+        deleteNotification(notification._id.toString());
+      };
+      mainSection.appendChild(postEntry);
+    });
+  }
+}
+
+const registerSocket = async (username, socketId) => {
+  try {
+    await fetch(url + "/sockets/users/" + username, {
+      method: "POST",
+      body: JSON.stringify({ socketId }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    });
+  } catch (e) {
+    console.log("socket registration error", e);
+  }
+};
+
+function updateWaitlist(medname, status) {
+  console.log("updateWaitlist", medname, status);
+  if (document.getElementById(medname + "-button").innerHTML == "Join") {
+    if (status == "join") {
+      document.getElementById(medname + "-count").innerHTML = parseInt(document.getElementById(medname + "-count").innerHTML) + 1;
+    } else if (status == "join-stock") {
+      if (document.getElementById(medname + "-counttext").innerHTML == "Number in queue") {
+        console.log("Error: No stock available");
+        return;
+      }
+      const num = parseInt(document.getElementById(medname + "-count").innerHTML) - 1;
+      if (num == 0) {
+        document.getElementById(medname + "-counttext").innerHTML = "Number in queue";
+      }
+      document.getElementById(medname + "-count").innerHTML = num;
+    } else {
+      document.getElementById(medname + "-count").innerHTML = parseInt(document.getElementById(medname + "-count").innerHTML) - 1;
+    }
+  }
+}
+
+const updateSupplyCount = async (medname, supply) => {
+  let curr = document.getElementById(medname + "-count").innerHTML;
+  let text = document.getElementById(medname + "-counttext").innerHTML;
+  if (text == 'Number in queue') {
+    if (supply == curr) {
+      document.getElementById(medname + "-count").innerHTML = "0";
+    } else if (supply < curr) {
+      document.getElementById(medname + "-count").innerHTML = (parseInt(curr) - parseInt(supply)).toString();
+    } else {
+      document.getElementById(medname + "-counttext").innerHTML = "Medicine available";
+      document.getElementById(medname + "-count").innerHTML = (parseInt(supply) - parseInt(curr)).toString();
+    }
+  } else {
+    document.getElementById(medname + "-count").innerHTML = (parseInt(supply) + parseInt(curr)).toString();
+  }
+}
+
+const handleSupplyNotification = async (data, action) => {
+  if (action == "limit") {
+    if (data.target != localStorage.getItem("username")) {
+      return;
+    }
+  }
+  document.getElementById("bell-count").innerHTML = "!!!";
+  document.getElementById("bell-count").style.display = "block";
+  await getNotification();
+  alert("You have a new notification on your waitlist request!");
+}
+
+
+
+const connectToSocket = async (positions) => {
+  const socket = await io(url);
+  socket.on("connect", async () => { registerSocket(localStorage.getItem("username"), socket.id)});
+  positions.forEach(item => {
+    socket.emit("joinRoom", item.name);
+  });
+  socket.on("waitlist-join", async (data) => { updateWaitlist(data.medname, "join"); });
+  socket.on("waitlist-join-stock", async (data) => { updateWaitlist(data.medname, "join-stock"); });
+  socket.on("waitlist-leave", async (data) => { updateWaitlist(data.medname, "leave"); });
+  socket.on("waitlist-provider-supply", async (data) => { updateSupplyCount(data.medname, data.num); });
+  socket.on("waitlist-supply", async (data) => { handleSupplyNotification(data, "normal"); });
+  socket.on("waitlist-limit-supply", async (data) => { handleSupplyNotification(data, "limit"); });
+};
+
+
+
+function leaveWaitlist(name) {
+  try {
+    if (confirm("Are you sure you want to leave the waitlist?")) {
+      fetch("/waitlists/citizens/" + localStorage.getItem("username") + "/" + name, {
+        method: "DELETE",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+      });
+      location.reload();
+    }
+  } catch (err) {
+    console.log("err", err);
+  }
+}
+
+const createNotification = async (username, supplier, medname, timestamp) => {
+  try {
+    const response = await fetch("/waitlists/notifications", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+      body: JSON.stringify({username: username, supplier: supplier, medname: medname, timestamp: timestamp}),
+    });
+  } catch (err) {
+    console.log("err", err);
+  }
+}
+
+const joinStockedWaitlist = async (name) => {
+  try {
+    const response = await fetch("/waitlists/citizens/stock", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+      body: JSON.stringify({medname: name}),
+    });
+    const { supplier } = await response.json();
+    await createNotification(localStorage.getItem("username"), supplier, name, new Date().toString());
+    alert("Your request has been fulfilled by " + supplier + "!");
+    await getNotification();
   } catch (err) {
     console.log("err", err);
   }
@@ -123,13 +294,20 @@ function leaveWaitlist(name) {
 function joinWaitlist(name) {
   console.log("joinWaitlist", name);
   try {
-    fetch("/waitlists/citizens/" + localStorage.getItem("username") + "/" + name, {
-      method: "POST",
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    });
+    if (document.getElementById(name + "-counttext").innerHTML == "Number in queue") {
+      fetch("/waitlists/citizens/", {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+        body: JSON.stringify({username: localStorage.getItem("username"), medname: name, timestamp: new Date().toString()}),
+      });
+      location.reload();
+    } else {
+      joinStockedWaitlist(name);
+    }
     
+    // location.reload();
   } catch (err) {
     console.log("err", err);
   }
@@ -188,11 +366,12 @@ window.onload = async () => {
       },
     });
     const { waitlists, positions } = await response.json();
-    console.log(positions);
     generatePostEntries(waitlists);
     if (positions.length > 0) {
       updatePosition(positions);
     }
+    await connectToSocket(positions);
+    await getNotification();
   } catch (err) {
     console.log("err", err);
   }

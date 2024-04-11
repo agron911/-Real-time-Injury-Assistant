@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-
+  <script></script>
   <title>FSE Waitlists</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
@@ -44,7 +44,15 @@
       </nav><!-- .navbar -->
 
       <div class="position-relative">
-        <a href="#" class="mx-2"><span class="bi bi-bell-fill"></span></a>
+        <a href="#" class="mx-2" data-bs-toggle="modal" data-bs-target="#notificationModal">
+          <span class="bi bi-bell-fill">
+            <span id="bell-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            </span>
+          </span></a>
+      </div>
+
+      <div class="position-relative">
+        
         <i class="bi bi-list mobile-nav-toggle"></i>
       </div>
 
@@ -65,14 +73,14 @@
       </div>
     </section>
 
-    <section id="main-recommandation" >
+    <!-- <section id="main-recommandation" >
       <div class="container-md" data-aos="fade-in">
         <div class="row">
           <div class="section-header d-flex justify-content-between align-items-center mb-5">
             <h3>Medicine Waitlists - Citizen</h3>
           </div>
       </div>
-    </section>
+    </section> -->
 
     <section>
       <div class="container-md" data-aos="fade-up">
@@ -83,6 +91,24 @@
         </div>
       </div>
     </section>
+
+    <!-- Modal -->
+    <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="submitModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="notificationModalLabel">Create new Medicine Waitlist</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+              <div id="main-notifications" class="mb-3" style="margin: 1rem;">
+                
+              </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="location.reload()">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
     
 
 
@@ -97,6 +123,7 @@
   <!-- Vendor JS Files -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="https://cdn.socket.io/4.7.3/socket.io.min.js"></script>
 
 
   <!-- Template Main JS File -->

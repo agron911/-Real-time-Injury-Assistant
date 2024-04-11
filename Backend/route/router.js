@@ -9,7 +9,7 @@ import  { searchByPublicMessage, searchByPrivateMessages, searchByAnnouncement, 
 import { startSpeedTest, stopSpeedTest, isSpeedTestOngoing } from '../controller/speedtest.js';
 import {loadAnnouncementMessages, receiveAnnouncementMessage} from '../controller/postAnnouncement.js'
 import { firstaidView, loadInjuryByUsernames, receiveInjury, createChatMsg} from '../controller/seekFirstAid.js';
-import { getWaitlistRole, waitlistCitizenView, waitlistElectView, waitlistProviderView, setWaitlistRole, getWaitlist, joinWaitlist, leaveWaitlist} from '../controller/manageWaitlists.js';
+import { createNotification, getNotificationByUsername, handleGetStockSupply, newWaitlist, getWaitlistRole, waitlistCitizenView, waitlistElectView, waitlistProviderView, setWaitlistRole, getWaitlist, joinWaitlist, leaveWaitlist, getWaitlistDetails, handleSupplyWaitlist, deleteNotification} from '../controller/manageWaitlists.js';
 const router = express.Router();
 
 router.get("/", HomeView);
@@ -52,11 +52,19 @@ router.get("/injuries/instructions/:username", createChatMsg);
 router.get("/waitlists", waitlistElectView);
 router.get("/waitlists/citizens", waitlistCitizenView);
 router.get("/waitlists/providers", waitlistProviderView);
-router.get("/waitlists/:username", getWaitlistRole);
-router.post("/waitlists/:username/:role", setWaitlistRole);
+router.get("/waitlists/role/:username", getWaitlistRole);
+router.post("/waitlists/role", setWaitlistRole);
 router.get("/waitlists/citizens/:username", getWaitlist);
-router.post("/waitlists/citizens/:username/:medname", joinWaitlist);
+router.post("/waitlists/citizens", joinWaitlist);
+router.post("/waitlists/citizens/stock", handleGetStockSupply);
 router.delete("/waitlists/citizens/:username/:medname", leaveWaitlist);
+router.get("/waitlists/providers/details/:medname", getWaitlistDetails);
+router.post("/waitlists/providers", newWaitlist);
+router.post("/waitlists/providers/supplies", handleSupplyWaitlist);
+router.post("/waitlists/citizens/", handleSupplyWaitlist)
 
+router.get("/waitlists/notifications/:username", getNotificationByUsername);
+router.post("/waitlists/notifications", createNotification);
+router.delete("/waitlists/notifications/:id", deleteNotification);
 
 export default router;

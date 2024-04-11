@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 window.onload = async () => {
   try {
-    const response = await fetch("/waitlists/" + localStorage.getItem("username"), {
+    const response = await fetch("/waitlists/role/" + localStorage.getItem("username"), {
       method: "GET",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -121,11 +121,12 @@ window.onload = async () => {
 
 
 const toProviders = async () =>{
-  const response = await fetch("/waitlists/" + localStorage.getItem("username") + "/" + "provider", {
+  const response = await fetch("/waitlists/role", {
     method: "POST",
     headers: {
       "Content-type": "application/json; charset=UTF-8",
     },
+    body: JSON.stringify({ username: localStorage.getItem("username"), role: "provider" }),
   });
   if (response.status == 200) {
     window.location.href = "/waitlists/providers";
@@ -133,11 +134,12 @@ const toProviders = async () =>{
 }
 
 const toCitizens = async () =>{
-  const response = await fetch("/waitlists/" + localStorage.getItem("username") + "/" + "citizen", {
+  const response = await fetch("/waitlists/role", {
     method: "POST",
     headers: {
       "Content-type": "application/json; charset=UTF-8",
     },
+    body: JSON.stringify({ username: localStorage.getItem("username"), role: "citizen" }),
   });
   if (response.status == 200) {
     window.location.href = "/waitlists/citizens";
