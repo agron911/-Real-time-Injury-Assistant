@@ -32,7 +32,8 @@ function saveUser(){
 }
 
 const login = async (username, password) => {
-    if(SUSPEND_NORMAL_OPERATION) return
+    await checkIfTestOngoing();
+    if(SUSPEND_NORMAL_OPERATION) return;
     try {    
         const response = await fetch(url+"/auth/users",{
             method:"PATCH",
@@ -58,6 +59,7 @@ const login = async (username, password) => {
 }
 
 const verifyUser = async (username, password) => {
+    await checkIfTestOngoing();
     if(SUSPEND_NORMAL_OPERATION) return;
     return await fetch(url+"/users/verification", {
         method: "POST",
@@ -102,6 +104,7 @@ const submitJoinForm = async ()=>{
     
 
 async function userAcknowledged(){
+    await checkIfTestOngoing();
     if(SUSPEND_NORMAL_OPERATION) return
     try{
         const response = await fetch(url + "/users/acknowledgement",{

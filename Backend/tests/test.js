@@ -386,8 +386,9 @@ describe("Facility operations tests", () => {
         let latitude = 54.45
         let longitude = -228.4
         let type = "Emergency Room"
-        let hours = "24/7"
+        let hours = "6-69"
         await DAO.getInstance().addFacility(name, latitude, longitude, type, address, hours);
+        await DAO.getInstance().deleteFacility(name);
         await DAO.getInstance().DeleteFacility(name);
         let facility = await DAO.getInstance().getFacility(name);
         expect(facility.reportedclosed).toBe(true);
