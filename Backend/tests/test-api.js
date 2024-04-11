@@ -416,7 +416,7 @@ describe("Facilities operations tests", ()=>{
         await request(Server.instance.httpServer).post("/facilities/newfacility").send(data)
         await request(Server.instance.httpServer).patch("/facilities/newinfo").send({name:"Name1", hours:"newhrs"})
         let result = await request(Server.instance.httpServer).get("/facilities/Name1").send()
-        expect(result.body.searchresult).toBe("newhrs");
+        expect(result.body.searchresult.hours).toBe("newhrs");
 
     })
     test("Can get facility by name", async()=>{
@@ -431,7 +431,7 @@ describe("Facilities operations tests", ()=>{
         await request(Server.instance.httpServer).post("/facilities/newfacility").send(data)
         let result = await request(Server.instance.httpServer).get("/facilities/Name1").send()
         console.log(result)
-        expect(result.body[0].name).toBe("Name1");
+        expect(result.body.searchresult.name).toBe("Name1");
     })
     test("Facility delete request is submited and noted in the database", async()=>{
         let data = {
@@ -445,7 +445,7 @@ describe("Facilities operations tests", ()=>{
         await request(Server.instance.httpServer).post("/facilities/newfacility").send(data)
         await request(Server.instance.httpServer).delete("/facilities?fname=Name1").send()
         let result = await request(Server.instance.httpServer).get("/facilities/Name1").send()
-        expect(result[0].reportedclosed).toBe(true);
+        expect(result.body.searchresult.reportedclosed).toBe(true);
     })
     test("Search facilities for injuries requiring emergency room", async()=>{
         let data = {
@@ -468,7 +468,7 @@ describe("Facilities operations tests", ()=>{
         await request(Server.instance.httpServer).post("/facilities/newfacility").send(data2)
         let results = await request(Server.instance.httpServer).get("/facility/search?description=Open-Wound&mobility=No").send()
         results.forEach(facility=>{
-            expect(facility.type).toBe("Emergency Room")
+            expect(facility.body.searchresult.type).toBe("Emergency Room")
         })
     })
     
