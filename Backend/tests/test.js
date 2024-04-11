@@ -389,7 +389,7 @@ describe("Facility operations tests", () => {
         let hours = "6-69"
         await DAO.getInstance().addFacility(name, latitude, longitude, type, address, hours);
         await DAO.getInstance().deleteFacility(name);
-        await DAO.getInstance().DeleteFacility(name);
+        await DAO.getInstance().deleteFacility(name);
         let facility = await DAO.getInstance().getFacility(name);
         expect(facility.reportedclosed).toBe(true);
     })
@@ -408,7 +408,7 @@ describe("Facility operations tests", () => {
         let type2 = "Emergency Room"
         let hours2 = "24/7"
         await DAO.getInstance().addFacility(name2, latitude2, longitude2, type2, address2, hours2);
-        let result = await DAO.searchFacility("Open Wound", "Yes");
+        let result = await DAO.searchFacility("Open-Wound", "Yes");
         expect(result).not.toBeNull();
     })
     test("If name exists new facility is not added", async()=>{
@@ -471,7 +471,7 @@ describe("Facility operations tests", () => {
         let type3 = "Urgent Care"
         let hours3 = "24/7"
         await DAO.getInstance().addFacility(name3, latitude3, longitude3, type3, address3, hours3);
-        let result = await DAO.searchFacility("Sprain", "No");
+        let result = await DAO.getInstance().searchFacility("Sprain", "No");
         result.forEach(facility=>{
             expect(facility.type).toBe("Urgent Care")
         })
@@ -498,7 +498,7 @@ describe("Facility operations tests", () => {
         let type3 = "Urgent Care"
         let hours3 = "24/7"
         await DAO.getInstance().addFacility(name3, latitude3, longitude3, type3, address3, hours3);
-        let result = await DAO.searchFacility("Sprain", "Yes");
+        let result = await DAO.getInstance().searchFacility("Sprain", "Yes");
         result.forEach(facility=>{
             expect(facility.type).toBe("Emergency Room")
         })
