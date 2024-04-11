@@ -467,7 +467,7 @@ describe("Facilities operations tests", ()=>{
         }
         await request(Server.instance.httpServer).post("/facilities/newfacility").send(data2)
         let results = await request(Server.instance.httpServer).get("/facility/search?description=Open-Wound&mobility=No").send()
-        results.forEach(facility=>{
+        results.json().forEach(facility=>{
             expect(facility.body.searchresult.type).toBe("Emergency Room")
         })
     })
