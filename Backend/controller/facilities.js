@@ -54,7 +54,7 @@ export const searchFacility = async(req, res)=>{
     try{
         console.log(req.query.description);
         const facilities = await DAO.getInstance().searchFacility(req.query.description, req.query.mobility);
-        res.status(200).send(facilities);
+        res.status(200).send({searchresult:facilities});
     }catch(err){
         res.status(400).send(err);
     }

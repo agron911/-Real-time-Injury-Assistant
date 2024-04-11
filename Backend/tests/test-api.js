@@ -416,7 +416,7 @@ describe("Facilities operations tests", ()=>{
         await request(Server.instance.httpServer).post("/facilities/newfacility").send(data)
         await request(Server.instance.httpServer).patch("/facilities/newinfo").send({name:"Name1", hours:"newhrs"})
         let result = await request(Server.instance.httpServer).get("/facilities/Name1").send()
-        expect(result[0].hours).toBe("newhrs");
+        expect(result.body.searchresult).toBe("newhrs");
 
     })
     test("Can get facility by name", async()=>{
