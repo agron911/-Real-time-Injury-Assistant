@@ -11,4 +11,5 @@ const dao = DAO.getInstance();
 DAO.type = "PROD";
 await dao.setDB(main_uri);
 
-Server.createAndRun();
+Server.create();
+Server.run();

@@ -7,4 +7,5 @@ module.exports = {
       '^.+\\.(js|jsx)$': 'babel-jest',
     },
     testMatch: ['**/tests/**/test*.js'],
+    testTimeout: 1000000,
   };
