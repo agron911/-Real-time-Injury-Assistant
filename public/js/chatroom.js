@@ -13,7 +13,7 @@ let PRIVATE_SEARCH_COUNTER = 1;
 let SEARCH_COUNTER = 1;
 let IS_SPECIALIST = false;
 let Anxiety_rule = "You're not alone in your feelings of anxiety; here, you'll find a compassionate space to explore your experiences, learn coping strategies, and connect with others who truly understand."
-let Depression_rule ="Welcome to a place of understanding and support, where we can share our struggles with depression without judgment, and together, find moments of light and hope."
+let Depression_rule = "Welcome to a place of understanding and support, where we can share our struggles with depression without judgment, and together, find moments of light and hope."
 let Stress_rule = "Join us in discovering effective ways to manage stress, where we share tools, experiences, and support to help each other navigate life's pressures more calmly and confidently"
 let Grief_rule = "In this group, you'll find a comforting community ready to hold space for your grief, share in your memories, and support you through your journey of healing and remembrance"
 const getPrivateMessages = async (otherUsername) => {
@@ -191,13 +191,13 @@ const ConfirmGroupChat = async (group) => {
       let confirmationModal = new bootstrap.Modal(document.getElementById('confirmJoinGroup'), {});
       document.getElementById('confirmJoinGroupLabel').innerText = `Confirm Joining ${group} Group`;
       document.getElementById('selectedGroup').innerText = `${group} group`;
-      if (group == "Anxiety" ){
+      if (group == "Anxiety") {
         document.getElementById('groupRules').innerText = Anxiety_rule;
-      }else if (group == "Depression"){
+      } else if (group == "Depression") {
         document.getElementById('groupRules').innerText = Depression_rule;
-      }else if (group == "Stress"){
+      } else if (group == "Stress") {
         document.getElementById('groupRules').innerText = Stress_rule;
-      }else if (group == "Grief"){
+      } else if (group == "Grief") {
         document.getElementById('groupRules').innerText = Grief_rule;
       }
       confirmationModal.show();
@@ -423,7 +423,7 @@ const editMessages = (msg) => {
 }
 
 const deleteMessages = (msgId) => {
-  try{
+  try {
     const messageElement = document.querySelector(`[data-message-id="${msgId}"]`);
     if (messageElement) {
       messageElement.remove();
@@ -521,11 +521,11 @@ const connectToSocket = async () => {
       IS_SPECIALIST = true;
 
       addMessages(data.msg);
-      if(data.specialist_online && data.msg.username != localStorage.getItem("username")){
+      console.log("data", data);
+      if (data.specialist_online && data.msg.username != localStorage.getItem("username")) {
         showMessageAlert(data.msg, "primary");
-      }else if (data.specialist_online){
-        showMessageAlert(data.msg, "secondary");
-      }else{
+      } else if (!data.specialist_online) {
+        // showMessageAlert(data.msg, "secondary");
         showMessageAlert(data.msg, "info");
       }
     }
@@ -564,20 +564,18 @@ const createAlertHTMLElement = (message, type) => {
   const wrapper = document.createElement("div");
   wrapper.id = message._id;
   console.log("message", GROUPCHAT);
-
-  if(message.receiver == "Anxiety" || message.receiver == "Depression" || message.receiver == "Stress" || message.receiver == "Grief"){
-    button = `<button type="button" id="button-${message._id}" onclick = ConfirmGroupChat('${message.receiver}')>`
-  }else{
-    button = `<button type="button" id="button-${message._id}" aria-label="Close" data-bs-toggle="modal"  data-bs-target="#exampleModal" >`
-  }
   
-  if(type === "primary"){
+  if (type === "primary") {
     alert_msg = `<div>${message.username}: ${message.content}</div>`
-  }else if(type === "secondary"){
-    alert_msg = `<div>There're specialists online, he'll reply to you very soon.</div>`
-  }else{
-    alert_msg = `<div>There's no specialist online yet, please be patience.</div>`
+    if (message.receiver == "Anxiety" || message.receiver == "Depression" || message.receiver == "Stress" || message.receiver == "Grief") {
+      button = `<button type="button" id="button-${message._id}" onclick = ConfirmGroupChat('${message.receiver}')> <i class="las la-eye"></i>`
+    } else {
+      button = `<button type="button" id="button-${message._id}" aria-label="Close" data-bs-toggle="modal"  data-bs-target="#exampleModal" ><i class="las la-eye"></i>`
+    }
+  } else if (type === "info") {
+    button = `<button type="button" id="button-${message._id}" aria-label="Close"> <i class="las la-check"></i>`
 
+    alert_msg = `<div>There's no specialist online yet, please be patience.</div>`
   }
 
   wrapper.innerHTML = [
@@ -585,8 +583,6 @@ const createAlertHTMLElement = (message, type) => {
     alert_msg,
     `<div class ="alert-button-container">`,
     button,
-    `<i class="las la-eye">`,
-    `</i>`,
     `</button>`,
     `</div>`,
     "</div>",
@@ -1021,8 +1017,8 @@ function searchMessages() {
 function closeNavbar() {
   const navbarCollapse = document.getElementById('navbarSupportedActions');
   const bsCollapse = new bootstrap.Collapse(navbarCollapse, {
-    toggle: false 
+    toggle: false
   });
-  bsCollapse.hide(); 
+  bsCollapse.hide();
 }
 
