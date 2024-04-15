@@ -39,12 +39,14 @@ export const receiveGroupMessage = async (req, res) => {
     const mess = await DAO.getInstance().createGroupMessage(req.body.username, req.body.content, timestamp, req.body.status, req.body.receiver, false, req.body.group);
     const users = await DAO.getInstance().getGroupUsers(req.body.group);
     let notificationsSent = 0;
+    let view = false;
     try {
         let count_specialist = [];
         const specialists = await DAO.getInstance().getSpecialists(req.body.group);
         for (const specialist of specialists) {
             const specialistActive = await isUserActive(specialist);
             if (specialistActive) {
+                console.log("specialist online", specialist)
                 count_specialist++;
             }
         }
@@ -53,20 +55,16 @@ export const receiveGroupMessage = async (req, res) => {
             const UserActive = await isUserActive(user.username);
 
             if (user.username == req.body.username) {
-                // check if the specialist is active
 
                 const socketIds = await getSocketIds(user.username);
-                if (count_specialist <= 0) {
-                    const msg = await DAO.getInstance().updateMessageById(mess[0]._id, { viewed: false });
-                    socketIds.forEach(socketId => {
-                        io.to(socketId).emit('group-message', { msg: msg, specialist_online: false });
-                    });
-                } else {
-                    const msg = await DAO.getInstance().updateMessageById(mess[0]._id, { viewed: true });
-                    socketIds.forEach(socketId => {
-                        io.to(socketId).emit('group-message', { msg: msg, specialist_online: true });
-                    });
-                }
+                let view = false
+                if (count_specialist > 0) {
+                    view = true;
+                } 
+                const msg = await DAO.getInstance().updateMessageById(mess[0]._id, { viewed: view });
+                socketIds.forEach(socketId => {
+                    io.to(socketId).emit('group-message', { msg: msg, specialist_online: view });
+                });
             } else if (UserActive) {
                 const socketIds = await getSocketIds(user.username);
                 const msg = await DAO.getInstance().updateMessageById(mess[0]._id, { viewed: true });
