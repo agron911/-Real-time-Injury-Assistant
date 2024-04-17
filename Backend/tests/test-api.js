@@ -4,8 +4,7 @@ import Server from '../../server.js';
 import request from 'supertest';
 import DAO from '../model/dao.js';
 import { hashPassword, comparePassword } from "../utils/passwordUtils.js";
-import { jest } from '@jest/globals';
-import { ConfirmGroup } from '../controller/counselGroup.js';
+import {jest} from '@jest/globals';
 
 /**
  * Connect to a new in-memory database before running any tests.
@@ -313,7 +312,7 @@ describe('Test Search Info API', () => {
 
     test('/Get private messages by content', async () => {
 
-        const data = {
+        const data ={
             username: 'agron',
             content: "A_send",
             timestamp: "100",
@@ -353,6 +352,7 @@ describe('Test Search Info API', () => {
         await request(Server.instance.httpServer).put("/user/status/agron").send({ status: 'ok' });
         const response = await request(Server.instance.httpServer).get("/users/status/search?status=ok");
         expect(response.statusCode).toBe(200);
+        console.log(response.body);
         expect(response.body.search_result[0].username).toBe('agron');
     })
 
@@ -379,121 +379,65 @@ describe('Test Search Info API', () => {
 
 })
 
+// describe("Test First Aid API", () => {
+//     test('/Get Injuries positive', async () => {
+//         let username = 'dummy';
+//         let reported = true;
+//         let timestamp = new Date().toString();
+//         let parts = 'torso';
+//         let bleeding = true;
+//         let numbness = false;
+//         let conscious = true;
+//         await DAO.getInstance().createInjury(username, reported, timestamp, parts, bleeding, numbness, conscious)
+//         const response = await request(Server.instance.httpServer).get("/injuries/" + username);
+//         expect(response.statusCode).toBe(200);
+//         expect(response.body.injury.username).toBe(username);
+//     })
 
-describe("Counsel Group API", () => {
+//     test('/Get Injuries positive', async () => {
+//         let username = 'dummy';
+//         let reported = true;
+//         let timestamp = new Date().toString();
+//         let parts = 'torso';
+//         let bleeding = true;
+//         let numbness = false;
+//         let conscious = true;
+//         await DAO.getInstance().createInjury(username, reported, timestamp, parts, bleeding, numbness, conscious)
+//         const response = await request(Server.instance.httpServer).get("/injuries/" + username);
+//         expect(response.statusCode).toBe(200);
+//         expect(response.body.injury.parts).toBe(parts);
+//     })
 
-    test('Retrieve specialists by group', async () => {
-        const data = {
-            username: 'agron',
-            password: '1234',
-            specialists: 'Anxiety'
-        }
-        await request(Server.instance.httpServer).post("/users").send(data);
-        const response = await request(Server.instance.httpServer).get(`/specialists/${data.specialists}`);
-        expect(response.statusCode).toBe(200);
-        expect(response.body.specialists[0]).toBe('agron');
-    });
+//     test('/Get Injuries negative', async () => {
+//         jest.spyOn(DAO.getInstance(), 'getInjuryByUser').mockImplementation(() => { throw new Error() });
+//         const response = await request(Server.instance.httpServer).get("/injuries/" + `username`);
+//         expect(response.statusCode).toBe(400);
+//     })
 
-    test('Posting messages to a group ', async () => {
-        const data = {
-            username: 'agron',
-            content: 'hello',
-            timestamp: '100',
-            status: 'ok',
-            receiver: 'Anxiety'
-        }
-        await request(Server.instance.httpServer).post(`/chatrooms/${data.receiver}`).send(data);
-        const response = await request(Server.instance.httpServer).get(`/chatrooms/${data.receiver}`);
-        expect(response.statusCode).toBe(200);
-        expect(response.body.archive[0].content).toBe(data.content);
-    });
+// })
 
-    test('Retrieve group messages', async () => {
-        const data = {
-            username: 'agron',
-            content: 'get group messages',
-            timestamp: '100',
-            status: 'ok',
-            receiver: 'Anxiety'
-        }
-        await request(Server.instance.httpServer).post(`/chatrooms/${data.receiver}`).send(data);
-        const response = await request(Server.instance.httpServer).get(`/chatrooms/${data.receiver}`);
-        expect(response.statusCode).toBe(200);
-        expect(response.body.archive[0].content).toBe(data.content);
-    });
-    test('Verify group confirmation checks', async () => {
-        const data = {
-            username: 'agron',
-            password: '1234',
-            specialists: 'Anxiety'
-        }
-        await request(Server.instance.httpServer).post("/users").send(data);
-        const response = await request(Server.instance.httpServer).get(`/chatrooms/${data.receiver}/${data.username}`);
-        expect(response.body.message).toBe('No consent');
-    });
+// describe("Test Waitlists API", () => {
+//     test('/Get Waitlist citizens', async () => {
+//         let medname = 'dummy';
+//         let description = 'dummy description';
+//         await DAO.getInstance().createWaitlist(medname, description)
+//         const response = await request(Server.instance.httpServer).get("/waitlists/citizens/:username" + `username`);
+//         expect(response.statusCode).toBe(200);
+//     })
 
-    test('Handle group confirmation posts', async () => {
-        const data = {
-            username: 'agron',
-            password: '1234',
-            specialists: 'Anxiety'
-        }
-        await request(Server.instance.httpServer).post("/users").send(data);
-        await request(Server.instance.httpServer).post(`/chatrooms/${data.receiver}/${data.username}`);
-        const Check_confirm = await request(Server.instance.httpServer).get(`/chatrooms/${data.receiver}/${data.username}`);
+//     test('/Get Waitlist citizens', async () => {
+//         let medname = 'dummy';
+//         let description = 'dummy description';
+//         await DAO.getInstance().createWaitlist(medname, description)
+//         const response = await request(Server.instance.httpServer).get("/waitlists/citizens/:username" + `username`);
+//         expect(response.body.waitlists[0].name).toBe(medname);
+//     })
 
-        expect(Check_confirm.body.message).toBe('Confirm given');
-    });
-
-    test('Edit a group message', async () => {
-        const data = {
-            username: 'agron',
-            content: 'hello',
-            timestamp: '100',
-            status: 'ok',
-            receiver: 'Anxiety'
-        }
-        let edited_ctx = 'edited';
-        await request(Server.instance.httpServer).post(`/chatrooms/${data.receiver}`).send(data);
-        const message = await request(Server.instance.httpServer).get(`/chatrooms/${data.receiver}`);
-        const messageId = message.body.archive[0]._id;
-        await request(Server.instance.httpServer)
-            .put(`/chatrooms/${data.receiver}/${messageId}`)
-            .send({ content: edited_ctx })
-            .expect(200)
-            .expect((res) => {
-                expect(res.body.message.content).toBe(edited_ctx);
-            });
-        jest.spyOn(DAO.getInstance(), 'updateMessageById').mockImplementation(() => { throw new Error() });
-        await request(Server.instance.httpServer)
-            .put(`/chatrooms/${data.receiver}/${messageId}`)
-            .send({ content: edited_ctx })
-            .expect(400)
-            .expect((res) => {
-                console.log(res.body);
-                expect(res.body.error).toBe('Update error');
-            });
+//     test('/Get Waitlist citizens', async () => {
+//         jest.spyOn(DAO.getInstance(), 'getWaitlist').mockImplementation(() => { throw new Error() });
+//         const response = await request(Server.instance.httpServer).get("/waitlists/citizens/:username" + `username`);
+//         expect(response.statusCode).toBe(400);
+//     })
 
 
-    });
-
-    test('Delete a group message', async () => {
-        const data = {
-            username: 'agron',
-            content: 'hello',
-            timestamp: '100',
-            status: 'ok',
-            receiver: 'Anxiety'
-        }
-        await request(Server.instance.httpServer).post(`/chatrooms/${data.receiver}`).send(data);
-        const message = await request(Server.instance.httpServer).get(`/chatrooms/${data.receiver}`);
-        const messageId = message.body.archive[0]._id;
-        const response = await request(Server.instance.httpServer).delete(`/chatrooms/${data.receiver}/${messageId}`);
-        expect(response.statusCode).toBe(200);
-        console.log(response.body);
-        // expect(response.body.message).toBe('Message deleted');
-        const del_message = await request(Server.instance.httpServer).get(`/chatrooms/${data.receiver}`);
-        console.log(del_message.body);
-    });
-
-});
+// })

@@ -2,7 +2,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import DAO from '../model/dao.js';
 const mongod = new MongoMemoryServer();
 
-console.log("CALL ROUTE")
+
 
 /**
  * Connect to the in-memory database.

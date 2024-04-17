@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>FSE First Aid</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Inter:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+  <!-- Template Main CSS Files -->
+  <link rel="stylesheet" href="/css/firstaid.css" />
+  <link rel="stylesheet" href="/css/variables.css" />
+</head>
+
+<body>
+
+  <!-- ======= Header ======= -->
+  <header id="header" class="header d-flex align-items-center fixed-top">
+    <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
+
+      <a href="#" class="logo d-flex align-items-center">
+        <h1>FSE Chatroom</h1>
+      </a>
+
+      <nav id="navbar" class="navbar">
+        <ul>
+          <li><a href="/chatroom">Chatroom</a></li>
+          <li><a href="/firstaid">Seek First Aid</a></li>
+          <li><a href="/waitlists">Manage Waitlists</a></li>
+        </ul>
+      </nav><!-- .navbar -->
+
+      <div class="position-relative">
+        <a href="#" class="mx-2"><span class="bi bi-bell-fill"></span></a>
+        <i class="bi bi-list mobile-nav-toggle"></i>
+      </div>
+
+    </div>
+
+  </header><!-- End Header -->
+
+  <main id="main">
+
+
+    <section id="main-title" class="main-title">
+      <div class="container-md" data-aos="fade-in">
+        <div class="row">
+          <div class="section-header d-flex justify-content-between align-items-center mb-5">
+            <h3>Seek First Aid Information</h3>
+            <div><a href="/firstaid" class="more">Back</a></div>
+          </div>
+      </div>
+    </section>
+
+    <section id="main-status" class="main-status">
+      <div class="container-md" data-aos="fade-up">
+        <div class="row">
+          <div class="col-12">
+            <h2 id="welcome"></h2>
+            <h5 id="past_report">It seems like you do not have any reported injuries. Click to report.</h5>
+          </div>
+        </div>
+      </div>
+
+      <div class="container-md" data-aos="fade-up">
+        <div class="row">
+          <div class="text-center" style="padding: 5px;">
+            <button class="btn btn-primary" onclick="report_injury()"><h4>Report Injury</h4></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="main-report" class="main-report" style="display: none;">
+      <div class="container-md" data-aos="fade-up">
+        <div class="row">
+          <div class="col-12">
+            <h2>Please select the affected area:</h2>
+            <div class="dropdown">
+              <button id="injury-body" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Head
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" onclick="update_injury('body', 'Head')">Head</a></li>
+                <li><a class="dropdown-item" href="#" onclick="update_injury('body', 'Arms')">Arms</a></li>
+                <li><a class="dropdown-item" href="#" onclick="update_injury('body', 'Torso')">Torso</a></li>
+                <li><a class="dropdown-item" href="#" onclick="update_injury('body', 'Legs')">Legs</a></li>
+              </ul>
+            </div>
+            <br>
+            <h2>Is there any bleeding?</h2>
+            <div class="dropdown">
+              <button id="injury-bleed" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                No
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" onclick="update_injury('bleeding', 'Yes')">Yes</a></li>
+                <li><a class="dropdown-item" href="#" onclick="update_injury('bleeding', 'No')">No</a></li>
+              </ul>
+            </div>
+            <br>
+            <h2>Can you feel the affected area?</h2>
+            <div class="dropdown">
+              <button id="injury-numb" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Yes
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" onclick="update_injury('numbness', 'Yes')">Yes</a></li>
+                <li><a class="dropdown-item" href="#" onclick="update_injury('numbness', 'No')">No</a></li>
+              </ul>
+            </div>
+            <br>
+            <h2>Any loss of consciousness?</h2>
+            <div class="dropdown">
+              <button id="injury-cons" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                No
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" onclick="update_injury('consciousness', 'Yes')">Yes</a></li>
+                <li><a class="dropdown-item" href="#" onclick="update_injury('consciousness', 'No')">No</a></li>
+              </ul>
+            </div>
+            <br>
+
+            <div class="form-check border-top">
+              <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked>
+              <label class="form-check-label" for="flexCheckChecked">
+                <h3>I wish to submit my injury report to a ChatGPT for immediate First Aid instructions</h3>
+              </label>
+            </div>
+            <br>
+
+            <!-- Button trigger modal -->
+            <div class="text-center" style="padding: 5px;">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" onclick="submission_prompt()">
+              <h4>Submit</h4>
+            </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+          <!-- Modal -->
+          <div class="modal fade" id="submitModal" tabindex="-1" aria-labelledby="submitModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="submitModalLabel">Submission Alert!</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div id="submitModalText" class="modal-body">
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="save_injury()">Save changes</button>
+                </div>
+              </div>
+            </div>
+          </div>
+    </section>
+
+    <section id="main-gpt-title" class="main-gpt-title" style="display: none;">
+      <div class="container-md" data-aos="fade-in">
+        <div class="row">
+          <div class="section-header d-flex justify-content-between align-items-center mb-5">
+            <h3>First Aid Instructions from ChatGPT</h3>
+            <div><a href="/firstaid" class="more">Back</a></div>
+          </div>
+      </div>
+    </section>
+
+    <section id="main-gpt-text" class="main-gpt-text" style="display: none;">
+      <div class="container-md" data-aos="fade-up">
+        <div class="row">
+          <div class="col-12">
+            <h5 id="gpt-instruction" style="margin-bottom: 5rem;"></h5>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="main-gpt-loading" style="display: none;">
+      <div class="container-md" data-aos="fade-up">
+        <div class="row">
+          <div class="col-12">
+            <div class="text-center" style="padding: 5px;">
+            <button id="gpt-loading" class="btn btn-primary" type="button" disabled>
+              <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+              <span role="status">Loading...</span>
+            </button>
+          </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+
+    
+
+
+
+
+
+  </main><!-- End #main -->
+
+
+  <a href="#" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+
+  <!-- Template Main JS File -->
+  <script src="/js/firstaid.js"></script>
+
+</body>
+
+</html>

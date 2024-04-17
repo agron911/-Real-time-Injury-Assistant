@@ -7,7 +7,7 @@ const activeUserSchema = new mongoose.Schema({
     socketId:{
         type:String,
         required: true,
-    },
+    }
 })
 
 const ActiveUser = mongoose.model('ActiveUser', activeUserSchema)

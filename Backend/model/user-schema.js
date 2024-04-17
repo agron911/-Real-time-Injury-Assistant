@@ -31,15 +31,12 @@ const UserSchema = new mongoose.Schema({
         required: true,
         enum: ['Citizen', 'Administrator', 'Coordinator'],
     },
-    specialist: {
-        type: [String],
-        required: false,
+    waitlistRole: {
+        type: String,
+        required: true,
+        enum: ['undefined', 'citizen', 'provider'],
     },
-    confirmGroup:{
-        type: [String],
-        required: false,
-        default: [],
-    },
+
 })
 
 const userCollection = new mongoose.model('User', UserSchema);

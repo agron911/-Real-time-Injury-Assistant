@@ -22,7 +22,7 @@ export async function stopSpeedTest(req, res){
     res.status(200).send("success");
 }
 
-export async function stopTest (){
+export const stopTest = async()=>{
     const dao = DAO.getInstance();
     if(DAO.type == "TEST"){
         await clearDatabase();
@@ -35,7 +35,7 @@ export async function stopTest (){
     io.emit("enableNormalOperations");
 }
 
-export async function isSpeedTestOngoing (req, res) {
+export const isSpeedTestOngoing = async(req, res)=>{
     if(Server.instance.testSocketID){
         res.status(200).send(true);
     } else {

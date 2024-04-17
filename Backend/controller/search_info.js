@@ -21,6 +21,7 @@ export const searchByPublicMessage = async (req, res) => {
 }
 
 export const searchByPrivateMessages = async (req, res) => {
+    console.log(req.query)
     let content = req.query.content;
     const sender = req.query.sender;;
     const receiver = req.query.receiver;
@@ -53,6 +54,7 @@ export const searchByPrivateMessages = async (req, res) => {
 export const searchByAnnouncement = async (req, res) => {
     let content = req.query.content;
     let limit = req.query.limit
+    console.log(req.query)
     try {
         if (content.length === 0) {
             res.status(200).send({ search_result: [] });
