@@ -1,8 +1,9 @@
 import { connect, closeDatabase, clearDatabase } from './db-handler';
 import { hashPassword, comparePassword } from "../utils/passwordUtils.js";
 import DAO from '../model/dao.js';
+import { loginRegister } from '../controller/joinCommunity.js';
 import Citizen from '../model/user-Citizen.js';
-import e from 'express';
+
 /**
  * Connect to a new in-memory database before running any tests.
  */
@@ -314,7 +315,6 @@ describe('Search operation', () => {
         let limit = 10
         await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
         const result = await DAO.getInstance().search_by_announcement(input, limit);
-        console.log(result)
         expect(result).not.toBeNull()
     })
     test('Accept search in status', async () => {
@@ -339,124 +339,113 @@ describe('Search operation', () => {
         expect(result).not.toBeNull()
     })
   
-
 })
 
-describe('Report First Aid Operations', () => {
-    test('Create and Get injury positive', async () => {
-        let username = 'dummy';
-        let reported = true;
-        let timestamp = new Date().toString();
-        let parts = 'torso';
-        let bleeding = true;
-        let numbness = false;
-        let conscious = true;
-        await DAO.getInstance().createInjury(username, reported, timestamp, parts, bleeding, numbness, conscious)
-        let injuries = await DAO.getInstance().getInjuryByUser(username)
-        expect(injuries.username).toBe(username)
-        expect(injuries.reported).toBe(reported)
-        expect(injuries.timestamp).toBe(timestamp)
-        expect(injuries.parts).toBe(parts)
-        expect(injuries.bleeding).toBe(bleeding)
-        expect(injuries.numbness).toBe(numbness)
-        expect(injuries.conscious).toBe(conscious)
-    })
 
-    test('Create and Get injury negative', async () => {
-        let username = 'dummy';
-        let injuries = await DAO.getInstance().getInjuryByUser(username)
-        expect(injuries).toBeNull()
-    })
 
-    test('Update injury positive', async () => {
-        let username = 'dummy';
-        let reported = true;
-        let timestamp = new Date().toString();
-        let parts = 'torso';
-        let bleeding = true;
-        let numbness = false;
-        let conscious = true;
-        await DAO.getInstance().createInjury(username, reported, timestamp, parts, bleeding, numbness, conscious)
-        await DAO.getInstance().updateInjury(username, new Date().toString(), 'legs', bleeding, numbness, conscious)
-        let injuries = await DAO.getInstance().getInjuryByUser(username)
-        expect(injuries.username).toBe(username)
-        expect(injuries.reported).toBe(reported)
-        expect(injuries.parts).toBe('legs')
-    })
+describe("Counsel Group Operations", () => {
+    test('Check Citizen did not accept group confirmation returns false', async () => {
+        let citizen = 'agron123'
+        let status = 'ok'
+        const group = 'Anxiety';
+        await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen')
 
-    test('Update injury negative', async () => {
-        let username = 'dummy';
-        let reported = true;
-        let timestamp = new Date().toString();
-        let parts = 'torso';
-        let bleeding = true;
-        let numbness = false;
-        let conscious = true;
-        await DAO.getInstance().createInjury(username, reported, timestamp, parts, bleeding, numbness, conscious)
-        await DAO.getInstance().updateInjury(username, new Date().toString(), 'legs', bleeding, numbness, conscious)
-        let injuries = await DAO.getInstance().getInjuryByUser(username)
-        expect(injuries.username).toBe(username)
-        expect(injuries.reported).toBe(reported)
-        expect(injuries.parts).not.toBe(parts)
+        let result = await DAO.getInstance().CheckGroupConfirmation(group, citizen );
+        expect(result).toBe(false)
+    });
+    test('Check Citizen accepted group confirmation returns true', async () => {
+        let citizen = 'agron123'
+        let status = 'ok'
+        let group = 'Anxiety';
+        await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen')
+        await DAO.getInstance().ConfirmGroup(group, citizen)
+        let result = await DAO.getInstance().CheckGroupConfirmation(group, citizen );
+        expect(result).toBe(true)
     })
+    test('Success create group message', async () => {
+        let citizen = 'agron123'
+        let content = "test cnt"
+        let status = 'ok'
+        let group = 'Anxiety';
+        await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen')
+        const msg = await DAO.getInstance().createGroupMessage(citizen, content, new Date().toString(), 'ok', group, false, group)
+        // Assuming there are messages sent to 'existingGroup'
+        expect(msg[0].content).toBe(content);
+    });
+    test('Success Retrieve group messages', async () => {
+        let citizen = 'agron123'
+        let content = "test cnt"
+        let status = 'ok'
+        let group = 'Anxiety';
+        await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen')
+        await DAO.getInstance().createGroupMessage(citizen, content, new Date().toString(), 'ok', group, false, group)
+        const messages = await DAO.getInstance().getAllGroupMessages(group)
+        expect(messages.length).toBe(1)
+    });
+    test('Get all users in a group', async () => {
+        let citizen = 'agron123'
+        let status = 'ok'
+        let group = 'Anxiety';
 
-    test('Create waitlist positive', async () => {
-        let medname = 'dummy';
-        let description = 'dummy description';
-        await DAO.getInstance().createWaitlist(medname, description)
-        let waitlist = await DAO.getInstance().getWaitlistByName(medname)
-        expect(waitlist.name).toBe(medname)
-        expect(waitlist.description).toBe(description)
+        await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen')
+        await DAO.getInstance().ConfirmGroup(group, citizen)
+        const groupUsers = await DAO.getInstance().getGroupUsers(group);
+        expect(groupUsers[0].username).toBe(citizen);
+    });
+    test('Create a specialist in a group', async () => {
+        let citizen = 'agron123'
+        let status = 'ok'
+        let group = 'Anxiety';
+        const user = await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen',group)
+        expect(user.username).toBe(citizen);
     })
+    test('Create a specialist in multiple group', async () => {
+        let citizen = 'agron123'
+        let status = 'ok'
+        let group = ['Anxiety','Stress','Depression'];
+        const user = await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen',group)
+        expect(user.username).toBe(citizen);
+        console.log(user.specialist)
+        expect(user.specialist).toEqual(group);
+    })
+    test('Retrieve all specialists in a group', async () => {
+        let citizen = 'specialist1'
+        let status = 'ok'
+        let group = 'Anxiety';
+        await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen',group)
+        let citizen2 = 'specialist2'
+        let status2 = 'ok'
+        await DAO.getInstance().createUser(citizen2, await hashPassword('1234'), status2,'citizen',group)
 
-    test('Create waitlist negative', async () => {
-        let medname = 'dummy';
-        let waitlist = await DAO.getInstance().getWaitlistByName(medname)
-        expect(waitlist).toBeNull()
-    })
+        const specialists = await DAO.getInstance().getSpecialists(group);
+        expect(specialists[0]).toBe(citizen);
+        expect(specialists[1]).toBe(citizen2);
+    });
+    test('Delete a message by ID', async () => {
+        let citizen = 'agron123'
+        let content = "test cnt"
+        let group = 'Anxiety';
+        await DAO.getInstance().createGroupMessage(citizen, content, new Date().toString(), 'ok', group, false, group)
+        let messages = await DAO.getInstance().getAllGroupMessages(group)
+        expect(messages[0].content).toBe(content);
+        const messageId = messages[0]._id;
+        await DAO.getInstance().deleteMessageById(messageId);
+        messages = await DAO.getInstance().getAllGroupMessages(group)
+        expect(messages.length).toBe(0);
+    });
+    test('Update a message by ID', async () => { 
+        let citizen = 'agron123'
+        let content = "test cnt"
+        let group = 'Anxiety';
+        await DAO.getInstance().createGroupMessage(citizen, content, new Date().toString(), 'ok', group, false, group)
+        let messages = await DAO.getInstance().getAllGroupMessages(group)
+        expect(messages[0].content).toBe(content);
+        const messageId = messages[0]._id;
+        await DAO.getInstance().updateMessageById(messageId, {content: "new content"});
+        messages = await DAO.getInstance().getAllGroupMessages(group)
+        expect(messages[0].content).toBe("new content");
+    });
 
-    test('Create multiple waitlist positive', async () => {
-        let medname = 'dummy';
-        let medname2 = 'dummy2';
-        let description = 'dummy description';
-        await DAO.getInstance().createWaitlist(medname, description)
-        await DAO.getInstance().createWaitlist(medname2, description)
-        let waitlists = await DAO.getInstance().getWaitlist()
-        expect(waitlists.length).toBe(2)
-        expect(waitlists[0].name).toBe(medname)
-        expect(waitlists[1].name).toBe(medname2)
-    })
+    
 
-    test('Join waitlist positive', async () => {
-        let medname = 'dummy';
-        let description = 'dummy description';
-        await DAO.getInstance().createWaitlist(medname, description)
-        let username = 'dummy user';
-        let timestamp = new Date().toString();
-        await DAO.getInstance().addCitizenToWaitlist(medname, username, timestamp)
-        let waitlist = await DAO.getInstance().getWaitlistByName(medname)
-        expect(waitlist.citizens.length).toBe(1)
-        expect(waitlist.citizens[0].username).toBe(username)
-    })
-
-    test('Remove waitlist negative', async () => {
-        let medname = 'dummy';
-        let description = 'dummy description';
-        await DAO.getInstance().createWaitlist(medname, description)
-        let username = 'dummy user';
-        let timestamp = new Date().toString();
-        await DAO.getInstance().removeCitizenFromWaitlist(medname, 'test')
-        await DAO.getInstance().addCitizenToWaitlist(medname, username, timestamp)
-        let waitlist = await DAO.getInstance().getWaitlistByName(medname)
-        expect(waitlist.citizens[0].username).not.toBe('test')
-    })
-
-    test('Empty waitlist positive', async () => {
-        let medname = 'dummy';
-        let description = 'dummy description';
-        await DAO.getInstance().createWaitlist(medname, description)
-        await DAO.getInstance().emptyCitizensByName(medname)
-        let waitlist = await DAO.getInstance().getWaitlistByName(medname)
-        expect(waitlist.citizens.length).toBe(0)
-    })
 })

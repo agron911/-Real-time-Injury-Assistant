@@ -1,6 +1,7 @@
 const url = "";
 let CHATROOM_USER = "";
 let ANNOUNCEMENT = false;
+let GROUPCHAT = false;
 let notificationOpen = false;
 let SUSPEND_NORMAL_OPERATION = false;
 let USERS_SEARCH_CONTEXT = "username";
@@ -9,8 +10,12 @@ let MESSAGE_RECEIVER = "";
 let PUBLIC_SEARCH_COUNTER = 1;
 let ANNOUNCEMENT_SEARCH_COUNTER = 1
 let PRIVATE_SEARCH_COUNTER = 1;
-
-
+let SEARCH_COUNTER = 1;
+let IS_SPECIALIST = false;
+let Anxiety_rule = "You're not alone in your feelings of anxiety; here, you'll find a compassionate space to explore your experiences, learn coping strategies, and connect with others who truly understand."
+let Depression_rule = "Welcome to a place of understanding and support, where we can share our struggles with depression without judgment, and together, find moments of light and hope."
+let Stress_rule = "Join us in discovering effective ways to manage stress, where we share tools, experiences, and support to help each other navigate life's pressures more calmly and confidently"
+let Grief_rule = "In this group, you'll find a comforting community ready to hold space for your grief, share in your memories, and support you through your journey of healing and remembrance"
 const getPrivateMessages = async (otherUsername) => {
   if (SUSPEND_NORMAL_OPERATION) return [];
   const currentUsername = localStorage.getItem("username");
@@ -40,6 +45,8 @@ const sendMessage = async () => {
     } else if (ANNOUNCEMENT) {
       // TODO: check for coordinator status
       sendAnnouncementMessage(textInput.value);
+    } else if (GROUPCHAT) {
+      sendGroupMessage(MESSAGE_RECEIVER, textInput.value);
     } else {
       sendPublicMessage(status, textInput.value);
     }
@@ -80,8 +87,19 @@ const sendAnnouncementMessage = async (message) => {
     },
   });
 };
+const sendGroupMessage = async (group, message) => {
+  if (SUSPEND_NORMAL_OPERATION) return
+  await fetch(url + "/chatrooms/" + group, {
+    method: "POST",
+    body: JSON.stringify({ username: localStorage.getItem("username"), content: message, timestamp: new Date().toString(), status: "undefined", receiver: group, group: group }),
+    headers: {
+      "Content-type": "application/json; charset=UTF-8",
+    },
+  });
+};
 
 const showPrivateMessage = async (otherUsername) => {
+  GROUPCHAT = false;
   setSearchPrivate(otherUsername);
   document.getElementById("elect-form").style.display = "none";
   document.getElementById("wall").style.display = "flex";
@@ -90,6 +108,7 @@ const showPrivateMessage = async (otherUsername) => {
   const messageContainer = document.getElementById("messages");
   messageContainer.innerHTML = "";
   chatroomTypeTitleElement.innerHTML = otherUsername + " Chatroom";
+
   if (!msgs.empty) {
     for (let msg of msgs) {
       addMessages(msg);
@@ -124,20 +143,120 @@ const getAnnouncement = async () => {
   return archive;
 }
 
+const getGroupMessages = async (group) => {
+  if (SUSPEND_NORMAL_OPERATION) return;
+  const response = await fetch(url + "/chatrooms/" + group, {
+    method: "GET",
+    headers: {
+      "Content-type": "application/json; charset=UTF-8",
+    },
+  });
+  return response;
+}
+
 async function getArchive() {
   setSearchPublic();
+  GROUPCHAT = false;
   document.getElementById("elect-form").style.display = "none";
   document.getElementById("wall").style.display = "flex";
   const response = await getPublicMessages();
   const data = await response.json();
+
+
   if (!data.empty) {
     for (let msg of data.archive) {
-      let msgCard = createMsgCard(msg);
-      messages.appendChild(msgCard);
+
+      addMessages(msg);
     }
   };
   messages.scrollTo(0, messages.scrollHeight);
+  window.scrollTo(0, document.body.scrollHeight);
 }
+
+const ConfirmGroupChat = async (group) => {
+  MESSAGE_RECEIVER = group;
+
+  await checkIfTestOngoing();
+  if (SUSPEND_NORMAL_OPERATION) return;
+  try {
+    const response = await fetch(url + "/chatrooms/" + group + "/" + localStorage.getItem("username"), {
+      method: "GET",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    });
+    const data = await response.json();
+
+    if (data.message == "No consent") {
+      let confirmationModal = new bootstrap.Modal(document.getElementById('confirmJoinGroup'), {});
+      document.getElementById('confirmJoinGroupLabel').innerText = `Confirm Joining ${group} Group`;
+      document.getElementById('selectedGroup').innerText = `${group} group`;
+      if (group == "Anxiety") {
+        document.getElementById('groupRules').innerText = Anxiety_rule;
+      } else if (group == "Depression") {
+        document.getElementById('groupRules').innerText = Depression_rule;
+      } else if (group == "Stress") {
+        document.getElementById('groupRules').innerText = Stress_rule;
+      } else if (group == "Grief") {
+        document.getElementById('groupRules').innerText = Grief_rule;
+      }
+      confirmationModal.show();
+      document.getElementById('JoinGroupConfirm').addEventListener('click', async function () {
+        console.log("JoinGroupConfirm", group);
+        await fetch(url + "/chatrooms/" + group + "/" + localStorage.getItem("username"), {
+          method: "POST",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+        });
+        let confirmationModal = new bootstrap.Modal(document.getElementById('confirmJoinGroup'), {});
+        confirmationModal.hide();
+        await GroupChat(group);
+      });
+    } else {
+      await GroupChat(group);
+      return;
+    }
+  } catch (e) {
+    console.log("ConfirmGroupChat error", e);
+  }
+}
+
+
+
+const GroupChat = async (group) => {
+  GROUPCHAT = true;
+  CHATROOM_USER = "";
+
+  setSearchGroup(group);
+  document.getElementById("elect-form").style.display = "none";
+  document.getElementById("wall").style.display = "flex";
+  console.log("GroupChat", GROUPCHAT);
+  const chatroomTypeTitleElement = document.getElementById("chatroom-title");
+  chatroomTypeTitleElement.innerHTML = group + " Group Counsel";
+
+  const response = await getGroupMessages(group);
+  const messageContainer = document.getElementById("messages");
+
+  messageContainer.innerHTML = "";
+  const specialists = await getSpecialists(group);
+
+  const data = await response.json();
+  if (!data.empty) {
+    for (let msg of data.archive) {
+      // if the msg.username is in the specialists list, then add the message
+      if (specialists.indexOf(msg.username) !== -1) {
+        IS_SPECIALIST = true;
+      } else {
+        IS_SPECIALIST = false;
+      }
+      addMessages(msg);
+    }
+  };
+  messages.scrollTo(0, messages.scrollHeight);
+  window.scrollTo(0, document.body.scrollHeight);
+}
+
 
 const createLoadMoreButton = () => {
   const messagesList = document.getElementById("messages");
@@ -161,6 +280,8 @@ const createIconElement = (username, status) => {
   setIconClass(status, iconElement);
   return iconElement;
 };
+
+
 
 const createUserBodyHeader = (user) => {
   let title = document.createElement("h5");
@@ -215,10 +336,101 @@ const createTitleElement = (username) => {
   title.className = "card-title fw-bold";
   if (username == localStorage.getItem("username")) {
     title.textContent = "Me";
+  } else if (IS_SPECIALIST) {
+    title.textContent = "Specialist : " + username;
   } else {
     title.textContent = username;
   }
   return title;
+}
+
+const createEditableMessage = (cardBody, msg) => {
+  let modifyButton = document.createElement("button");
+  modifyButton.textContent = "Modify";
+  modifyButton.className = "btn btn-outline-primary btn-sm";
+  modifyButton.setAttribute("data-bs-toggle", "modal");
+  modifyButton.setAttribute("data-bs-target", "#editMessageModal");
+  modifyButton.addEventListener("click", async () => {
+    // Logic to modify message
+    document.getElementById("messageEditInput").value = msg.content;
+    document.getElementById("saveMessageChanges").onclick = async () => {
+      console.log("Saving changes for message:", msg._id);
+
+      let editMessageModal = new bootstrap.Modal(document.getElementById('editMessageModal'), {});
+      console.log("editMessageModal", editMessageModal);
+      editMessageModal.hide();
+
+      try {
+        await fetch(url + "/chatrooms/" + MESSAGE_RECEIVER + "/" + msg._id, {
+          method: "PUT",
+          body: JSON.stringify(
+            {
+              content: document.getElementById("messageEditInput").value,
+              group: MESSAGE_RECEIVER
+            }),
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+        });
+
+      } catch (e) {
+        console.log("error editing message", e);
+      };
+
+    };
+    console.log("Modify message:", msg._id);
+  });
+
+  let deleteButton = document.createElement("button");
+  deleteButton.textContent = "Delete";
+  deleteButton.className = "btn btn-outline-danger btn-sm";
+  deleteButton.setAttribute("data-bs-toggle", "modal");
+  deleteButton.setAttribute("data-bs-target", "#deleteMessageModal");
+  deleteButton.addEventListener("click", async () => {
+    // Logic to delete message
+    document.getElementById("deleteMessageChanges").onclick = async () => {
+      console.log("Deleting message:", msg._id);
+
+      try {
+        await fetch(url + "/chatrooms/" + MESSAGE_RECEIVER + "/" + msg._id, {
+          method: "DELETE",
+          body: JSON.stringify({ group: MESSAGE_RECEIVER, messageId: msg._id }),
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+        });
+      } catch (e) {
+        console.log("error deleting message", e);
+      };
+      let deleteMessageModal = new bootstrap.Modal(document.getElementById('deleteMessageModal'), {});
+      deleteMessageModal.hide();
+
+    };
+  })
+
+  cardBody.appendChild(modifyButton);
+  cardBody.appendChild(deleteButton);
+};
+
+// edit here
+const editMessages = (msg) => {
+  //data-message-id
+  const messageElement = document.querySelector(`[data-message-id="${msg._id}"]`);
+  // edit card-text text
+  const cardText = messageElement.querySelector(".card-text");
+  cardText.textContent = msg.content;
+  return;
+}
+
+const deleteMessages = (msgId) => {
+  try {
+    const messageElement = document.querySelector(`[data-message-id="${msgId}"]`);
+    if (messageElement) {
+      messageElement.remove();
+    }
+  } catch (error) {
+    console.log("Error deleting message:", error);
+  }
 }
 
 const createMsgCardBody = (msg) => {
@@ -228,11 +440,15 @@ const createMsgCardBody = (msg) => {
   iconElement.classList.add("las");
   setIconClass(msg.status, iconElement);
   const titleElement = createTitleElement(msg.username)
+
   const timestampElement = createTimeStampElement(msg.timestamp);
   let text = document.createElement("p");
   text.className = "card-text";
   text.textContent = msg.content;
   cardBody.appendChild(titleElement);
+  if (msg.username == localStorage.getItem("username") && GROUPCHAT) {
+    createEditableMessage(cardBody, msg);
+  };
   cardBody.appendChild(iconElement);
   cardBody.appendChild(text);
   cardBody.appendChild(timestampElement);
@@ -242,6 +458,7 @@ const createMsgCardBody = (msg) => {
 function createMsgCard(msg) {
   let listItem = document.createElement("li");
   listItem.className = "list-group-item";
+  listItem.setAttribute("data-message-id", msg._id);
   const cardBody = createMsgCardBody(msg);
   let card = document.createElement("div");
   card.className = "card mx-3 my-3";
@@ -296,8 +513,25 @@ const connectToSocket = async () => {
   socket.on("updateUserList", async () => { await fetchInitialUserList(); });
   socket.on("status-update", (data) => { updateUserStatusIconEverywhere(data.status, data.username); });
   socket.on("private-message", (data) => { showMessageAlert(data, "primary"); });
-  socket.on("suspendNormalOps", (socketID) => { if (socketID != localStorage.getItem('socketID')) logout();});
+  socket.on("suspendNormalOps", (socketID) => { if (socketID != localStorage.getItem('socketID')) logout(); });
   socket.on("enableNormalOperation", (data) => { SUSPEND_NORMAL_OPERATION = false; });
+  socket.on("group-message", async (data) => {
+    if (!SUSPEND_NORMAL_OPERATION) {
+
+      IS_SPECIALIST = true;
+
+      addMessages(data.msg);
+      console.log("data", data);
+      if (data.specialist_online && data.msg.username != localStorage.getItem("username")) {
+        showMessageAlert(data.msg, "primary");
+      } else if (!data.specialist_online) {
+        // showMessageAlert(data.msg, "secondary");
+        showMessageAlert(data.msg, "info");
+      }
+    }
+  });
+  socket.on("edit-group-message", (msg) => { editMessages(msg) });
+  socket.on("delete-group-message", (msgId) => { deleteMessages(msgId); });
 };
 
 const showMessage = (message) => {
@@ -329,13 +563,26 @@ const closeAlert = (message) => {
 const createAlertHTMLElement = (message, type) => {
   const wrapper = document.createElement("div");
   wrapper.id = message._id;
+  console.log("message", GROUPCHAT);
+  
+  if (type === "primary") {
+    alert_msg = `<div>${message.username}: ${message.content}</div>`
+    if (message.receiver == "Anxiety" || message.receiver == "Depression" || message.receiver == "Stress" || message.receiver == "Grief") {
+      button = `<button type="button" id="button-${message._id}" onclick = ConfirmGroupChat('${message.receiver}')> <i class="las la-eye"></i>`
+    } else {
+      button = `<button type="button" id="button-${message._id}" aria-label="Close" data-bs-toggle="modal"  data-bs-target="#exampleModal" ><i class="las la-eye"></i>`
+    }
+  } else if (type === "info") {
+    button = `<button type="button" id="button-${message._id}" aria-label="Close"> <i class="las la-check"></i>`
+
+    alert_msg = `<div>There's no specialist online yet, please be patience.</div>`
+  }
+
   wrapper.innerHTML = [
     `<div class="alert alert-${type} alert-dismissible alert-fse" role="alert">`,
-    `<div>${message.username}: ${message.content}</div>`,
+    alert_msg,
     `<div class ="alert-button-container">`,
-    `<button type="button" id="button-${message._id}" aria-label="Close" data-bs-toggle="modal"  data-bs-target="#exampleModal" >`,
-    `<i class="las la-eye">`,
-    `</i>`,
+    button,
     `</button>`,
     `</div>`,
     "</div>",
@@ -357,7 +604,11 @@ const showMessageAlert = (message, type) => {
 };
 
 const replyToUser = () => {
-  showPrivateMessage(CHATROOM_USER);
+  if (GROUPCHAT) {
+    GroupChat(MESSAGE_RECEIVER);
+  } else {
+    showPrivateMessage(CHATROOM_USER);
+  }
 };
 
 const getStatus = async (username) => {
@@ -428,6 +679,7 @@ const logout = async () => {
 
 const announcement = async () => {
   ANNOUNCEMENT = true;
+  GROUPCHAT = false;
   setSearchAnnouncement();
   document.getElementById("elect-form").style.display = "none";
   document.getElementById("wall").style.display = "flex";
@@ -442,6 +694,7 @@ const announcement = async () => {
     }
   }
   messageContainer.scrollTo(0, messageContainer.scrollHeight);
+  window.scrollTo(0, document.body.scrollHeight);
 };
 
 const fetchInitialUserList = async () => {
@@ -452,10 +705,16 @@ const fetchInitialUserList = async () => {
   displayUsers(users);
 };
 
+const getSpecialists = async (group) => {
+  if (SUSPEND_NORMAL_OPERATION) return;
+  const response = await fetch(url + "/specialists/" + group);
+  const { specialists } = await response.json();
+  return specialists;
+};
+
 const displayUsers = (users) => {
   const usersListElement = document.getElementById("users");
   usersListElement.innerHTML = "";
-
   users.users.forEach((user) => {
     let userCard = createUserCard(user);
     usersListElement.appendChild(userCard);
@@ -500,7 +759,6 @@ const checkIfTestOngoing = async () => {
     },
   });
   const responseData = await response.json();
-  console.log("responseData", responseData);
   if (responseData) {
     SUSPEND_NORMAL_OPERATION = true;
   }
@@ -509,15 +767,10 @@ const checkIfTestOngoing = async () => {
 window.onload = async () => {
   try {
     await checkIfTestOngoing();
+    SEARCH_COUNTER = 1;
     const username = localStorage.getItem("username");
     if (username) {
-      const toggleButton = document.getElementById("toggle-btn");
       await connectToSocket();
-      // toggleButton.addEventListener("click", async (e) => {
-      //   e.preventDefault();
-      //   await logout();
-      //   window.location.replace("/");
-      // });
       const status = await getStatus(username);
       if (status) setStatusButtonUI(status);
       await getAlerts();
@@ -640,21 +893,33 @@ function searchUsers() {
   }
 }
 
+const setSearchGroup = (group) => {
+  SEARCH_COUNTER = 1;
+  document.getElementById("messages-search-input").style.display = "none";
+  document.getElementById("message-button").style.display = "none";
+}
+
 function setSearchPublic() {
   PUBLIC_SEARCH_COUNTER = 1;
   MESSAGE_RECEIVER = "all";
+  document.getElementById("messages-search-input").style.display = "flex";
+  document.getElementById("message-button").style.display = "flex";
   document.getElementById("messages-search-input").placeholder = "Search Public Messages";
 }
 
 function setSearchAnnouncement() {
   ANNOUNCEMENT_SEARCH_COUNTER = 1;
   MESSAGE_RECEIVER = "announcement";
+  document.getElementById("messages-search-input").style.display = "flex";
+  document.getElementById("message-button").style.display = "flex";
   document.getElementById("messages-search-input").placeholder = "Search Announcement Messages";
 }
 
 function setSearchPrivate(receiver) {
   PRIVATE_SEARCH_COUNTER = 1;
   MESSAGE_RECEIVER = receiver;
+  document.getElementById("messages-search-input").style.display = "flex";
+  document.getElementById("message-button").style.display = "flex";
   document.getElementById("messages-search-input").placeholder = "Search Private Messages";
 }
 
@@ -749,5 +1014,11 @@ function searchMessages() {
   }
 }
 
-
+function closeNavbar() {
+  const navbarCollapse = document.getElementById('navbarSupportedActions');
+  const bsCollapse = new bootstrap.Collapse(navbarCollapse, {
+    toggle: false
+  });
+  bsCollapse.hide();
+}
 
