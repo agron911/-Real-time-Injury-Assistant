@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<%- include('partials/head.ejs') %>
+<body class="relative">
+    <%- include ('partials/espHeader'); %>
+    <%- include ('partials/registerEspModal'); %>
+    <%- include ('partials/emergencyRequestModal'); %>
+    <%- include ('partials/espNotificationModal'); %>
+    <%- include ('partials/espRegisterSuccessModal'); %>
+    <%- include ('partials/deregisterSuccessModal'); %>
+    <%- include ('partials/informCitizenModal'); %>
+    <%- include ('partials/requestsContainer'); %>
+    <button style="width: fit-content;" onclick="openInformCitizenModal()" class="fixed inset-x-0 mx-auto bottom-10 bg-gray-800 hover:bg-gray-400 text-gray-200 font-bold py-2 px-4 rounded inline-flex items-center">
+        <span>Request Help</span>
+    </button>    
+    <script src="/js/emergencyServices.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+</body>
+
+</html>

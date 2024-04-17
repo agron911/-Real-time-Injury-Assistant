@@ -1,6 +1,6 @@
 import express from 'express';
 import { HomeView, indexView, UserConfirmation, UserJoin, UserAcknowledgement } from '../controller/joinCommunity.js';
-import { loginOrLogout, registerUserSocket, getUsers } from '../controller/loginController.js';
+import { loginOrLogout, registerUserSocket, getUsers, getUser } from '../controller/loginController.js';
 import { ChatroomView, receivePublicMessage, loadPublicMessages } from '../controller/chatPublicly.js';
 import { receivePrivateMessage, loadUnreadMessages } from '../controller/chatPrivately.js';
 import { updateUserStatus, getStatus } from '../controller/shareStatus.js';
@@ -8,6 +8,8 @@ import { loadPrivateMessages } from '../controller/chatPrivately.js';
 import  { searchByPublicMessage, searchByPrivateMessages, searchByAnnouncement, searchByStatus, searchByUsername } from '../controller/search_info.js';
 import { startSpeedTest, stopSpeedTest, isSpeedTestOngoing } from '../controller/speedtest.js';
 import {loadAnnouncementMessages, receiveAnnouncementMessage} from '../controller/postAnnouncement.js'
+import { EmergencyServicesView, registerAsEsp } from '../controller/espController.js';
+import { createRequest, getRequests, updateRequest, deleteRequest, getRequest } from '../controller/requestController.js';
 import { firstaidView, loadInjuryByUsernames, receiveInjury, createChatMsg} from '../controller/seekFirstAid.js';
 import { createNotification, getNotificationByUsername, handleGetStockSupply, newWaitlist, getWaitlistRole, waitlistCitizenView, waitlistElectView, waitlistProviderView, setWaitlistRole, getWaitlist, joinWaitlist, leaveWaitlist, getWaitlistDetails, handleSupplyWaitlist, deleteNotification} from '../controller/manageWaitlists.js';
 const router = express.Router();
@@ -15,8 +17,9 @@ const router = express.Router();
 router.get("/", HomeView);
 router.get("/community", indexView);
 router.get("/chatroom", ChatroomView);
+router.get("/emergencyServices", EmergencyServicesView)
 router.get('/test', (req, res) => (res.send("Hello World")));
-router.get("/users", getUsers);
+router.get("/users", getUsers); //TODO: fix this, should be user
 router.post("/messages/public", receivePublicMessage);
 router.get("/messages/public", loadPublicMessages);
 router.post("/messages/private", receivePrivateMessage);
@@ -28,8 +31,10 @@ router.post("/messages/announcement", receiveAnnouncementMessage);
 router.post("/users/verification", UserJoin);
 router.post("/users/", UserConfirmation);
 router.post("/users/acknowledgement", UserAcknowledgement);
-router.put("/user/status/:username", updateUserStatus);
+router.get("/user/:username", getUser);
+router.put("/user/status/:username", updateUserStatus); // TODO: probably it should be user/:username/staus
 router.get("/user/status/:username", getStatus);
+
 
 router.patch("/auth/users", loginOrLogout);
 router.post("/sockets/users/:username", registerUserSocket);
@@ -43,6 +48,16 @@ router.get("/users/status/search", searchByStatus);
 router.get("/speedtest", isSpeedTestOngoing);
 router.post("/speedtest", startSpeedTest);
 router.post("/speedtest/end", stopSpeedTest);
+
+router.put("/user/:username/esp", registerAsEsp);
+router.get("/request/:id", getRequest);
+router.get("/request", getRequests);
+router.post("/request", createRequest);
+router.put("/request/:id", updateRequest);
+router.delete("/request/:id", deleteRequest);
+
+
+
 
 router.get("/firstaid", firstaidView);
 router.get("/injuries/:username", loadInjuryByUsernames);

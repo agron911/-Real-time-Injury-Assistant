@@ -2,6 +2,7 @@ import { connect, closeDatabase, clearDatabase } from './db-handler';
 import { hashPassword, comparePassword } from "../utils/passwordUtils.js";
 import DAO from '../model/dao.js';
 import Citizen from '../model/user-Citizen.js';
+import Request from '../model/request-class.js';
 import e from 'express';
 /**
  * Connect to a new in-memory database before running any tests.
@@ -33,20 +34,17 @@ describe('Password Operations', () => {
         expect(isvalid).toBe(0);
     })
     test('Test existing user password match', async() => {
-        const hashedpasssword = await hashPassword('1234')
-        const new_user = await DAO.getInstance().createUser('daniel', hashedpasssword, 'ok', 'administrator')
+        const hashedpassword = await hashPassword('1234')
+        const new_user = await DAO.getInstance().createUser('daniel2', hashedpassword, 'ok', 'Citizen', false);
         const passwordresult =  await comparePassword(new_user.password, '1234')
-        return Citizen.retrieve('daniel').then((citizen) => {
-            expect(passwordresult).toBe(true);
-        })
+        expect(passwordresult).toBe(true);
+        
     })
     test('Test existing user password mismatch', async() => {
         const hashedpasssword = await hashPassword('1234')
-        const new_user = await DAO.getInstance().createUser('daniel', hashedpasssword, 'ok', 'citizen')
+        const new_user = await DAO.getInstance().createUser('daniel', hashedpasssword, 'ok', 'Citizen', false)
         const passwordresult =  await comparePassword(new_user.password, '12345')
-        return Citizen.retrieve('daniel').then((citizen) => {
-            expect(passwordresult).toBe(false);
-        })
+        expect(passwordresult).toBe(false);
     })
 })
 
@@ -73,13 +71,13 @@ describe('Username Operations', () => {
     })
 
     test('Username is not case sensitive', async() => {
-        await DAO.getInstance().createUser('daniel', await hashPassword('1234'), 'ok','citizen')
+        await DAO.getInstance().createUser('daniel', await hashPassword('1234'), 'ok','Citizen', false)
         const citizen = await DAO.getInstance().getUserByName('Daniel')
         expect(citizen).not.toBeNull()
     });
 
     test('Successfully creates and retrieves a user', async() => {
-        await DAO.getInstance().createUser('daniel2', await hashPassword('1234'), 'ok','citizen')
+        await DAO.getInstance().createUser('daniel2', await hashPassword('1234'), 'ok','Citizen', false)
         const citizen = await DAO.getInstance().getUserByName('daniel2')
         expect(citizen).not.toBeNull()
     });
@@ -88,7 +86,7 @@ describe('Username Operations', () => {
 
 describe('Update information', () => {
     test("Update user's online ", async () => {
-        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok','citizen')
+        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok','Citizen', false)
         await DAO.getInstance().updateUserOnline('agron')
         let citizen = await DAO.getInstance().getUserByName('agron')
         let online_sts = citizen.online;
@@ -101,7 +99,7 @@ describe('Update information', () => {
     });
 
     test("Update user's Acknowledgement", async () => {
-        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok','citizen')
+        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok','Citizen', false)
         await DAO.getInstance().updateUserAcknowledgement('agron')
         let citizen = await DAO.getInstance().getUserByName('agron')
         let acknowledged = citizen.acknowledged;
@@ -109,8 +107,8 @@ describe('Update information', () => {
     })
 
     test("Update user's status", async () => {
-        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok','citizen')
-        let citizen = await DAO.getInstance().getUserByName('agron')
+        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok','Citizen', false)
+        let citizen = await DAO.getInstance().getUserByName('agron');
         let status = citizen.status;
         expect(status).toBe('ok')
         await DAO.getInstance().updateUserStatus('agron', 'help')
@@ -320,25 +318,175 @@ describe('Search operation', () => {
     test('Accept search in status', async () => {
         let citizen = 'agron123'
         let status = 'ok'
-        await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen')
+        await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'Citizen')
         const result = await DAO.getInstance().search_by_status(status);
         expect(result).not.toBeNull()
     })
     test('Accept search in username', async () => {
         let citizen = 'agron123'
         let status = 'ok'
-        await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen')
+        await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'Citizen')
         const result = await DAO.getInstance().search_by_username(citizen);
         expect(result).not.toBeNull()
     })
     test('Accept search in username', async () => {
         let citizen = 'agron123'
         let status = 'ok'
-        await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen')
+        await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'Citizen')
         const result = await DAO.getInstance().search_by_username(citizen);
         expect(result).not.toBeNull()
     })
   
+
+})
+
+describe('Esp registration', () => {
+    
+    test('A citizen successfully registers as esp', async () => {
+        //create citizen  
+        const username = 'testuser';
+        await DAO.getInstance().createUser(username, 'wqed', 'ok', 'Citizen', false);
+        let citizen = await Citizen.retrieveUserByUsername(username);
+        citizen = await citizen.modifyEsp(true);
+        citizen = await Citizen.retrieveUserByUsername(username);
+        expect(citizen.esp).toEqual(true);
+    });
+
+    test('A citizen fails to register if user does not exist', async () => {
+        //create citizen  
+        const username = 'testuser2';
+        // await DAO.getInstance().createUser(username, 'wqed', 'ok', 'Citizen', false);
+        try{
+            let citizen = await Citizen.retrieveUserByUsername(username);
+            citizen = await citizen.modifyEsp(true);
+            citizen = await Citizen.retrieveUserByUsername(username);
+        } catch(e){
+            expect(e.message).toEqual('User not found');
+        }
+        
+    });
+})
+
+describe('Request handling', () => {
+
+    test('A citizen can create a request', async () => {
+        const username = 'testuser';
+        await DAO.getInstance().createUser(username, 'wqed', 'ok', 'Citizen', false);
+        let citizen = await Citizen.retrieveUserByUsername(username);
+        citizen = await citizen.modifyEsp(true);
+        citizen = await Citizen.retrieveUserByUsername(username);
+        const request = new Request(username, 'content', 'Dog', null, "UNRESOLVED");
+        await request.save(); 
+        expect(request.id).not.toBeNull(); 
+        expect(request.username).toBe(username);
+        expect(request.content).toBe('content');
+        expect(request.status).toBe('UNRESOLVED'); 
+    })
+
+    test('A citizen can retreive a request by id', async () => {
+        const username = 'testuser';
+        await DAO.getInstance().createUser(username, 'wqed', 'ok', 'Citizen', false);
+        let citizen = await Citizen.retrieveUserByUsername(username);
+        citizen = await citizen.modifyEsp(true);
+        citizen = await Citizen.retrieveUserByUsername(username);
+        const request = new Request(username, 'content', 'Dog', null, "UNRESOLVED");
+        await request.save(); 
+        const req = await DAO.getInstance().getRequestById(request.id);
+        expect(request.id).toEqual(req.id); 
+    })
+
+    test('A citizen can update a request status', async () => {
+        const username = 'testuser';
+        await DAO.getInstance().createUser(username, 'wqed', 'ok', 'Citizen', false);
+        let citizen = await Citizen.retrieveUserByUsername(username);
+        citizen = await citizen.modifyEsp(true);
+        citizen = await Citizen.retrieveUserByUsername(username);
+        let request = new Request(username, 'content', 'Dog', null, "UNRESOLVED");
+        await request.save(); 
+        const newRequest = {
+            status: "RESOLVED",
+        }
+        const updatedRequest = await DAO.getInstance().updateRequest(request.id, newRequest);
+        expect(updatedRequest.status).toEqual('RESOLVED'); 
+    })
+
+    test('A citizen can remove a request', async () => {
+        const username = 'testuser';
+        await DAO.getInstance().createUser(username, 'wqed', 'ok', 'Citizen', false);
+        let citizen = await Citizen.retrieveUserByUsername(username);
+        citizen = await citizen.modifyEsp(true);
+        citizen = await Citizen.retrieveUserByUsername(username);
+        let request = new Request(username, 'content', 'Dog', null, "UNRESOLVED");
+        await request.save(); 
+        expect(request.id).not.toBeNull(); 
+        await DAO.getInstance().removeRequest(request.id);
+        try{
+            await DAO.getInstance().getRequestById(request.id);
+        } catch(e){
+            expect(e.message).toEqual('Request not found');
+        }
+    })
+
+    test('A citizen can get requests by his username', async () => {
+        const username = 'testuserusername';
+        await DAO.getInstance().createUser(username, 'wqed', 'ok', 'Citizen', false);
+        let citizen = await Citizen.retrieveUserByUsername(username);
+        citizen = await citizen.modifyEsp(true);
+        citizen = await Citizen.retrieveUserByUsername(username);
+        let request = new Request(username, 'content', 'Dog', null, "UNRESOLVED");
+        await request.save(); 
+        let request2 = new Request(username, 'content1', 'Dog', null, "UNRESOLVED");
+        await request2.save(); 
+        const requests = await DAO.getInstance().getRequestsByUsername(username);
+        expect(requests.length).toEqual(2); 
+        expect(requests[0].id).toEqual(request.id);
+        expect(requests[1].id).toEqual(request2.id);
+         
+    })
+
+    test('A request status cannot be anything except the predefined ones', async () => {
+        const username = 'testuser';
+        await DAO.getInstance().createUser(username, 'wqed', 'ok', 'Citizen', false);
+        let citizen = await Citizen.retrieveUserByUsername(username);
+        citizen = await citizen.modifyEsp(true);
+        citizen = await Citizen.retrieveUserByUsername(username);
+        let request = new Request(username, 'content', 'Dog', null, "WEIRD");
+        try{
+            await request.save();  
+        } catch (e){
+            expect(e.message).toEqual('Error creating request');
+        }
+    })
+
+    test('A request severity cannot be anything except the predefined ones', async () => {
+        const username = 'testuser';
+        await DAO.getInstance().createUser(username, 'wqed', 'ok', 'Citizen', false);
+        let citizen = await Citizen.retrieveUserByUsername(username);
+        citizen = await citizen.modifyEsp(true);
+        citizen = await Citizen.retrieveUserByUsername(username);
+        let request = new Request(username, 'content', 'Bug', null, "UNRESOLVED");
+        try{
+            await request.save();  
+        } catch (e){
+            expect(e.message).toEqual('Error creating request');
+        }
+    })
+
+    test('When a citizen updates a request, a new request is not created instead', async () => {
+        const username = 'testuserunique';
+        await DAO.getInstance().createUser(username, 'wqed', 'ok', 'Citizen', false);
+        let citizen = await Citizen.retrieveUserByUsername(username);
+        citizen = await citizen.modifyEsp(true);
+        citizen = await Citizen.retrieveUserByUsername(username);
+        let request = new Request(username, 'content', 'Dog', null, "UNRESOLVED");
+        await request.save(); 
+        const newRequest = {
+            status: "RESOLVED",
+        }
+        const updatedRequest = await DAO.getInstance().updateRequest(request.id, newRequest);
+        const requests = await DAO.getInstance().getRequestsByUsername(username);
+        expect(requests.length).toEqual(1); 
+    })
 
 })
 

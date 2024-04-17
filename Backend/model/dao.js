@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import userCollection from "./user-schema.js"
 import messageCollection from "./message-schema.js";
+import requestCollection from "./request-schema.js";
 import UserFactory from './userFactory.js'; 
 import { stopWords } from '../utils/user-config.js';
 import injuryCollection from "./injury-schema.js";
@@ -75,10 +76,18 @@ class DAO {
         }
     }
 
-    createUser = async (username, hashed_password, status, usertype) => {
+    createUser = async (username, hashed_password, status, usertype, esp) => {
         try {
-            const userObject = UserFactory.createUser(usertype, username, hashed_password, status);
-            const userSchemaObject = userObject.toSchemaObject();
+            const userSchemaObject = {
+                username: username,
+                password: hashed_password,
+                status: status,
+                online: false, 
+                acknowledged: false, 
+                usertype: usertype,
+                esp: esp
+            }
+            console.log('before',userSchemaObject);
             const user = await userCollection.create(userSchemaObject);
             const injury = await injuryCollection.create({ username: username, reported: false });
             return user;
@@ -194,7 +203,7 @@ class DAO {
             throw new Error("Update user online error: ", err);
         }
     }
-    //comment
+
     updateUserOffline = async (username) => {
         try {
             const user = await userCollection.findOneAndUpdate({ username: username }, { online: false });
@@ -202,6 +211,7 @@ class DAO {
             throw new Error("Update user offline error: ", err);
         }
     }
+    
     updateUserStatus = async (username, status) => {
         try {
             await userCollection.findOneAndUpdate({ username: username }, { status: status, statusChangeTimestamp: new Date().toString(), $push:{statusHistory:status} } );
@@ -211,6 +221,16 @@ class DAO {
         }
     }
 
+    updateUserEsp = async (username, esp) => {
+        try {
+            const user = await userCollection.findOneAndUpdate(
+                { username: username }, 
+                { $set: { esp: esp } },);
+            return user;
+        } catch (err) { 
+            throw new Error("Update user esp error: ", err.message);
+        }
+    }
     createMessage = async (username, content, timestamp, status, receiver, viewed) => {
         try {
             const msg = await messageCollection.insertMany({ username: username, content: content, timestamp: timestamp, status: status, receiver: receiver, viewed: viewed });
@@ -276,154 +296,73 @@ class DAO {
         return msgs;
     }
 
-
-
-/*----------------Iter 4 Taige-------------------*/ 
-/*----------------Seek First Aid-------------------*/
-    createInjury = async (username, reported, timestamp, parts, bleeding, numbness, conscious) => {
+    // Create a new request
+    createRequest = async (requestData) => {
         try {
-            const injury = await injuryCollection.create({ username: username, reported: reported, timestamp: timestamp, parts: parts, bleeding: bleeding, numbness: numbness, conscious: conscious });
-            return injury;
-        } catch (err) {
-            console.error("Insert failed for create injury", err);
-            throw new Error("Insert failed :", err);
+            const newRequest = new requestCollection(requestData);
+            const reqObj = await newRequest.save();
+            return reqObj;
+        } catch (error) {
+            throw new Error(`Error creating request`);
+        }
+    };
+
+    getRequestsByUsername = async (username) => {
+        try {        
+            const requests = await requestCollection.find({ username: { $eq: username } });
+            return requests;
+        } catch (error) {
+            throw new Error(`Error getting requests: ${error.message}`);
         }
     }
+    
 
-    getInjuryByUser = async (username) => {
-        try {
-            const injury = await injuryCollection.findOne({ username: username });
-            return injury;
-        } catch (err) {
-            console.error("Injury not found: ", err);
-            throw new Error("Injury not found: ", err);
+    getRequestsByStatus = async (statuses) =>{
+        try {        
+            const requests = await requestCollection.find({ status: { $in: statuses } });
+            return requests;
+        } catch (error) {
+            throw new Error(`Error getting requests: ${error.message}`);
         }
     }
-
-    updateInjury = async (username, timestamp, parts, bleeding, numbness, conscious) => {
+// Update an existing request by ID
+    updateRequest = async (requestId, updatedData) => {
         try {
-            await injuryCollection.findOneAndUpdate({ username: username }, { reported: true, timestamp: timestamp, parts: parts, bleeding: bleeding, numbness: numbness, conscious: conscious });
-        } catch (err) {
-            console.error("Update injury error: ", err);
-            throw new Error("Update injury error: ", err);
+            const updatedRequest = await requestCollection.findByIdAndUpdate(
+                requestId,
+                updatedData,
+                { new: true } // Return the updated document
+            );
+            if (!updatedRequest) {
+                throw new Error('Request not found');
+            }
+            return updatedRequest;
+        } catch (error) {
+            throw new Error(`Error updating request: ${error.message}`);
+        }
+    };
+
+    // Remove a request by ID
+    removeRequest = async (requestId) => {
+        try {
+            await requestCollection.findByIdAndDelete(requestId);
+        } catch (error) {
+            throw new Error(`Error removing request: ${error.message}`);
+        }
+    };
+
+    getRequestById = async (requestId) => {
+        try {
+            const req = await requestCollection.findById(requestId);
+            if(!req) throw new Error('Request not found');
+            return req;
+        } catch (error) {
+            throw new Error(`Request not found`);
         }
     }
-
-    updateWaitlistRole = async (username, role) => {
-        try {
-            await userCollection.findOneAndUpdate({ username: username }, { waitlistRole: role });
-        } catch (err) {
-            throw new Error("Update waitlist role error: ", err);
-        }
-    }
-
-    createWaitlist = async (name, description) => {
-        try {
-            const waitlist = await waitlistCollection.create({ name: name, description: description, citizens: [], supplier: []});
-            return waitlist;
-        } catch (err) {
-            console.error("Insert failed for create waitlist", err);
-            return new Error("Insert failed :", err);
-        }
-    }
-
-    getWaitlist = async () => {
-        try {
-            const waitlist = await waitlistCollection.find();
-            return waitlist;
-        } catch (err) {
-            console.error("Waitlist not found: ", err);
-            return new Error("Waitlist not found: ", err);
-        }
-    }
-
-    getWaitlistByName = async (name) => {
-        try {
-            const waitlist = await waitlistCollection.findOne({ name: name });
-            return waitlist;
-        } catch (err) {
-            console.error("Waitlist not found: ", err);
-            return new Error("Waitlist not found: ", err);
-        }
-    }
-
-    addCitizenToWaitlist = async (waitlistName, username, timestamp) => {
-        try {
-            await waitlistCollection.findOneAndUpdate({ name: waitlistName }, { $push: { citizens: { username: username, timestamp: timestamp } } });
-        } catch (err) {
-            throw new Error("Add citizen to waitlist error: ", err);
-        }
-    }
-
-    addSupplierToWaitlist = async (waitlistName, username, count) => {
-        try {
-            await waitlistCollection.findOneAndUpdate({ name: waitlistName }, { $push: { supplier: { username: username, count: count } } });
-        } catch (err) {
-            throw new Error("Add supplier to waitlist error: ", err);
-        }
-    }
-
-    removeSupplierFromWaitlist = async (waitlistName, username) => {
-        try {
-            await waitlistCollection.findOneAndUpdate({ name: waitlistName }, { $pull: { supplier: { username: username } } });
-        } catch (err) {
-            throw new Error("Remove supplier from waitlist error: ", err);
-        }
-    }
-
-    updateCountByName = async (medname, count) => {
-        try {
-            await waitlistCollection.findOneAndUpdate({ name: medname }, { count: count });
-        } catch (err) {
-            throw new Error("Update count by name error: ", err);
-        }
-    }
-
-    removeCitizenFromWaitlist = async (waitlistName, username) => {
-        try {
-            await waitlistCollection.findOneAndUpdate({ name: waitlistName }, { $pull: { citizens: { username: username } } });
-        } catch (err) {
-            throw new Error("Remove citizen from waitlist error: ", err);
-        }
-    }
-
-    emptyCitizensByName = async (medname) => {
-        try {
-            await waitlistCollection.findOneAndUpdate({ name: medname }, { citizens: [] });
-        } catch (err) {
-            throw new Error("Empty citizens by name error: ", err);
-        }
-    }
-
-    createNotification = async (username, supplier, medname, timestamp) => {
-        try {
-            const notification = await notificationCollection.create({ username: username, supplier: supplier, medname: medname, timestamp: timestamp, viewed: false });
-            return notification;
-        } catch (err) {
-            console.error("Insert failed for create notification", err);
-            return new Error("Insert failed :", err);
-        }
-    }
-
-    getNotificationByUser = async (username) => {
-        try {
-            const notifications = await notificationCollection.find({ username: username, viewed: false });
-            return notifications;
-        } catch (err) {
-            console.error("Notification not found: ", err);
-            return new Error("Notification not found: ", err);
-        }
-    }
-
-    deleteNotificationById = async (id) => {
-        try {
-            await notificationCollection.findByIdAndDelete(new mongoose.Types.ObjectId(id));
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
+    
 }
+
 export default DAO;
 
 
