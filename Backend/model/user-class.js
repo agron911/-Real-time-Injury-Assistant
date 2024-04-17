@@ -72,7 +72,6 @@ class User {
             usertype: this.usertype,
             specialist: this.specialists,
             confirmGroup: [],
-            waitlistRole: 'undefined',
         };
     }
 }

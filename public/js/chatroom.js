@@ -16,8 +16,6 @@ let Anxiety_rule = "You're not alone in your feelings of anxiety; here, you'll f
 let Depression_rule = "Welcome to a place of understanding and support, where we can share our struggles with depression without judgment, and together, find moments of light and hope."
 let Stress_rule = "Join us in discovering effective ways to manage stress, where we share tools, experiences, and support to help each other navigate life's pressures more calmly and confidently"
 let Grief_rule = "In this group, you'll find a comforting community ready to hold space for your grief, share in your memories, and support you through your journey of healing and remembrance"
-
-
 const getPrivateMessages = async (otherUsername) => {
   if (SUSPEND_NORMAL_OPERATION) return [];
   const currentUsername = localStorage.getItem("username");
@@ -1023,5 +1021,4 @@ function closeNavbar() {
   });
   bsCollapse.hide();
 }
-
 

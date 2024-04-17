@@ -9,9 +9,6 @@ import  { searchByPublicMessage, searchByPrivateMessages, searchByAnnouncement, 
 import { loadAnnouncementMessages, receiveAnnouncementMessage} from '../controller/postAnnouncement.js';
 import { loadGroupMessages, receiveGroupMessage, CheckConfirmation, ConfirmGroup, getSpecialists, editGroupMessage, deleteGroupMessage} from '../controller/counselGroup.js';
 import { startSpeedTest, stopSpeedTest, isSpeedTestOngoing } from '../controller/speedtest.js';
-import {loadAnnouncementMessages, receiveAnnouncementMessage} from '../controller/postAnnouncement.js'
-import { firstaidView, loadInjuryByUsernames, receiveInjury, createChatMsg} from '../controller/seekFirstAid.js';
-import { createNotification, getNotificationByUsername, handleGetStockSupply, newWaitlist, getWaitlistRole, waitlistCitizenView, waitlistElectView, waitlistProviderView, setWaitlistRole, getWaitlist, joinWaitlist, leaveWaitlist, getWaitlistDetails, handleSupplyWaitlist, deleteNotification} from '../controller/manageWaitlists.js';
 const router = express.Router();
 
 
@@ -45,7 +42,7 @@ router.get("/users/username/search", searchByUsername);
 router.get("/users/status/search", searchByStatus);
 
 
-router.get("/speedtest", isSpeedTestOngoing);
+
 router.post("/speedtest", startSpeedTest);
 router.post("/speedtest/end", stopSpeedTest);
 router.get("/speedtest", isSpeedTestOngoing);
@@ -59,28 +56,5 @@ router.post("/chatrooms/:group", receiveGroupMessage);
 router.put("/chatrooms/:group/:messageId", editGroupMessage);
 router.delete("/chatrooms/:group/:messageId", deleteGroupMessage);
 
-
-router.get("/firstaid", firstaidView);
-router.get("/injuries/:username", loadInjuryByUsernames);
-router.post("/injuries/:username", receiveInjury);
-router.get("/injuries/instructions/:username", createChatMsg);
-
-router.get("/waitlists", waitlistElectView);
-router.get("/waitlists/citizens", waitlistCitizenView);
-router.get("/waitlists/providers", waitlistProviderView);
-router.get("/waitlists/role/:username", getWaitlistRole);
-router.post("/waitlists/role", setWaitlistRole);
-router.get("/waitlists/citizens/:username", getWaitlist);
-router.post("/waitlists/citizens", joinWaitlist);
-router.post("/waitlists/citizens/stock", handleGetStockSupply);
-router.delete("/waitlists/citizens/:username/:medname", leaveWaitlist);
-router.get("/waitlists/providers/details/:medname", getWaitlistDetails);
-router.post("/waitlists/providers", newWaitlist);
-router.post("/waitlists/providers/supplies", handleSupplyWaitlist);
-router.post("/waitlists/citizens/", handleSupplyWaitlist)
-
-router.get("/waitlists/notifications/:username", getNotificationByUsername);
-router.post("/waitlists/notifications", createNotification);
-router.delete("/waitlists/notifications/:id", deleteNotification);
 
 export default router;
