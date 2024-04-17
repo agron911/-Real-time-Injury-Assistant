@@ -40,6 +40,12 @@ const UserSchema = new mongoose.Schema({
         required: false,
         default: [],
     },
+    waitlistRole: {
+        type: String,
+        required: true,
+        enum: ['undefined', 'citizen', 'provider'],
+    },
+
 })
 
 const userCollection = new mongoose.model('User', UserSchema);
