@@ -1,10 +1,8 @@
 import { connect, closeDatabase, clearDatabase } from './db-handler';
 import { hashPassword, comparePassword } from "../utils/passwordUtils.js";
 import DAO from '../model/dao.js';
-import { loginRegister } from '../controller/joinCommunity.js';
 import Citizen from '../model/user-Citizen.js';
-import {searchByPublicMessage, searchByPrivateMessages, searchPublicMessage} from '../controller/search_info.js';
-import {jest} from '@jest/globals';
+import e from 'express';
 /**
  * Connect to a new in-memory database before running any tests.
  */
@@ -342,4 +340,123 @@ describe('Search operation', () => {
     })
   
 
+})
+
+describe('Report First Aid Operations', () => {
+    test('Create and Get injury positive', async () => {
+        let username = 'dummy';
+        let reported = true;
+        let timestamp = new Date().toString();
+        let parts = 'torso';
+        let bleeding = true;
+        let numbness = false;
+        let conscious = true;
+        await DAO.getInstance().createInjury(username, reported, timestamp, parts, bleeding, numbness, conscious)
+        let injuries = await DAO.getInstance().getInjuryByUser(username)
+        expect(injuries.username).toBe(username)
+        expect(injuries.reported).toBe(reported)
+        expect(injuries.timestamp).toBe(timestamp)
+        expect(injuries.parts).toBe(parts)
+        expect(injuries.bleeding).toBe(bleeding)
+        expect(injuries.numbness).toBe(numbness)
+        expect(injuries.conscious).toBe(conscious)
+    })
+
+    test('Create and Get injury negative', async () => {
+        let username = 'dummy';
+        let injuries = await DAO.getInstance().getInjuryByUser(username)
+        expect(injuries).toBeNull()
+    })
+
+    test('Update injury positive', async () => {
+        let username = 'dummy';
+        let reported = true;
+        let timestamp = new Date().toString();
+        let parts = 'torso';
+        let bleeding = true;
+        let numbness = false;
+        let conscious = true;
+        await DAO.getInstance().createInjury(username, reported, timestamp, parts, bleeding, numbness, conscious)
+        await DAO.getInstance().updateInjury(username, new Date().toString(), 'legs', bleeding, numbness, conscious)
+        let injuries = await DAO.getInstance().getInjuryByUser(username)
+        expect(injuries.username).toBe(username)
+        expect(injuries.reported).toBe(reported)
+        expect(injuries.parts).toBe('legs')
+    })
+
+    test('Update injury negative', async () => {
+        let username = 'dummy';
+        let reported = true;
+        let timestamp = new Date().toString();
+        let parts = 'torso';
+        let bleeding = true;
+        let numbness = false;
+        let conscious = true;
+        await DAO.getInstance().createInjury(username, reported, timestamp, parts, bleeding, numbness, conscious)
+        await DAO.getInstance().updateInjury(username, new Date().toString(), 'legs', bleeding, numbness, conscious)
+        let injuries = await DAO.getInstance().getInjuryByUser(username)
+        expect(injuries.username).toBe(username)
+        expect(injuries.reported).toBe(reported)
+        expect(injuries.parts).not.toBe(parts)
+    })
+
+    test('Create waitlist positive', async () => {
+        let medname = 'dummy';
+        let description = 'dummy description';
+        await DAO.getInstance().createWaitlist(medname, description)
+        let waitlist = await DAO.getInstance().getWaitlistByName(medname)
+        expect(waitlist.name).toBe(medname)
+        expect(waitlist.description).toBe(description)
+    })
+
+    test('Create waitlist negative', async () => {
+        let medname = 'dummy';
+        let waitlist = await DAO.getInstance().getWaitlistByName(medname)
+        expect(waitlist).toBeNull()
+    })
+
+    test('Create multiple waitlist positive', async () => {
+        let medname = 'dummy';
+        let medname2 = 'dummy2';
+        let description = 'dummy description';
+        await DAO.getInstance().createWaitlist(medname, description)
+        await DAO.getInstance().createWaitlist(medname2, description)
+        let waitlists = await DAO.getInstance().getWaitlist()
+        expect(waitlists.length).toBe(2)
+        expect(waitlists[0].name).toBe(medname)
+        expect(waitlists[1].name).toBe(medname2)
+    })
+
+    test('Join waitlist positive', async () => {
+        let medname = 'dummy';
+        let description = 'dummy description';
+        await DAO.getInstance().createWaitlist(medname, description)
+        let username = 'dummy user';
+        let timestamp = new Date().toString();
+        await DAO.getInstance().addCitizenToWaitlist(medname, username, timestamp)
+        let waitlist = await DAO.getInstance().getWaitlistByName(medname)
+        expect(waitlist.citizens.length).toBe(1)
+        expect(waitlist.citizens[0].username).toBe(username)
+    })
+
+    test('Remove waitlist negative', async () => {
+        let medname = 'dummy';
+        let description = 'dummy description';
+        await DAO.getInstance().createWaitlist(medname, description)
+        let username = 'dummy user';
+        let timestamp = new Date().toString();
+        await DAO.getInstance().removeCitizenFromWaitlist(medname, 'test')
+        await DAO.getInstance().addCitizenToWaitlist(medname, username, timestamp)
+        let waitlist = await DAO.getInstance().getWaitlistByName(medname)
+        expect(waitlist.citizens[0].username).not.toBe('test')
+    })
+
+    test('Empty waitlist positive', async () => {
+        let medname = 'dummy';
+        let description = 'dummy description';
+        await DAO.getInstance().createWaitlist(medname, description)
+        await DAO.getInstance().emptyCitizensByName(medname)
+        let waitlist = await DAO.getInstance().getWaitlistByName(medname)
+        expect(waitlist.citizens.length).toBe(0)
+    })
 })
