@@ -384,7 +384,68 @@ describe('Test Search Info API', () => {
 
 })
 
+// describe("Test First Aid API", () => {
+//     test('/Get Injuries positive', async () => {
+//         let username = 'dummy';
+//         let reported = true;
+//         let timestamp = new Date().toString();
+//         let parts = 'torso';
+//         let bleeding = true;
+//         let numbness = false;
+//         let conscious = true;
+//         await DAO.getInstance().createInjury(username, reported, timestamp, parts, bleeding, numbness, conscious)
+//         const response = await request(Server.instance.httpServer).get("/injuries/" + username);
+//         expect(response.statusCode).toBe(200);
+//         expect(response.body.injury.username).toBe(username);
+//     })
 
+//     test('/Get Injuries positive', async () => {
+//         let username = 'dummy';
+//         let reported = true;
+//         let timestamp = new Date().toString();
+//         let parts = 'torso';
+//         let bleeding = true;
+//         let numbness = false;
+//         let conscious = true;
+//         await DAO.getInstance().createInjury(username, reported, timestamp, parts, bleeding, numbness, conscious)
+//         const response = await request(Server.instance.httpServer).get("/injuries/" + username);
+//         expect(response.statusCode).toBe(200);
+//         expect(response.body.injury.parts).toBe(parts);
+//     })
+
+//     test('/Get Injuries negative', async () => {
+//         jest.spyOn(DAO.getInstance(), 'getInjuryByUser').mockImplementation(() => { throw new Error() });
+//         const response = await request(Server.instance.httpServer).get("/injuries/" + `username`);
+//         expect(response.statusCode).toBe(400);
+//     })
+
+// })
+
+// describe("Test Waitlists API", () => {
+//     test('/Get Waitlist citizens', async () => {
+//         let medname = 'dummy';
+//         let description = 'dummy description';
+//         await DAO.getInstance().createWaitlist(medname, description)
+//         const response = await request(Server.instance.httpServer).get("/waitlists/citizens/:username" + `username`);
+//         expect(response.statusCode).toBe(200);
+//     })
+
+//     test('/Get Waitlist citizens', async () => {
+//         let medname = 'dummy';
+//         let description = 'dummy description';
+//         await DAO.getInstance().createWaitlist(medname, description)
+//         const response = await request(Server.instance.httpServer).get("/waitlists/citizens/:username" + `username`);
+//         expect(response.body.waitlists[0].name).toBe(medname);
+//     })
+
+//     test('/Get Waitlist citizens', async () => {
+//         jest.spyOn(DAO.getInstance(), 'getWaitlist').mockImplementation(() => { throw new Error() });
+//         const response = await request(Server.instance.httpServer).get("/waitlists/citizens/:username" + `username`);
+//         expect(response.statusCode).toBe(400);
+//     })
+
+
+// })
 describe('Emergency services', ()=>{
     
     test("/Get emergencyServices", async () => {

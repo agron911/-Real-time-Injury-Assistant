@@ -32,6 +32,10 @@ export const setupSocket = (server) => {
             console.log(error)
           }
     })
+    socket.on("joinRoom", async(room) => {
+      socket.join(room);
+      console.log(socket.id ,"Joined room", room);
+    });
 
 
   });

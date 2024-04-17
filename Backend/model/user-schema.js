@@ -34,7 +34,12 @@ const UserSchema = new mongoose.Schema({
     esp: {
         type: Boolean,
         required: true,
-    }
+    },
+    waitlistRole: {
+        type: String,
+        required: true,
+        enum: ['undefined', 'citizen', 'provider'],
+    },
 
 })
 

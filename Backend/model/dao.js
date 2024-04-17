@@ -4,6 +4,9 @@ import messageCollection from "./message-schema.js";
 import requestCollection from "./request-schema.js";
 import UserFactory from './userFactory.js'; 
 import { stopWords } from '../utils/user-config.js';
+import injuryCollection from "./injury-schema.js";
+import waitlistCollection from "./waitlist-schema.js";
+import notificationCollection from "./notification-schema.js";
 
 class DAO {
 
@@ -86,7 +89,7 @@ class DAO {
             }
             console.log('before',userSchemaObject);
             const user = await userCollection.create(userSchemaObject);
-            console.log('createdkk',user);
+            const injury = await injuryCollection.create({ username: username, reported: false });
             return user;
         } catch (err) {
             console.error("insert failed", err);
@@ -141,7 +144,7 @@ class DAO {
             if (msg.length === 0) {
                 return null;
             }            
-            var result = await messageCollection.find({ content: new RegExp(message), receiver: "all"}).sort({ timestamp: -1, username: 1 }).limit(limit);
+            var result = await messageCollection.find({ content: new RegExp(message), receiver: "all"}).sort({ timestamp: 1, username: 1 }).limit(limit);
             return result;
         } catch(err) {
             throw new Error("Search did not find results with specified parameters:", err);
@@ -154,7 +157,7 @@ class DAO {
             if (msg.length === 0) {
                 return null;
             }
-            var result = await messageCollection.find({content: new RegExp(announcement), receiver: "announcement"}).sort({timestamp:-1}).limit(limit);
+            var result = await messageCollection.find({content: new RegExp(announcement), receiver: "announcement"}).sort({timestamp:1}).limit(limit);
             return result;
         } catch(err) {
 
@@ -168,7 +171,7 @@ class DAO {
             if (msg.length === 0) {
                 return null;
             }
-            var result = await messageCollection.find({content: new RegExp(message), receiver:{ $in: [sender, receiver]}, username: {$in:[receiver, sender]}}).sort({ timestamp: -1}).limit(limit)
+            var result = await messageCollection.find({content: new RegExp(message), receiver:{ $in: [sender, receiver]}, username: {$in:[receiver, sender]}}).sort({ timestamp: 1}).limit(limit)
             return result
         } catch(err) {
 

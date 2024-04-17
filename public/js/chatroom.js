@@ -10,6 +10,7 @@ let PUBLIC_SEARCH_COUNTER = 1;
 let ANNOUNCEMENT_SEARCH_COUNTER = 1
 let PRIVATE_SEARCH_COUNTER = 1;
 
+
 const getPrivateMessages = async (otherUsername) => {
   if (SUSPEND_NORMAL_OPERATION) return [];
   const currentUsername = localStorage.getItem("username");
@@ -751,4 +752,6 @@ function searchMessages() {
     }
   }
 }
+
+
 

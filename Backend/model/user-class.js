@@ -74,6 +74,7 @@ class User {
             acknowledged: false, 
             usertype: this.usertype,
             esp: this.esp,
+            waitlistRole: 'undefined',
         };
     }
 }
