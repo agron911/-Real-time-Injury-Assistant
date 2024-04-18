@@ -1,66 +1,10 @@
 
 url = ""
 
-function displayFacilityInfo(facilityName) {
-    var facilityInfo = document.getElementById('facility-info');
-    document.getElementById('facilities-container').style.display = 'none';
-    document.getElementById('search-results-container').style.display = 'none';
-    navigator.geolocation.getCurrentPosition(function(position) {
-        const latitude = position.coords.latitude;
-        const longitude = position.coords.longitude;
-        localStorage.setItem('latitude', latitude);
-        localStorage.setItem('longitude', longitude);
-    },{enableHighAccuracy: true});
-    facilityInfo.style.display = "block";
-    const fname = facilityName.replace(/\s+/g, '-');
-    fetch(url+"/facilities/"+fname, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json; charset=UTF-8'
-        },
-    }).then(response =>{
-        return response.json()
-    }).then(facility=>{
-        initMap();
-        const distance = calculateDistance(facility.latitude, facility.longitude);
-    facilityInfo.innerHTML = `
-      <strong>Name:</strong> ${facility.name.replace()}<br>
-      <strong>Address:</strong> ${facility.address}<br>
-      <strong>Type:</strong> ${facility.type}<br>
-      <strong> Hours:</strong> ${facility.hours}<br>
-      <strong> Distance:</strong> ${Math.ceil(distance*10)/10} miles
-      <div id="map-container"></div>
-      <button id="delete-facility-button" type="button"  onclick="deleteFacility('${facility.name.replace(/\s+/g, '-')}')">Report This Facility Closed</button>
-      <button id="edit-facility-button" type="button" , onclick="displayEditFacility('${facility.name}','${facility.hours}')">Edit</button>
-    `;
-    let mapdiv = document.getElementById('map-container');
-    mapdiv.style.display = 'block';
-    var map = new google.maps.Map(document.getElementById('map-container'), {
-        center: {lat: facility.latitude, lng: facility.longitude},
-        zoom: 10 // Adjust zoom level as needed
-    });
-    
-    var marker = new google.maps.Marker({
-        position: {lat: facility.latitude, lng: facility.longitude},
-        map: map,
-        title: facility.name
-    });
-    marker.setMap(map)
-    })
-    
-}
-
-async function deleteFacility(fname){
-    await fetch(url+"/facilities?fname="+fname,{
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json; charset=UTF-8'
-        },
-    })
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Send a GET request on page load
+function displayfacilities(){
+    document.getElementById("facilities-list").innerHTML=''
+    hideContainers('facilities-container');
+    toggleContainer("facilities");
     fetch('/facilities/directory',{
         method:'GET',
         headers: {
@@ -112,6 +56,71 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(error => {
             console.error('Error fetching data:', error);
         });
+}
+
+function displayFacilityInfo(facilityName) {
+    var facilityInfo = document.getElementById('facility-info');
+    //document.getElementById('facilities-container').style.display = 'none';
+    document.getElementById('search-results-container').style.display = 'none';
+    navigator.geolocation.getCurrentPosition(function(position) {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        localStorage.setItem('latitude', latitude);
+        localStorage.setItem('longitude', longitude);
+    },(error)=>{
+        console.log("Error while loading facility info: "+error)
+    },{enableHighAccuracy: true});
+    facilityInfo.style.display = "block";
+    const fname = facilityName.replace(/\s+/g, '-');
+    fetch(url+"/facilities/"+fname, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json; charset=UTF-8'
+        },
+    }).then(response =>{
+        return response.json()
+    }).then(facility=>{
+        initMap();
+        const distance = calculateDistance(facility.latitude, facility.longitude);
+    facilityInfo.innerHTML = `
+      <strong>Name:</strong> ${facility.name.replace()}<br>
+      <strong>Address:</strong> ${facility.address}<br>
+      <strong>Type:</strong> ${facility.type}<br>
+      <strong> Hours:</strong> ${facility.hours}<br>
+      <strong> Distance:</strong> ${Math.ceil(distance*10)/10} miles
+      <div id="map-container"></div>
+      <button id="delete-facility-button" type="button"  onclick="deleteFacility('${facility.name.replace(/\s+/g, '-')}')">Report This Facility Closed</button>
+      <button id="edit-facility-button" type="button" , onclick="displayEditFacility('${facility.name}','${facility.hours}')">Edit</button>
+    `;
+    let mapdiv = document.getElementById('map-container');
+    mapdiv.style.display = 'block';
+    var map = new google.maps.Map(document.getElementById('map-container'), {
+        center: {lat: facility.latitude, lng: facility.longitude},
+        zoom: 10 // Adjust zoom level as needed
+    });
+    
+    var marker = new google.maps.Marker({
+        position: {lat: facility.latitude, lng: facility.longitude},
+        map: map,
+        title: facility.name
+    });
+    marker.setMap(map)
+    })
+    
+}
+
+async function deleteFacility(fname){
+    await fetch(url+"/facilities?fname="+fname,{
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json; charset=UTF-8'
+        },
+    })
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Send a GET request on page load
+    displayfacilities()
 });
 
 
@@ -155,6 +164,7 @@ async function searchFacilities(){
     var injury_type = document.getElementById('injury-type').value.replace(/\s+/g, '-');
     var mobility = document.getElementById('mobility').value;
     document.getElementById('search-results-container').style.display = 'block';
+    document.getElementById("search-results-container").innerHTML='';
     document.getElementById('search-container').style.display = 'none';
     fetch(url+"/facility/search?description="+injury_type+"&mobility="+mobility,{
         method:'GET',
@@ -164,8 +174,9 @@ async function searchFacilities(){
     }).then(response=>{
         return response.json()
     }).then(facilities=>{
-        facilities.forEach(facility => {
+        facilities.searchresult.forEach(facility => {
             facilitiesContainer = document.getElementById("search-results-container");
+            ;
             const facilityDiv = document.createElement('div');
             facilityDiv.classList.add('facility');
             const nameElement = document.createElement('h2');
@@ -282,7 +293,11 @@ async function editFacility(){
 
 function hideContainers(display){
     document.getElementById('facilities-container').style.display = "none";
-    document.getElementById('information-container').style.display = "none";
+    if($(window).width()<768){
+        document.getElementById('information-container').style.display = "none";
+    }
+    
+    document.getElementById('search-results-container').style.display = "none";
     document.getElementById('search-container').style.display = "none";
     document.getElementById('add-facility-container').style.display = "none";
     document.getElementById('edit-facility-container').style.display = "none";

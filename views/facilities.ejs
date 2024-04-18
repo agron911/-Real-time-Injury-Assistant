@@ -8,12 +8,12 @@
     <%- include ('partials/overlay'); %>  
 </head>
 <body>
-    <div class="dropdown d-sm-none"> <!-- d-sm-none class hides the menu on screens larger than small -->
+    <div class="dropdown show"> <!-- d-sm-none class hides the menu on screens larger than small -->
         <button class="btn btn-primary dropdown-toggle" type="button" id="toggleMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-labelledby="toggleMenu">
           Menu
         </button>
         <div class="dropdown-menu" aria-labelledby="toggleMenu">
-          <a class="dropdown-item" href="#" onclick="toggleContainer('facilities')">Facilities</a>
+          <a class="dropdown-item" href="#" onclick="displayfacilities()">Facilities</a>
           <a class="dropdown-item" href="#" onclick="toggleContainer('information')">Information</a>
           <a class="dropdown-item" href="#" onclick="toggleContainer('search')">Search</a>
         </div>
@@ -118,7 +118,7 @@
                 <label for="hours">Hours:</label>
                 <input type="text" id="hours-change" name="hours" >
             </div>
-            <button id="edit-submmit" onclick="editFacility()">Submit Edit</button>
+            <button id="edit-submmit" onclick="editFacility()">Submit Edit</button
           </div>
         </div>
     </div>

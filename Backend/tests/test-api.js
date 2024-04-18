@@ -350,8 +350,7 @@ describe('Test Search Info API', () => {
         }
         await request(Server.instance.httpServer).post("/users").send(data);
         await request(Server.instance.httpServer).put("/user/status/agron").send({ status: 'ok' });
-        const response = await request(Server.instance.httpServer).get("/users/status/search?status=ok");
-        expect(response.statusCode).toBe(200);
+        const response = await request(Server.instance.httpServer).get("/users/status/search?status=ok").expect(response.statusCode).toBe(200);
         console.log(response.body);
         expect(response.body.search_result[0].username).toBe('agron');
     })
@@ -389,7 +388,7 @@ describe("Facilities operations tests", ()=>{
             longitude: -122.34567,
             hours:"24/7"
         }
-        let response = await request(Server.instance.httpServer).post("/facilities/newfacility").send(data)
+        await request(Server.instance.httpServer).post("/facilities/newfacility").send(data)
         expect(response.statusCode).toBe(401);
     })
     test("Facility inside of Santa Clara County added", async()=>{

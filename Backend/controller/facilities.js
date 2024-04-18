@@ -8,9 +8,6 @@ export const Facilities = async (req, res)=>{
     res.render('facilities', {data})
 }
 
-
-
-
 export const addFacility = async (req, res)=>{
     try{
         const facilityname = req.body.name;
@@ -44,7 +41,7 @@ export const getFacilityByName = async(req, res)=>{
     try{
         console.log("searching")
         const facilities = await DAO.getInstance().getFacility(req.params.facilityname);
-        res.status(200).send({searchresult:facilities});
+        res.status(200).send(facilities);
     }catch(err){
         res.status(400).send(err);
     }
