@@ -1026,3 +1026,8 @@ function closeNavbar() {
   });
   bsCollapse.hide();
 }
+
+const loadFacilities = async ()=>{
+  window.location.href='/facilities'
+  console.log("here")
+}

@@ -3,6 +3,7 @@ import userCollection from "./user-schema.js"
 import messageCollection from "./message-schema.js";
 import requestCollection from "./request-schema.js";
 import UserFactory from './userFactory.js'; 
+import facilityCollection from "./Facility-schema.js";
 import { stopWords } from '../utils/user-config.js';
 import injuryCollection from "./injury-schema.js";
 import waitlistCollection from "./waitlist-schema.js";
@@ -436,8 +437,230 @@ class DAO {
             throw new Error("Create message error: ", err);
         }
     }
+    addFacility = async(facilityname, facilitylatitude, facilitylongitude, facilitytype, facilityaddress, facilityHours)=>{
+        const santaClaraCountyBoundary = {
+            north: 37.7186, // Adjusted to positive latitude
+            south: 36.9034, // Adjusted to positive latitude
+            east: -121.3716, // Adjusted to negative longitude
+            west: -122.1291, // Adjusted to negative longitude
+        };
+        
+        function isInSantaClaraCounty(latitude, longitude) {
+            console.log(latitude)
+            console.log(longitude)
+            if (
+                latitude >= santaClaraCountyBoundary.south &&
+                latitude <= santaClaraCountyBoundary.north &&
+                longitude >= santaClaraCountyBoundary.west &&
+                longitude <= santaClaraCountyBoundary.east
+            ) {
+                console.log("true")
+                return true;
+            } else {
+                console.log("false")
+                return false;
+            }
+        }
+        try{
+            let check = await facilityCollection.find({ name: facilityname}); 
+            if(check.length ==0 && isInSantaClaraCounty(facilitylatitude, facilitylongitude)){
+                const facility = await facilityCollection.insertMany({ name: facilityname, latitude: facilitylatitude, longitude: facilitylongitude, type: facilitytype, address:facilityaddress, hours:facilityHours });
+            return facility;
+            }
+            else{
+                return ;
+            }
+            
+        }catch(err){
+            console.log(err)
+        }
+    }
+    getFacilities = async()=>{
+        const facilities = await facilityCollection.find({})
+        return facilities
+    }
+    getFacility = async(facilityname)=>{
+        const facility = await facilityCollection.findOne({name: facilityname})
+        return facility
+    }
+    searchFacility = async(description, mobility)=>{
+        console.log("searching facilities...");
+        if(description === "Open-Wound"|| description ==="Difficulty-Breathing"){
+            return await facilityCollection.find({type:"Emergency Room"});
+        }else if((description ==="Sprain"|| description==="Limb-Pain"||description ==="Head-Injury") && mobility ==="No"){
+            return await facilityCollection.find({type:"Urgent Care"});
+        }
+        else{
+            return await facilityCollection.find({type:"Emergency Room"});
+        }
+    }
+    deleteFacility = async(fname)=>{
+        try{
+            await facilityCollection.updateOne({name:fname},{
+                $set:{reportedclosed:true}
+            })
+            return
+        }catch(err){
+            throw new Error("Delete Facility Error: ", err)
+        }
+        
+    }
+
+    updateFacilityInfo = async(name, hours)=>{
+        try{
+            await facilityCollection.updateOne({name:name},{
+                $set:{hours:hours}
+            })
+            return;
+        }catch(err){
+            throw new Error("Update Facility Info Error: ", err)
+        }
+        
+    }
+
+    // Create a new request
+    createRequest = async (requestData) => {
+        try {
+            const newRequest = new requestCollection(requestData);
+            const reqObj = await newRequest.save();
+            return reqObj;
+        } catch (error) {
+            throw new Error(`Error creating request`);
+        }
+    };
+
+    getRequestsByUsername = async (username) => {
+        try {        
+            const requests = await requestCollection.find({ username: { $eq: username } });
+            return requests;
+        } catch (error) {
+            throw new Error(`Error getting requests: ${error.message}`);
+        }
+    }
     
+
+    getRequestsByStatus = async (statuses) =>{
+        try {        
+            const requests = await requestCollection.find({ status: { $in: statuses } });
+            return requests;
+        } catch (error) {
+            throw new Error(`Error getting requests: ${error.message}`);
+        }
+    }
+// Update an existing request by ID
+    updateRequest = async (requestId, updatedData) => {
+        try {
+            const updatedRequest = await requestCollection.findByIdAndUpdate(
+                requestId,
+                updatedData,
+                { new: true } // Return the updated document
+            );
+            if (!updatedRequest) {
+                throw new Error('Request not found');
+            }
+            return updatedRequest;
+        } catch (error) {
+            throw new Error(`Error updating request: ${error.message}`);
+        }
+    };
+
+    // Remove a request by ID
+    removeRequest = async (requestId) => {
+        try {
+            await requestCollection.findByIdAndDelete(requestId);
+        } catch (error) {
+            throw new Error(`Error removing request: ${error.message}`);
+        }
+    };
+
+    getRequestById = async (requestId) => {
+        try {
+            const req = await requestCollection.findById(requestId);
+            if(!req) throw new Error('Request not found');
+            return req;
+        } catch (error) {
+            throw new Error(`Request not found`);
+        }
+    };
+    CheckGroupConfirmation = async (group, username) => {
+        try {
+            // confirmGroup storse a list of users who have confirmed the group
+            const user = await userCollection.findOne({ username: username, confirmGroup: { $in: [group] } });
+            return user ? true : false;
+        } catch (err) {
+            console.error(err);
+            return false;
+        }
+    }
+
+    ConfirmGroup = async (group, username) => {
+        try {
+            const updateResult = await userCollection.findOneAndUpdate(
+                { username: username },
+                { $addToSet: { confirmGroup: group } },
+                { new: true }
+            );
+            return updateResult ? true : false;
+        } catch (err) {
+            return false;
+        }
+    }
+
+    getAllGroupMessages = async (group) => {
+        try {
+            const msgs = await messageCollection.find({ receiver: group });
+            return msgs;
+        } catch (err) {
+            console.error("Get all group messages error:", err);
+            return [];
+        }
+    }
+
+    getGroupUsers = async (group) => {
+        try {
+            const groupUsers = await userCollection.find(
+                { confirmGroup: { $in: group } }
+            );
+            return groupUsers;
+        } catch (err) {
+            console.error("Get all group messages error:", err);
+            return [];
+        }
+    }
+    getSpecialists = async (group) => {
+        try {
+            const Specialists = await userCollection.find(
+                { specialist: { $in: group }, specialist: { $exists: true, $ne: [] } }
+                
+            ).lean();
+            const specialists = Specialists.map(specialist => specialist.username);
+
+            return specialists;
+        } catch (err) {
+            return [];
+        }
+    }
+
+    deleteMessageById = async (id) => {
+        try {
+            await messageCollection.findByIdAndDelete(id);
+            return true;
+        } catch (err) {
+            console.error(err);
+            return false;
+        }
+    }
+    createGroupMessage = async (username, content, timestamp, status, receiver, viewed, group) => {
+        try {
+            const msg = await messageCollection.insertMany({ username: username, content: content, timestamp: timestamp, status: status, receiver: receiver, viewed: viewed, group: group });
+            return msg;
+        } catch (err) {
+            throw new Error("Create message error: ", err);
+        }
+    }
 }
+    
+
 
 export default DAO;
 

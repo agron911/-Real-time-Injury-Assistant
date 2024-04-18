@@ -8,6 +8,7 @@
                     data-bs-toggle="dropdown" aria-expanded="false">
                     Status
                 </button>
+                
                 <ul class="dropdown-menu">
                     <li class="menu-item dropdown-item" onclick="changeStatus('ok')">
                         <div class="" href="#">Ok</div>
@@ -42,7 +43,9 @@
                 <button class="btn btn-outline-primary my-2 my-sm-0" onclick="navigateToEmergencyServices(); closeNavbar() " id="navigate-to-es-btn">
                     Emergency Services
                 </button>
-             
+                <button style="background-color: transparent; color:blue" id = 'faciliites-button' class='btn btn-secondary' type='button', onclick = "loadFacilities()">
+                    Facilities
+                </button>
 
                 <button class="btn btn-outline-primary" onclick="logout(); closeNavbar() " id="toggle-btn">Logout</button>
             </div>

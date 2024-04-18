@@ -355,8 +355,7 @@ describe('Test Search Info API', () => {
         }
         await request(Server.instance.httpServer).post("/users").send(data);
         await request(Server.instance.httpServer).put("/user/status/agron").send({ status: 'ok' });
-        const response = await request(Server.instance.httpServer).get("/users/status/search?status=ok");
-        expect(response.statusCode).toBe(200);
+        const response = await request(Server.instance.httpServer).get("/users/status/search?status=ok").expect(response.statusCode).toBe(200);
         console.log(response.body);
         expect(response.body.search_result[0].username).toBe('agron');
     })
@@ -384,6 +383,98 @@ describe('Test Search Info API', () => {
 
 })
 
+describe("Facilities operations tests", ()=>{
+    test("Facility outside of Santa Clara County not added", async()=>{
+        let data = {
+            name:"Name1",
+            address:"Address1",
+            type:"Emergency Room",
+            latitude: 38.97089,
+            longitude: -122.34567,
+            hours:"24/7"
+        }
+        await request(Server.instance.httpServer).post("/facilities/newfacility").send(data)
+        expect(response.statusCode).toBe(401);
+    })
+    test("Facility inside of Santa Clara County added", async()=>{
+        let data = {
+            name:"Name1",
+            address:"Address1",
+            type:"Emergency Room",
+            latitude: 37.362037,
+            longitude: -121.848599,
+            hours:"24/7"
+        }
+        let response = await request(Server.instance.httpServer).post("/facilities/newfacility").send(data)
+        expect(response.statusCode).toBe(200);
+    })
+    test("Facility updated info is properly updated", async()=>{
+        let data = {
+            name:"Name1",
+            address:"Address1",
+            type:"Emergency Room",
+            latitude: 37.362037,
+            longitude: -121.848599,
+            hours:"24/7"
+        }
+        await request(Server.instance.httpServer).post("/facilities/newfacility").send(data)
+        await request(Server.instance.httpServer).patch("/facilities/newinfo").send({name:"Name1", hours:"newhrs"})
+        let result = await request(Server.instance.httpServer).get("/facilities/Name1").send()
+        expect(result.body.searchresult.hours).toBe("newhrs");
+
+    })
+    test("Can get facility by name", async()=>{
+        let data = {
+            name:"Name1",
+            address:"Address1",
+            type:"Emergency Room",
+            latitude: 37.362037,
+            longitude: -121.848599,
+            hours:"24/7"
+        }
+        await request(Server.instance.httpServer).post("/facilities/newfacility").send(data)
+        let result = await request(Server.instance.httpServer).get("/facilities/Name1").send()
+        expect(result.body.searchresult.name).toBe("Name1");
+    })
+    test("Facility delete request is submited and noted in the database", async()=>{
+        let data = {
+            name:"Name1",
+            address:"Address1",
+            type:"Emergency Room",
+            latitude: 37.362037,
+            longitude: -121.848599,
+            hours:"24/7"
+        }
+        await request(Server.instance.httpServer).post("/facilities/newfacility").send(data)
+        await request(Server.instance.httpServer).delete("/facilities?fname=Name1").send()
+        let result = await request(Server.instance.httpServer).get("/facilities/Name1").send()
+        expect(result.body.searchresult.reportedclosed).toBe(true);
+    })
+    test("Search facilities for injuries requiring emergency room", async()=>{
+        let data = {
+            name:"Name1",
+            address:"Address1",
+            type:"Emergency Room",
+            latitude: 37.362037,
+            longitude: -121.848599,
+            hours:"24/7"
+        }
+        await request(Server.instance.httpServer).post("/facilities/newfacility").send(data)
+        let data2 = {
+            name:"Name2",
+            address:"Address2",
+            type:"Urgent Care",
+            latitude: 37.362033,
+            longitude: -121.848511,
+            hours:"24/7"
+        }
+        await request(Server.instance.httpServer).post("/facilities/newfacility").send(data2)
+        let results = await request(Server.instance.httpServer).get("/facility/search?description=Open-Wound&mobility=No").send()
+        expect(results.body.searchresult[0].type).toBe("Emergency Room")
+    })
+    
+
+})
 // describe("Test First Aid API", () => {
 //     test('/Get Injuries positive', async () => {
 //         let username = 'dummy';
@@ -632,3 +723,95 @@ describe("Counsel Group API", () => {
         console.log(del_message.body);
     });
 });
+describe("Facilities operations tests", ()=>{
+    test("Facility outside of Santa Clara County not added", async()=>{
+        let data = {
+            name:"Name1",
+            address:"Address1",
+            type:"Emergency Room",
+            latitude: 38.97089,
+            longitude: -122.34567,
+            hours:"24/7"
+        }
+        await request(Server.instance.httpServer).post("/facilities/newfacility").send(data)
+        expect(response.statusCode).toBe(401);
+    })
+    test("Facility inside of Santa Clara County added", async()=>{
+        let data = {
+            name:"Name1",
+            address:"Address1",
+            type:"Emergency Room",
+            latitude: 37.362037,
+            longitude: -121.848599,
+            hours:"24/7"
+        }
+        let response = await request(Server.instance.httpServer).post("/facilities/newfacility").send(data)
+        expect(response.statusCode).toBe(200);
+    })
+    test("Facility updated info is properly updated", async()=>{
+        let data = {
+            name:"Name1",
+            address:"Address1",
+            type:"Emergency Room",
+            latitude: 37.362037,
+            longitude: -121.848599,
+            hours:"24/7"
+        }
+        await request(Server.instance.httpServer).post("/facilities/newfacility").send(data)
+        await request(Server.instance.httpServer).patch("/facilities/newinfo").send({name:"Name1", hours:"newhrs"})
+        let result = await request(Server.instance.httpServer).get("/facilities/Name1").send()
+        expect(result.body.searchresult.hours).toBe("newhrs");
+
+    })
+    test("Can get facility by name", async()=>{
+        let data = {
+            name:"Name1",
+            address:"Address1",
+            type:"Emergency Room",
+            latitude: 37.362037,
+            longitude: -121.848599,
+            hours:"24/7"
+        }
+        await request(Server.instance.httpServer).post("/facilities/newfacility").send(data)
+        let result = await request(Server.instance.httpServer).get("/facilities/Name1").send()
+        expect(result.body.searchresult.name).toBe("Name1");
+    })
+    test("Facility delete request is submited and noted in the database", async()=>{
+        let data = {
+            name:"Name1",
+            address:"Address1",
+            type:"Emergency Room",
+            latitude: 37.362037,
+            longitude: -121.848599,
+            hours:"24/7"
+        }
+        await request(Server.instance.httpServer).post("/facilities/newfacility").send(data)
+        await request(Server.instance.httpServer).delete("/facilities?fname=Name1").send()
+        let result = await request(Server.instance.httpServer).get("/facilities/Name1").send()
+        expect(result.body.searchresult.reportedclosed).toBe(true);
+    })
+    test("Search facilities for injuries requiring emergency room", async()=>{
+        let data = {
+            name:"Name1",
+            address:"Address1",
+            type:"Emergency Room",
+            latitude: 37.362037,
+            longitude: -121.848599,
+            hours:"24/7"
+        }
+        await request(Server.instance.httpServer).post("/facilities/newfacility").send(data)
+        let data2 = {
+            name:"Name2",
+            address:"Address2",
+            type:"Urgent Care",
+            latitude: 37.362033,
+            longitude: -121.848511,
+            hours:"24/7"
+        }
+        await request(Server.instance.httpServer).post("/facilities/newfacility").send(data2)
+        let results = await request(Server.instance.httpServer).get("/facility/search?description=Open-Wound&mobility=No").send()
+        expect(results.body.searchresult[0].type).toBe("Emergency Room")
+    })
+    
+
+})

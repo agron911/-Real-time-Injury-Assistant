@@ -60,6 +60,7 @@ header, #messageForm {
     background-color: rgb(251, 58, 58);
 }
 
+
 #chatroom {
     position: relative;
     overflow: hidden;
@@ -305,4 +306,7 @@ header, #messageForm {
     position: absolute;
     top: 40%;
     right: 45%;
+}
+#facilities-button{
+    background-color: transparent;
 }

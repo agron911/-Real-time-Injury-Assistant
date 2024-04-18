@@ -13,6 +13,7 @@ import { createRequest, getRequests, updateRequest, deleteRequest, getRequest } 
 import { firstaidView, loadInjuryByUsernames, receiveInjury, createChatMsg} from '../controller/seekFirstAid.js';
 import { createNotification, getNotificationByUsername, handleGetStockSupply, newWaitlist, getWaitlistRole, waitlistCitizenView, waitlistElectView, waitlistProviderView, setWaitlistRole, getWaitlist, joinWaitlist, leaveWaitlist, getWaitlistDetails, handleSupplyWaitlist, deleteNotification} from '../controller/manageWaitlists.js';
 import { loadGroupMessages, receiveGroupMessage, CheckConfirmation, ConfirmGroup, getSpecialists, editGroupMessage, deleteGroupMessage} from '../controller/counselGroup.js';
+import { Facilities, addFacility, getAllFacilities, getFacilityByName, searchFacility, deleteFacility, updateFacilityInfo } from '../controller/facilities.js';
 const router = express.Router();
 
 router.get("/", HomeView);
@@ -91,5 +92,12 @@ router.post("/chatrooms/:group", receiveGroupMessage);
 router.put("/chatrooms/:group/:messageId", editGroupMessage);
 router.delete("/chatrooms/:group/:messageId", deleteGroupMessage);
 
+router.get("/facilities", Facilities)
+router.get("/facilities/directory", getAllFacilities);
+router.post("/facilities/newfacility", addFacility);
+router.get("/facilities/:facilityname", getFacilityByName);
+router.get("/facility/search", searchFacility)
+router.delete("/facilities", deleteFacility)
+router.patch("/facilities/newinfo", updateFacilityInfo)
 
 export default router;
