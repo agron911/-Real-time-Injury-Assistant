@@ -23,6 +23,7 @@ export const setupSocket = (server) => {
       console.log("Socket disconnected", socket.id, MainServer.instance.testSocketID);
     });
     
+    
 
     socket.on("chat message", async (data)=>{
           try{
@@ -31,6 +32,10 @@ export const setupSocket = (server) => {
             console.log(error)
           }
     })
+    socket.on("joinRoom", async(room) => {
+      socket.join(room);
+      console.log(socket.id ,"Joined room", room);
+    });
 
 
   });

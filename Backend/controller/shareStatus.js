@@ -10,7 +10,7 @@ export const updateUserStatus = async (req, res) =>{
     try{
         res.status(200).send({message: "status updated"});
     }catch(err){
-        res.status(400).send({message: "Failed to update status"});
+        res.status(400).send({message: "Failed to update status"+err.message});
     }
     
 }

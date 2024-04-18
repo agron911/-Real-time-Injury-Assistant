@@ -1,6 +1,7 @@
 import { hashPassword, comparePassword } from "../utils/passwordUtils.js"
 import DAO from "../model/dao.js"
 import User from "../model/user-class.js";
+import Citizen from "../model/user-Citizen.js";
 
 
 // Define the route handler functions
@@ -30,7 +31,9 @@ export async function loginRegister(user_data){
             password: user_data.password
         };
         const hashed_password = await hashPassword(data.password);
-        const userdata = await DAO.getInstance().createUser(data.username, hashed_password, "undefined");
+        const citizen = new Citizen(data.username, hashed_password, "undefined", false);
+        citizen.save();
+        // const userdata = await DAO.getInstance().createUser(data.username, hashed_password, "undefined");
         // res.status(202).send({ data });
         return data;
     } else {

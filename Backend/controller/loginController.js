@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import { addActiveUser, deActivateUser, isUserActive, removeSocketAndgetUserName } from '../model/ActiveUser.js';
 import { io } from "../utils/socketSetup.js";
 import DAO from '../model/dao.js';
+import Citizen from '../model/user-Citizen.js';
 
 export const loginOrLogout = async (req, res) => {
     const isOnline = req.body.isOnline
@@ -41,14 +42,13 @@ export const logout = async (req, res) => {
 
 export const registerUserSocket = async (req, res) => {
     const username = req.params.username;
-    
     const user = await DAO.getInstance().getUserByName(username);
     if (user) {
-        await addActiveUser(username, req.body.socketId);
+        await addActiveUser(username, req.body.socketId, req.body.esp?true:false);
         await DAO.getInstance().updateUserOnline(username);
         const users = await DAO.getInstance().getAllUsers();
         io.emit('updateUserList', users );
-
+        
         res.status(200).send({});
     } else {
         res.status(404).send({ message: 'User not found' });
@@ -79,3 +79,11 @@ export const getUsers = async (req, res) => {
     }
 }
 
+export const getUser = async (req, res) => {
+    try{
+        const citizen = await Citizen.retrieveUserByUsername(req.params.username);
+        res.status(200).send(citizen.getSchemaObject());
+    } catch (error) {
+        res.status(404).send(error.message);
+    }
+}
