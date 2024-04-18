@@ -514,3 +514,121 @@ describe('Emergency services', ()=>{
         expect(response.body[1].id).toBe(request2.body.id);
     })
 })
+
+
+describe("Counsel Group API", () => {
+
+    test('Retrieve specialists by group', async () => {
+        const data = {
+            username: 'agron',
+            password: '1234',
+            specialists: 'Anxiety'
+        }
+        await request(Server.instance.httpServer).post("/users").send(data);
+        const response = await request(Server.instance.httpServer).get(`/specialists/${data.specialists}`);
+        expect(response.statusCode).toBe(200);
+        expect(response.body.specialists[0]).toBe('agron');
+    });
+
+    test('Posting messages to a group ', async () => {
+        const data = {
+            username: 'agron',
+            content: 'hello',
+            timestamp: '100',
+            status: 'ok',
+            receiver: 'Anxiety'
+        }
+        await request(Server.instance.httpServer).post(`/chatrooms/${data.receiver}`).send(data);
+        const response = await request(Server.instance.httpServer).get(`/chatrooms/${data.receiver}`);
+        expect(response.statusCode).toBe(200);
+        expect(response.body.archive[0].content).toBe(data.content);
+    });
+
+    test('Retrieve group messages', async () => {
+        const data = {
+            username: 'agron',
+            content: 'get group messages',
+            timestamp: '100',
+            status: 'ok',
+            receiver: 'Anxiety'
+        }
+        await request(Server.instance.httpServer).post(`/chatrooms/${data.receiver}`).send(data);
+        const response = await request(Server.instance.httpServer).get(`/chatrooms/${data.receiver}`);
+        expect(response.statusCode).toBe(200);
+        expect(response.body.archive[0].content).toBe(data.content);
+    });
+    test('Verify group confirmation checks', async () => {
+        const data = {
+            username: 'agron',
+            password: '1234',
+            specialists: 'Anxiety'
+        }
+        await request(Server.instance.httpServer).post("/users").send(data);
+        const response = await request(Server.instance.httpServer).get(`/chatrooms/${data.receiver}/${data.username}`);
+        expect(response.body.message).toBe('No consent');
+    });
+
+    test('Handle group confirmation posts', async () => {
+        const data = {
+            username: 'agron',
+            password: '1234',
+            specialists: 'Anxiety'
+        }
+        await request(Server.instance.httpServer).post("/users").send(data);
+        await request(Server.instance.httpServer).post(`/chatrooms/${data.receiver}/${data.username}`);
+        const Check_confirm = await request(Server.instance.httpServer).get(`/chatrooms/${data.receiver}/${data.username}`);
+
+        expect(Check_confirm.body.message).toBe('Confirm given');
+    });
+
+    test('Edit a group message', async () => {
+        const data = {
+            username: 'agron',
+            content: 'hello',
+            timestamp: '100',
+            status: 'ok',
+            receiver: 'Anxiety'
+        }
+        let edited_ctx = 'edited';
+        await request(Server.instance.httpServer).post(`/chatrooms/${data.receiver}`).send(data);
+        const message = await request(Server.instance.httpServer).get(`/chatrooms/${data.receiver}`);
+        const messageId = message.body.archive[0]._id;
+        await request(Server.instance.httpServer)
+            .put(`/chatrooms/${data.receiver}/${messageId}`)
+            .send({ content: edited_ctx })
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.message.content).toBe(edited_ctx);
+            });
+        jest.spyOn(DAO.getInstance(), 'updateMessageById').mockImplementation(() => { throw new Error() });
+        await request(Server.instance.httpServer)
+            .put(`/chatrooms/${data.receiver}/${messageId}`)
+            .send({ content: edited_ctx })
+            .expect(400)
+            .expect((res) => {
+                console.log(res.body);
+                expect(res.body.error).toBe('Update error');
+            });
+
+
+    });
+
+    test('Delete a group message', async () => {
+        const data = {
+            username: 'agron',
+            content: 'hello',
+            timestamp: '100',
+            status: 'ok',
+            receiver: 'Anxiety'
+        }
+        await request(Server.instance.httpServer).post(`/chatrooms/${data.receiver}`).send(data);
+        const message = await request(Server.instance.httpServer).get(`/chatrooms/${data.receiver}`);
+        const messageId = message.body.archive[0]._id;
+        const response = await request(Server.instance.httpServer).delete(`/chatrooms/${data.receiver}/${messageId}`);
+        expect(response.statusCode).toBe(200);
+        console.log(response.body);
+        // expect(response.body.message).toBe('Message deleted');
+        const del_message = await request(Server.instance.httpServer).get(`/chatrooms/${data.receiver}`);
+        console.log(del_message.body);
+    });
+});
