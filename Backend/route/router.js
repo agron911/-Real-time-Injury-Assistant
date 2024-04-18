@@ -12,6 +12,7 @@ import { EmergencyServicesView, registerAsEsp } from '../controller/espControlle
 import { createRequest, getRequests, updateRequest, deleteRequest, getRequest } from '../controller/requestController.js';
 import { firstaidView, loadInjuryByUsernames, receiveInjury, createChatMsg} from '../controller/seekFirstAid.js';
 import { createNotification, getNotificationByUsername, handleGetStockSupply, newWaitlist, getWaitlistRole, waitlistCitizenView, waitlistElectView, waitlistProviderView, setWaitlistRole, getWaitlist, joinWaitlist, leaveWaitlist, getWaitlistDetails, handleSupplyWaitlist, deleteNotification} from '../controller/manageWaitlists.js';
+import { loadGroupMessages, receiveGroupMessage, CheckConfirmation, ConfirmGroup, getSpecialists, editGroupMessage, deleteGroupMessage} from '../controller/counselGroup.js';
 const router = express.Router();
 
 router.get("/", HomeView);
@@ -81,5 +82,14 @@ router.post("/waitlists/citizens/", handleSupplyWaitlist)
 router.get("/waitlists/notifications/:username", getNotificationByUsername);
 router.post("/waitlists/notifications", createNotification);
 router.delete("/waitlists/notifications/:id", deleteNotification);
+
+router.get("/specialists/:group", getSpecialists);
+router.get("/chatrooms/:group", loadGroupMessages);
+router.get("/chatrooms/:group/:username", CheckConfirmation);
+router.post("/chatrooms/:group/:username", ConfirmGroup);
+router.post("/chatrooms/:group", receiveGroupMessage);
+router.put("/chatrooms/:group/:messageId", editGroupMessage);
+router.delete("/chatrooms/:group/:messageId", deleteGroupMessage);
+
 
 export default router;

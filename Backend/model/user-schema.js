@@ -40,6 +40,15 @@ const UserSchema = new mongoose.Schema({
         required: true,
         enum: ['undefined', 'citizen', 'provider'],
     },
+    specialist: {
+        type: [String],
+        required: false,
+    },
+    confirmGroup:{
+        type: [String],
+        required: false,
+        default: [],
+    }
 
 })
 

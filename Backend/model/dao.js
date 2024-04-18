@@ -359,6 +359,82 @@ class DAO {
         } catch (error) {
             throw new Error(`Request not found`);
         }
+    };
+    CheckGroupConfirmation = async (group, username) => {
+        try {
+            // confirmGroup storse a list of users who have confirmed the group
+            const user = await userCollection.findOne({ username: username, confirmGroup: { $in: [group] } });
+            return user ? true : false;
+        } catch (err) {
+            console.error(err);
+            return false;
+        }
+    }
+
+    ConfirmGroup = async (group, username) => {
+        try {
+            const updateResult = await userCollection.findOneAndUpdate(
+                { username: username },
+                { $addToSet: { confirmGroup: group } },
+                { new: true }
+            );
+            return updateResult ? true : false;
+        } catch (err) {
+            return false;
+        }
+    }
+
+    getAllGroupMessages = async (group) => {
+        try {
+            const msgs = await messageCollection.find({ receiver: group });
+            return msgs;
+        } catch (err) {
+            console.error("Get all group messages error:", err);
+            return [];
+        }
+    }
+
+    getGroupUsers = async (group) => {
+        try {
+            const groupUsers = await userCollection.find(
+                { confirmGroup: { $in: group } }
+            );
+            return groupUsers;
+        } catch (err) {
+            console.error("Get all group messages error:", err);
+            return [];
+        }
+    }
+    getSpecialists = async (group) => {
+        try {
+            const Specialists = await userCollection.find(
+                { specialist: { $in: group }, specialist: { $exists: true, $ne: [] } }
+                
+            ).lean();
+            const specialists = Specialists.map(specialist => specialist.username);
+
+            return specialists;
+        } catch (err) {
+            return [];
+        }
+    }
+
+    deleteMessageById = async (id) => {
+        try {
+            await messageCollection.findByIdAndDelete(id);
+            return true;
+        } catch (err) {
+            console.error(err);
+            return false;
+        }
+    }
+    createGroupMessage = async (username, content, timestamp, status, receiver, viewed, group) => {
+        try {
+            const msg = await messageCollection.insertMany({ username: username, content: content, timestamp: timestamp, status: status, receiver: receiver, viewed: viewed, group: group });
+            return msg;
+        } catch (err) {
+            throw new Error("Create message error: ", err);
+        }
     }
     
 }
