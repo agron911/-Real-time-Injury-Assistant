@@ -111,7 +111,7 @@ const registerSocket = async (username, socketId) => {
       },
     });
   } catch (e) {
-    console.log("socket registration error", e);
+    
   }
 };
 
@@ -121,7 +121,7 @@ const createNewWaitlist = async () => {
       const mednameInput = document.getElementById("medNameInput");
       const descriptionInput = document.getElementById("descriptionInput");
       if (mednameInput.value && descriptionInput.value) {
-        console.log(mednameInput.value, descriptionInput.value);
+        
         const response = await fetch("/waitlists/providers", {
           method: "POST",
           headers: {
@@ -135,7 +135,7 @@ const createNewWaitlist = async () => {
       }
     }
   } catch (err) {
-    console.log("err", err);
+    
   }
 }
 
@@ -154,7 +154,7 @@ function updateWaitlist(medname, action) {
 }
 
 const updateSupplyCount = async (medname, supply) => {
-  console.log("updateSupplyCount", medname, supply);
+  
   let curr = document.getElementById(medname + "-count").innerHTML;
   let text = document.getElementById(medname + "-counttext").innerHTML;
   if (text == 'Number in queue') {
@@ -172,7 +172,7 @@ const updateSupplyCount = async (medname, supply) => {
 }
 
 const manageSupply = async (medname) => {
-  console.log("manageSupply", medname);
+  
   const radios = document.getElementsByName("inlineRadioOptions");
   let num = "0";
   for (let i = 0; i < radios.length; i++) {
@@ -338,6 +338,6 @@ window.onload = async () => {
     const { waitlists, positions } = await response.json();
     generatePostEntries(waitlists);
   } catch (err) {
-    console.log("err", err);
+    
   }
 };

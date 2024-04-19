@@ -111,14 +111,14 @@ const getNotification = async () => {
       },
     });
     const { notifications } = await response.json();
-    console.log("notifications", notifications);
+    
     if (notifications.length == 0) {
       document.getElementById("bell-count").style.display = "none";
     }
     document.getElementById("bell-count").innerHTML = notifications.length;
     handleNotification(notifications);
   } catch (err) {
-    console.log("err", err);
+    
   }
 }
 
@@ -134,7 +134,7 @@ const deleteNotification = async (id) => {
       document.getElementById("notification-" + id).remove();
     }
   } catch (err) {
-    console.log("err", err);
+    
   }
 }
 
@@ -143,7 +143,7 @@ const handleNotification = async (notifications) => {
   if (mainSection) {
     mainSection.innerHTML = "";
     notifications.forEach(notification => {
-      console.log("notification", notification);
+      
       const postEntry = document.createElement('div');
       postEntry.id = "notification-" + notification._id.toString();
       postEntry.classList.add('post-entry-1','border-bottom');
@@ -171,18 +171,18 @@ const registerSocket = async (username, socketId) => {
       },
     });
   } catch (e) {
-    console.log("socket registration error", e);
+    
   }
 };
 
 function updateWaitlist(medname, status) {
-  console.log("updateWaitlist", medname, status);
+  
   if (document.getElementById(medname + "-button").innerHTML == "Join") {
     if (status == "join") {
       document.getElementById(medname + "-count").innerHTML = parseInt(document.getElementById(medname + "-count").innerHTML) + 1;
     } else if (status == "join-stock") {
       if (document.getElementById(medname + "-counttext").innerHTML == "Number in queue") {
-        console.log("Error: No stock available");
+        
         return;
       }
       const num = parseInt(document.getElementById(medname + "-count").innerHTML) - 1;
@@ -255,7 +255,7 @@ function leaveWaitlist(name) {
       location.reload();
     }
   } catch (err) {
-    console.log("err", err);
+    
   }
 }
 
@@ -269,7 +269,7 @@ const createNotification = async (username, supplier, medname, timestamp) => {
       body: JSON.stringify({username: username, supplier: supplier, medname: medname, timestamp: timestamp}),
     });
   } catch (err) {
-    console.log("err", err);
+    
   }
 }
 
@@ -287,12 +287,12 @@ const joinStockedWaitlist = async (name) => {
     alert("Your request has been fulfilled by " + supplier + "!");
     await getNotification();
   } catch (err) {
-    console.log("err", err);
+    
   }
 }
 
 function joinWaitlist(name) {
-  console.log("joinWaitlist", name);
+  
   try {
     if (document.getElementById(name + "-counttext").innerHTML == "Number in queue") {
       fetch("/waitlists/citizens/", {
@@ -309,7 +309,7 @@ function joinWaitlist(name) {
     
     // location.reload();
   } catch (err) {
-    console.log("err", err);
+    
   }
 }
 
@@ -330,7 +330,7 @@ function generatePostEntries(waitlists) {
   const mainWaitlistSection = document.getElementById('main-waitlists');
   if (mainWaitlistSection) {
     waitlists.forEach(waitlist => {
-      console.log("waitlist", waitlist);
+      
       const postEntry = document.createElement('div');
       postEntry.classList.add('post-entry-1','border-bottom');
       postEntry.id = "waitlist-" + waitlist.name;
@@ -373,7 +373,7 @@ window.onload = async () => {
     await connectToSocket(positions);
     await getNotification();
   } catch (err) {
-    console.log("err", err);
+    
   }
 };
 

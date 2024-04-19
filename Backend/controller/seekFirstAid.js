@@ -49,7 +49,7 @@ export const createChatMsg = async(req, res) => {
             messages: [{ role: "system", content: message }],
             model: "gpt-3.5-turbo",
         });
-        // console.log(completion.choices[0].message.content);
+        // 
         res.status(200).send({message: completion.choices[0].message.content});
     }catch(err){
         res.status(400).send({message: "openai failure"})
@@ -62,6 +62,6 @@ export const createChatMsg = async(req, res) => {
 //     model: "gpt-3.5-turbo",
 //   });
 
-//   console.log(completion.choices[0]);
+//   
 // }
 

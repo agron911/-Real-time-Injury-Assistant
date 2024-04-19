@@ -17,7 +17,7 @@ function displayfacilities(){
             return response.json();
         })
         .then(facilities => {
-            console.log('Data received:', facilities);
+            
             const facilitiesContainer = document.getElementById('facilities-list');
             facilities.forEach(facility => {
                 const facilityDiv = document.createElement('div');
@@ -32,9 +32,9 @@ function displayfacilities(){
                 facilityDiv.className = 'facility'
                 facilitiesContainer.appendChild(facilityDiv);
                 facilityDiv.addEventListener('click', function() {
-                    console.log(facility)
+                    
                 var facilityName = facility.name.replace(/-/g, ' ');
-                console.log(facilityName)
+                
                 var facilityAddress = facility.address;
                 var facilityType = facility.type;
                 const hours = facility.hours
@@ -54,7 +54,7 @@ function displayfacilities(){
             
         })
         .catch(error => {
-            console.error('Error fetching data:', error);
+            console.error('Error fetching data:', error.message);
         });
 }
 
@@ -68,7 +68,7 @@ function displayFacilityInfo(facilityName) {
         localStorage.setItem('latitude', latitude);
         localStorage.setItem('longitude', longitude);
     },(error)=>{
-        console.log("Error while loading facility info: "+error)
+        
     },{enableHighAccuracy: true});
     facilityInfo.style.display = "block";
     const fname = facilityName.replace(/\s+/g, '-');
@@ -189,9 +189,9 @@ async function searchFacilities(){
             facilityDiv.className = 'facility'
             facilitiesContainer.appendChild(facilityDiv);
             facilityDiv.addEventListener('click', function() {
-                console.log(facility)
+                
                 var facilityName = facility.name.replace(/-/g, ' ');
-                console.log(facilityName)
+                
                 var facilityAddress = facility.address;
                 var facilityType = facility.type;
                 var latitude = facility.latitude; //parseFloat(this.dataset.latitude); // Replace with actual latitude attribute
@@ -223,7 +223,7 @@ function addFacility(){
     var type = document.getElementById('type').value;
     var hours = document.getElementById('hours').value;
     var address = document.getElementById('address').value;
-    console.log("address:"+address);
+    
     if(longitude == ''||latitude==''||name==''||type==''||hours==''||address==''){
         alert("Please fill in all fields");
         return;

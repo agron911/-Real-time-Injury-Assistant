@@ -11,7 +11,7 @@ import {jest} from '@jest/globals';
  */
 beforeAll(async () => {
     await connect();
-    console.log("here");
+    
     Server.createAndRun(true);
 });
 
@@ -89,7 +89,7 @@ describe("Test Join Community API", () => {
         }
         const response4 = await request(Server.instance.httpServer).post("/users/verification").send(data4);
         expect(response4.statusCode).toBe(201);
-        console.log(response4.body);
+        
         expect(response4.body.message).toBe('User does not exist');
 
         await request(Server.instance.httpServer).post("/users").send(data4);
@@ -103,7 +103,7 @@ describe("Test Join Community API", () => {
         }
         const response7 = await request(Server.instance.httpServer).post("/users/verification").send(data7);
         expect(response7.statusCode).toBe(400);
-        console.log(response7.body);
+        
         expect(response7.body.message).toBe('Password mismatch');
     })
 
@@ -356,7 +356,7 @@ describe('Test Search Info API', () => {
         await request(Server.instance.httpServer).post("/users").send(data);
         await request(Server.instance.httpServer).put("/user/status/agron").send({ status: 'ok' });
         const response = await request(Server.instance.httpServer).get("/users/status/search?status=ok").expect(response.statusCode).toBe(200);
-        console.log(response.body);
+        
         expect(response.body.search_result[0].username).toBe('agron');
     })
 
@@ -697,7 +697,7 @@ describe("Counsel Group API", () => {
             .send({ content: edited_ctx })
             .expect(400)
             .expect((res) => {
-                console.log(res.body);
+                
                 expect(res.body.error).toBe('Update error');
             });
 
@@ -717,10 +717,10 @@ describe("Counsel Group API", () => {
         const messageId = message.body.archive[0]._id;
         const response = await request(Server.instance.httpServer).delete(`/chatrooms/${data.receiver}/${messageId}`);
         expect(response.statusCode).toBe(200);
-        console.log(response.body);
+        
         // expect(response.body.message).toBe('Message deleted');
         const del_message = await request(Server.instance.httpServer).get(`/chatrooms/${data.receiver}`);
-        console.log(del_message.body);
+        
     });
 });
 describe("Facilities operations tests", ()=>{

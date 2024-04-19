@@ -91,7 +91,7 @@ export const UserJoin = async (req, res) => {
             res.status(403).send({message: "Username prohibited"});
             return;
         }
-        console.log(err)
+        
     }
 
     // if (ruleCheck) {
@@ -122,7 +122,7 @@ export const UserAcknowledgement = async (req, res) => {
             await DAO.getInstance().updateUserAcknowledgement(username);
             res.status(200).send({message: "Acknowledged"});
         } catch (err) {
-            console.log(err);
+            
             res.status(500).send('Something went wrong!');
         }
     } else {

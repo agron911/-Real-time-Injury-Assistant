@@ -2,8 +2,8 @@ import DAO from './dao.js';
 import User from './user-class.js';
 
 class Citizen extends User {
-    constructor(username, password, status, esp) {
-        super(username, password, status, "Citizen", esp, false);
+    constructor(username, password, status, esp, waitlistRole, specialist) {
+        super(username, password, status, "Citizen", esp, waitlistRole, specialist);
     }
 
     async modifyEsp(esp){
@@ -20,14 +20,14 @@ class Citizen extends User {
     }
     
 
-    getSchemaObject(){
-        return {
-            username: this.username,
-            status: this.status,
-            usertype: this.usertype, 
-            esp: this.esp,
-        }
-    }
+    // getSchemaObject(){
+    //     return {
+    //         username: this.username,
+    //         status: this.status,
+    //         usertype: this.usertype, 
+    //         esp: this.esp,
+    //     }
+    // }
 }
 
 export default Citizen;

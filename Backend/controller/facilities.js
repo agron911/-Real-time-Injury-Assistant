@@ -25,7 +25,7 @@ export const addFacility = async (req, res)=>{
             res.status(401).send({added: "Facility was not Added. Cannot add facilities outside of Santa Clara County, CA"});
         }
     }catch(err){
-        console.log(err)
+        
         res.status(400).send(err);
     }
 }
@@ -39,7 +39,7 @@ export const getAllFacilities = async(req, res)=>{
 }
 export const getFacilityByName = async(req, res)=>{
     try{
-        console.log("searching")
+        
         const facilities = await DAO.getInstance().getFacility(req.params.facilityname);
         res.status(200).send(facilities);
     }catch(err){
@@ -49,7 +49,7 @@ export const getFacilityByName = async(req, res)=>{
 
 export const searchFacility = async(req, res)=>{
     try{
-        console.log(req.query.description);
+        
         const facilities = await DAO.getInstance().searchFacility(req.query.description, req.query.mobility);
         res.status(200).send({searchresult:facilities});
     }catch(err){
@@ -59,7 +59,7 @@ export const searchFacility = async(req, res)=>{
 }
 
 export const Test = async(req, res)=>{
-    console.log("test");
+    
     res.status(200).send({resp:"hi"})
 }
 
@@ -74,7 +74,7 @@ export const deleteFacility = async(req, res)=>{
 
 export const updateFacilityInfo = async(req, res)=>{
     try{
-        console.log(req.body)
+        
         await DAO.getInstance().updateFacilityInfo(req.body.name, req.body.hours);
         res.status(200).send();
     }catch(err){

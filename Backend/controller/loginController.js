@@ -74,7 +74,7 @@ export const getUsers = async (req, res) => {
         const users = await DAO.getInstance().getAllUsers(); 
         res.json({ users }); 
     } catch (error) {
-        console.error('Failed to get users:', error);
+        console.error('Failed to get users:', error.message);
         res.status(500).send({ message: 'Failed to get users' });
     }
 }

@@ -15,7 +15,7 @@ export const registerAsEsp = async (req, res) => {
         citizen = await citizen.modifyEsp(esp);
         res.status(200).send(citizen.toSchemaObject());
     } catch(err){
-        console.log('registerAsEsp',err);
+        
         res.status(404).send("User not found");
     }    
 }

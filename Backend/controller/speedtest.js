@@ -13,7 +13,7 @@ export async function startSpeedTest(req, res){
     DAO.type = "TEST";
     await DAO.getInstance().createUser('henry', 'wqed', 'ok');
     res.status(200).send("success");
-    console.log('here',socketID);
+    
     io.emit("suspendNormalOps", socketID);
 }
 

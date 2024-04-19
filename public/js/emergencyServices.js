@@ -151,7 +151,7 @@ const deleteRequestById = async (id)=>{
 };
 
 const showAlert = (message)=>{
-    console.log('alert', message);
+    
 }
 
 const toggleRegisterAndDeregisterEspButton = (isEsp)=>{
@@ -272,7 +272,7 @@ const getAndDisplayRequestsESP = async ()=>{
 }
 
 const getAndDisplayMyRequests = async () => {
-    console.log("here");
+    
     const requests = await getRequestsForMe();
     if(requests.length>0) {
         requests.forEach(request => {
@@ -289,7 +289,7 @@ const openRequestWall = ()=>{
 }
 
 const openMyRequestWall = ()=>{
-    console.log("open request");
+    
     clearAllRequestCards();
     displayRequestContainer();
     getAndDisplayMyRequests();
@@ -297,7 +297,7 @@ const openMyRequestWall = ()=>{
 }
 
 const getAllowedOptions = (status, type)=>{
-    console.log("typedas    ", type);
+    
     if(type == "MY") {
         if(status == "UNRESOLVED") {
             return ['resolve', 'remove'];
@@ -335,7 +335,7 @@ function createCardElementForCitizen(request, type) {
 
     const allowedOptions = getAllowedOptions(request.status, type);
     if (allowedOptions){
-        console.log('ao', allowedOptions);
+        
         const kebabMenu = createKebabMenu(allowedOptions, request.id);
         cardBody.appendChild(kebabMenu);
     }
@@ -468,7 +468,7 @@ function createKebabMenu(allowedOptions, cardId) {
 
     const menuOptions = document.createElement('ul');
     menuOptions.className = 'dropdown-menu';
-    console.log("cardid", cardId);
+    
     const optionActions = {
         'resolve': { text: 'Resolve', icon: 'las la-check', action: () => resolveRequest(cardId) },
         'remove': { text: 'Remove', icon: 'las la-trash', action: () => removeRequest(cardId) },
@@ -531,7 +531,7 @@ const appendTitleAndContentToEspNotification = (contentElement, request) => {
 
 
 const notifyESP = async (requestId) => {
-    console.log("Send notification");
+    
     const request = await getRequestById(requestId);
     if(request.username == localStorage.getItem('username')) return;
     const titleElement = document.getElementById('notification-modal-title');
@@ -550,7 +550,7 @@ const notifyESP = async (requestId) => {
 const connectToSocket = async () => {
     const socket = await io();
     socket.on("connect", async () => { 
-        console.log("isEsp", isESP);
+        
         if(isESP) {
             await registerSocket(localStorage.getItem("username"), socket.id, true); 
             document.getElementById("esp-requests-action-mobile").style.display = "block";
@@ -577,20 +577,20 @@ const registerSocket = async (username, socketId, esp) => {
         },
       });
     } catch (e) {
-      console.log("socket registration error", e);
+      
     }
 };
 
 checkifCititzenIsESP = async ()=>{
     const result = await getUser(localStorage.getItem("username"));
     const user = await result.json();
-    console.log('user',user.esp );
+    
     isESP = user.esp; 
 }
 
 const execute = async ()=>{
     localStorage.removeItem("esp");
-    console.log('Emergency services loaded successfully');
+    
     await checkifCititzenIsESP();
     if(isESP){
         document.getElementById("esp-requests-action-mobile").style.display = "block";

@@ -2,15 +2,15 @@ import DAO from "./dao.js"
 import { prohibitedUsernames } from '../utils/user-config.js';
 
 class User {
-    constructor(username, password, status, usertype, esp, validate) {
+    constructor(username, password, status, usertype, esp, validate, waitlistRole, specialist) {
         if (validate && User.validate(username, password)) throw "Invalid username or password"
-
         this.username = username;
         this.status = status;
         this.password = password;
         this.usertype = usertype;
         this.esp = esp;
-
+        this.waitlistRole = waitlistRole;
+        this.specialist = specialist;
     }
 
     static get dao() {
@@ -32,19 +32,19 @@ class User {
     static validate(username, password) {
         // Check username length
         if (!username || username.length < this.usernameMinLength) {
-            console.log(`Username must be at least 3 characters long.`);
+            
             throw new Error("Username length invalid");
         }
 
         // Check password length
         if (!password || password.length < this.passwordMinLength) {
-            console.log(`Your password must be at least 4 characters long. Passwords are case sensitive!`);
+            
             throw new Error("Password length invalid");
         } 
 
         // Check banned usernames
         if (this.prohibitedUsernames.indexOf(username) > -1) {
-            console.log(`Your username is prohibited. Try again.`);
+            
             throw new Error("Username prohibited");
         }
 
@@ -75,6 +75,8 @@ class User {
             usertype: this.usertype,
             esp: this.esp,
             waitlistRole: 'undefined',
+            specialist: this.specialist,
+            confirmGroup: [],
         };
     }
 }

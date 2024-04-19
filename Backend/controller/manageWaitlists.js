@@ -120,12 +120,12 @@ export const handleGetStockSupply = async (req, res) => {
     const medname = req.body.medname;
     const waitlist = await DAO.getInstance().getWaitlistByName(medname);
     if (waitlist.count <= 0) {
-        console.log("Error! No stock available");
+        
         res.status(400).send({message: "Error! No stock available"});
     }
     await DAO.getInstance().updateCountByName(medname, waitlist.count - 1);
     if (waitlist.supplier.length <= 0) {
-        console.log("Error! No supplier available");
+        
         res.status(400).send({message: "Error! No supplier available"});
     }
     const supplier = waitlist.supplier[0];
