@@ -84,11 +84,11 @@ async function run_test(interval, duration){
     if(stopTestFlag) return; 
     post_duration = (Date.now() - post_start)/1000;
     if(limitflag){
-        // console.log("we here");
+        // 
        
         return 0;
     }
-    console.log('res',post_counter, post_duration);
+    
     var get_start = Date.now();
     getIntervalId = setInterval(async function(){
         const resp = await send_get_request();
@@ -110,7 +110,7 @@ async function run_test(interval, duration){
     document.getElementById('postPerformance').innerHTML = (post_counter / post_duration) + " requests/second";
     document.getElementById('getPerformance').innerHTML = (get_counter / get_duration) + " requests/second";
     await stopSpeedTest();
-    console.log(get_counter, get_duration);
+    
 }
 
 const stopSpeedTest = async () => {
@@ -121,14 +121,14 @@ const stopSpeedTest = async () => {
         method: "POST",
     });
     showSpinner(false);
-    console.log("Speed stopped");
+    
 };
 
 const showSpeedTestModal = () => {
     if(SUSPEND_NORMAL_OPERATION) return;
     const speedTestModal = new bootstrap.Modal('#speedTestModal');
     // const modal = document.getElementById('speedTestModal');
-    // console.log("modal: ",modal);
+    // 
     speedTestModal.show();
 }
 

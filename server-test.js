@@ -45,14 +45,14 @@ const options = {
   secretOrKey: process.env.JWT_SECRET?process.env.JWT_SECRET:"test_secret",
 }
 passport.use(new Strategy(options, (jwt_payload, done) => {
-  console.log('Authenticate invoked');
+  
 }))
 app.use(passport.initialize());
 
 
 app.use(router)
 httpServer.listen(port, function () {
-  console.log(`Listening port... ${port}`);
+  
 });
 
 export default httpServer;

@@ -115,7 +115,7 @@ window.onload = async () => {
       window.location.href = "/waitlists/citizens";
     }
   } catch (err) {
-    console.log("err", err);
+    
   }
 };
 

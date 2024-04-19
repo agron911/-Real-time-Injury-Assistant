@@ -117,13 +117,13 @@ window.onload = async () => {
       },
     });
     const { injury } = await response.json();
-    console.log(injury);
+    
     if (injury.reported) {
       USER_REPORTED = true;
       document.getElementById("past_report").innerHTML = "You have a reported " + injury.parts + " injury on " + injury.timestamp + ". <br>Click to update.";
     }
   } catch (err) {
-    console.log("err", err);
+    
   }
 };
 
@@ -183,7 +183,7 @@ const ask_gpt = async () => {
     const { message } = await response2.json();
     document.getElementById("gpt-instruction").innerHTML = message.replace(/\n/g, "<br />");
   } catch (err) {
-    console.log("err", err);
+    
   }
 }
 
@@ -197,14 +197,14 @@ const save_injury = async () => {
       body: JSON.stringify({timestamp: new Date().toString(), parts: document.getElementById("injury-body").innerHTML, bleeding: USER_BLEEDING, numbness: USER_NUMBNESS, conscious: USER_CONSCIOUS}),
     });
     if (document.getElementById("flexCheckChecked").checked) {
-      console.log("checked");
+      
       document.getElementById("main-gpt-loading").style.display = "block";
       await ask_gpt();
     } else {
       location.reload();
     }
   } catch(err) {
-    console.log("err", err);
+    
   }
   
 }

@@ -6,7 +6,7 @@ async function hashPassword(password) {
     const passwordHash = await bcrypt.hash(password, 10);
     return passwordHash;
   } catch (error) {
-    console.log("Hashing error", error);
+    
     return null;
   }
 };

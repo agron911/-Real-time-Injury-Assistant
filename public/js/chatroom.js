@@ -9,6 +9,7 @@ let MESSAGE_RECEIVER = "";
 let PUBLIC_SEARCH_COUNTER = 1;
 let ANNOUNCEMENT_SEARCH_COUNTER = 1
 let PRIVATE_SEARCH_COUNTER = 1;
+let GROUPCHAT=false;
 
 let IS_SPECIALIST = false;
 let Anxiety_rule = "You're not alone in your feelings of anxiety; here, you'll find a compassionate space to explore your experiences, learn coping strategies, and connect with others who truly understand."
@@ -30,7 +31,7 @@ const getPrivateMessages = async (otherUsername) => {
     }
   );
   const { archive } = await data.json();
-  console.log(archive);
+  
   return archive;
 };
 
@@ -131,7 +132,7 @@ const getAnnouncement = async () => {
     },
   });
   const { archive } = await response.json();
-  console.log(archive);
+  
   return archive;
 }
 
@@ -205,7 +206,7 @@ const ConfirmGroupChat = async (group) => {
       }
       confirmationModal.show();
       document.getElementById('JoinGroupConfirm').addEventListener('click', async function () {
-        console.log("JoinGroupConfirm", group);
+        
         await fetch(url + "/chatrooms/" + group + "/" + localStorage.getItem("username"), {
           method: "POST",
           headers: {
@@ -221,7 +222,7 @@ const ConfirmGroupChat = async (group) => {
       return;
     }
   } catch (e) {
-    console.log("ConfirmGroupChat error", e);
+    
   }
 }
 
@@ -232,7 +233,7 @@ const GroupChat = async (group) => {
   setSearchGroup(group);
   document.getElementById("elect-form").style.display = "none";
   document.getElementById("wall").style.display = "flex";
-  console.log("GroupChat", GROUPCHAT);
+  
   const chatroomTypeTitleElement = document.getElementById("chatroom-title");
   chatroomTypeTitleElement.innerHTML = group + " Group Counsel";
 
@@ -269,10 +270,10 @@ const createEditableMessage = (cardBody, msg) => {
     // Logic to modify message
     document.getElementById("messageEditInput").value = msg.content;
     document.getElementById("saveMessageChanges").onclick = async () => {
-      console.log("Saving changes for message:", msg._id);
+      
 
       let editMessageModal = new bootstrap.Modal(document.getElementById('editMessageModal'), {});
-      console.log("editMessageModal", editMessageModal);
+      
       editMessageModal.hide();
 
       try {
@@ -289,11 +290,11 @@ const createEditableMessage = (cardBody, msg) => {
         });
 
       } catch (e) {
-        console.log("error editing message", e);
+        
       };
 
     };
-    console.log("Modify message:", msg._id);
+    
   });
 
   let deleteButton = document.createElement("button");
@@ -304,7 +305,7 @@ const createEditableMessage = (cardBody, msg) => {
   deleteButton.addEventListener("click", async () => {
     // Logic to delete message
     document.getElementById("deleteMessageChanges").onclick = async () => {
-      console.log("Deleting message:", msg._id);
+      
 
       try {
         await fetch(url + "/chatrooms/" + MESSAGE_RECEIVER + "/" + msg._id, {
@@ -315,7 +316,7 @@ const createEditableMessage = (cardBody, msg) => {
           },
         });
       } catch (e) {
-        console.log("error deleting message", e);
+        
       };
       let deleteMessageModal = new bootstrap.Modal(document.getElementById('deleteMessageModal'), {});
       deleteMessageModal.hide();
@@ -344,7 +345,7 @@ const deleteMessages = (msgId) => {
       messageElement.remove();
     }
   } catch (error) {
-    console.log("Error deleting message:", error);
+    
   }
 }
 
@@ -502,7 +503,7 @@ const registerSocket = async (username, socketId) => {
       },
     });
   } catch (e) {
-    console.log("socket registration error", e);
+    
   }
 };
 
@@ -521,7 +522,7 @@ const connectToSocket = async () => {
       IS_SPECIALIST = true;
 
       addMessages(data.msg);
-      console.log("data", data);
+      
       if (data.specialist_online && data.msg.username != localStorage.getItem("username")) {
         showMessageAlert(data.msg, "primary");
       } else if (!data.specialist_online) {
@@ -627,7 +628,7 @@ const getStatus = async (username) => {
     const { status } = await res.json();
     return status;
   } catch (e) {
-    console.log("error fetching status");
+    
   }
 };
 
@@ -708,7 +709,7 @@ const getSpecialists = async (group) => {
 
 const fetchInitialUserList = async () => {
   if (SUSPEND_NORMAL_OPERATION) return;
-  console.log("fetching users");
+  
   const response = await fetch(url + "/users");
   const users = await response.json();
   displayUsers(users);
@@ -747,9 +748,9 @@ const getUnreadMessages = async () => {
 
 const getAlerts = async () => {
   const unreadMessages = await getUnreadMessages();
-  console.log("archives", unreadMessages);
+  
   for (const msg of unreadMessages) {
-    console.log("msg", msg);
+    
     showMessageAlert(msg, "primary");
   }
 };
@@ -762,7 +763,7 @@ const checkIfTestOngoing = async () => {
     },
   });
   const responseData = await response.json();
-  console.log("responseData", responseData);
+  
   if (responseData) {
     SUSPEND_NORMAL_OPERATION = true;
   }
@@ -785,7 +786,7 @@ window.onload = async () => {
       await getAlerts();
     }
   } catch (err) {
-    console.log("err", err);
+    
   }
 };
 
@@ -856,7 +857,7 @@ function setSearchStatusEmergency() {
 }
 
 const searchByUsername = async (searchValue) => {
-  console.log(`searching by username: ${searchValue}`);
+  
   try {
     const response = await fetch(url + "/users/username/search?user=" + searchValue, {
       method: "GET",
@@ -866,15 +867,15 @@ const searchByUsername = async (searchValue) => {
     });
     const { search_result } = await response.json();
     const data = { users: search_result };
-    console.log("search result", data);
+    
     displayUsers(data);
   } catch (e) {
-    console.log("Database retrieval error", e);
+    
   }
 }
 
 const searchByStatus = async () => {
-  console.log(`searching by status: ${USERS_SEARCH_STATUS}`);
+  
   try {
     const response = await fetch(url + "/users/status/search?status=" + USERS_SEARCH_STATUS, {
       method: "GET",
@@ -884,10 +885,10 @@ const searchByStatus = async () => {
     });
     const { search_result } = await response.json();
     const data = { users: search_result };
-    console.log("search result", data);
+    
     displayUsers(data);
   } catch (e) {
-    console.log("Database retrieval error", e);
+    
   }
 }
 
@@ -939,7 +940,7 @@ function createMessageElement(search_result) {
 }
 
 const searchPublicMessages = async (searchValue) => {
-  console.log(`searching by public message: ${searchValue}`);
+  
   try {
     const response = await fetch(url + "/messages/public/search?content=" + searchValue + "&limit=" + (PUBLIC_SEARCH_COUNTER * 10).toString(), {
       method: "GET",
@@ -950,14 +951,14 @@ const searchPublicMessages = async (searchValue) => {
     const { search_result } = await response.json();
     createMessageElement(search_result);
   } catch (e) {
-    console.log("Database retrieval error", e);
+    
   }
   PUBLIC_SEARCH_COUNTER += 1;
 }
 
 
 const searchAnnouncementMessages = async (searchValue) => {
-  console.log(`searching by announcement message: ${searchValue}`);
+  
   try {
     const response = await fetch(url + "/messages/announcement/search?content=" + searchValue + "&limit=" + (ANNOUNCEMENT_SEARCH_COUNTER * 10).toString(), {
       method: "GET",
@@ -969,14 +970,14 @@ const searchAnnouncementMessages = async (searchValue) => {
     createMessageElement(search_result);
 
   } catch (e) {
-    console.log("Database retrieval error", e);
+    
   }
   ANNOUNCEMENT_SEARCH_COUNTER += 1;
 }
 
 
 const searchPrivateMessages = async (searchValue) => {
-  console.log(`searching by private message: ${searchValue}`);
+  
   try {
     const response = await fetch(url + "/messages/private/search?receiver=" + localStorage.getItem("username") + "&sender=" + MESSAGE_RECEIVER + "&content=" + searchValue + "&limit=" + (PRIVATE_SEARCH_COUNTER * 10).toString(), {
 
@@ -989,7 +990,7 @@ const searchPrivateMessages = async (searchValue) => {
     createMessageElement(search_result);
 
   } catch (e) {
-    console.log("Database retrieval error", e);
+    
   }
   if (searchValue == "status") {
     PRIVATE_SEARCH_COUNTER = 0;
@@ -1029,5 +1030,5 @@ function closeNavbar() {
 
 const loadFacilities = async ()=>{
   window.location.href='/facilities'
-  console.log("here")
+  
 }

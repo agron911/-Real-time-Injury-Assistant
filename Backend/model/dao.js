@@ -8,6 +8,7 @@ import { stopWords } from '../utils/user-config.js';
 import injuryCollection from "./injury-schema.js";
 import waitlistCollection from "./waitlist-schema.js";
 import notificationCollection from "./notification-schema.js";
+import { hashPassword } from "../utils/passwordUtils.js";
 
 class DAO {
 
@@ -25,7 +26,7 @@ class DAO {
 
     static getInstance() {
         if (DAO.instance == null) {
-            console.log("Creating new instance");
+            
             DAO.instance = new DAO();
         }
         return DAO.instance;
@@ -35,9 +36,9 @@ class DAO {
         try {
             await mongoose.connect(uri);
             this.#configured = true;
-            console.log("Database connected\n");
+            
         } catch (error) {
-            console.log("Unable to connect to Database\n", error);
+            
             throw new Error("Unable to connect to Database\n");
         }
     }
@@ -77,24 +78,16 @@ class DAO {
         }
     }
 
-    createUser = async (username, hashed_password, status, usertype, esp) => {
+    createUser = async (username, hashed_password, status, usertype, esp, waitlistRole, specialist) => {
         try {
-            const userSchemaObject = {
-                username: username,
-                password: hashed_password,
-                status: status,
-                online: false, 
-                acknowledged: false, 
-                usertype: usertype,
-                esp: esp
-            }
-            console.log('before',userSchemaObject);
+            const userSchemaObject = UserFactory.createUser(usertype, username, hashed_password, status, esp, waitlistRole, specialist).toSchemaObject();
+            // console.log('userSchemaObject', userSchemaObject);
             const user = await userCollection.create(userSchemaObject);
             const injury = await injuryCollection.create({ username: username, reported: false });
             return user;
         } catch (err) {
-            console.error("insert failed", err);
-            return new Error("Insert failed :", err);
+            console.error("insert failed", err.message);
+            throw new Error("Insert failed :", err);
         }
     }
 
@@ -103,7 +96,7 @@ class DAO {
             const user = await userCollection.findOne({ username: username.toLowerCase() });
             return user;
         } catch (err) {
-            return new Error("User not found: ", err);
+            throw new Error("User not found: ", err);
         }
     }
 
@@ -216,7 +209,7 @@ class DAO {
     updateUserStatus = async (username, status) => {
         try {
             await userCollection.findOneAndUpdate({ username: username }, { status: status, statusChangeTimestamp: new Date().toString(), $push:{statusHistory:status} } );
-            console.log(username, status);
+            
         } catch (err) {
             throw new Error("Update user status error: ", err);
         }
@@ -252,7 +245,7 @@ class DAO {
             return updatedDocument;
             //   return updatedDocument;
         } catch (err) {
-            console.error(err);
+            console.error(err.message);
             return null;
         }
     };
@@ -265,7 +258,7 @@ class DAO {
             const msgs = await messageCollection.find({ receiver: receiver });
             return msgs;
         } catch (err) {
-            return new Error("Get all messages error: ", err);
+            throw new Error("Get all messages error: ", err);
         }
     }
     getAllPrivateMessages = async (username, receiver) => {
@@ -291,83 +284,19 @@ class DAO {
                 this.updateMessageById(msg._id, { viewed: true });
             }
         }catch(err){
-            console.log("Get unread messages error: ", err);
+            
         }
         
         return msgs;
     }
 
-    // Create a new request
-    createRequest = async (requestData) => {
-        try {
-            const newRequest = new requestCollection(requestData);
-            const reqObj = await newRequest.save();
-            return reqObj;
-        } catch (error) {
-            throw new Error(`Error creating request`);
-        }
-    };
-
-    getRequestsByUsername = async (username) => {
-        try {        
-            const requests = await requestCollection.find({ username: { $eq: username } });
-            return requests;
-        } catch (error) {
-            throw new Error(`Error getting requests: ${error.message}`);
-        }
-    }
-    
-
-    getRequestsByStatus = async (statuses) =>{
-        try {        
-            const requests = await requestCollection.find({ status: { $in: statuses } });
-            return requests;
-        } catch (error) {
-            throw new Error(`Error getting requests: ${error.message}`);
-        }
-    }
-// Update an existing request by ID
-    updateRequest = async (requestId, updatedData) => {
-        try {
-            const updatedRequest = await requestCollection.findByIdAndUpdate(
-                requestId,
-                updatedData,
-                { new: true } // Return the updated document
-            );
-            if (!updatedRequest) {
-                throw new Error('Request not found');
-            }
-            return updatedRequest;
-        } catch (error) {
-            throw new Error(`Error updating request: ${error.message}`);
-        }
-    };
-
-    // Remove a request by ID
-    removeRequest = async (requestId) => {
-        try {
-            await requestCollection.findByIdAndDelete(requestId);
-        } catch (error) {
-            throw new Error(`Error removing request: ${error.message}`);
-        }
-    };
-
-    getRequestById = async (requestId) => {
-        try {
-            const req = await requestCollection.findById(requestId);
-            if(!req) throw new Error('Request not found');
-            return req;
-        } catch (error) {
-            throw new Error(`Request not found`);
-        }
-    };
     CheckGroupConfirmation = async (group, username) => {
         try {
             // confirmGroup storse a list of users who have confirmed the group
             const user = await userCollection.findOne({ username: username, confirmGroup: { $in: [group] } });
             return user ? true : false;
         } catch (err) {
-            console.error(err);
+            console.error(err.message);
             return false;
         }
     }
@@ -390,7 +319,7 @@ class DAO {
             const msgs = await messageCollection.find({ receiver: group });
             return msgs;
         } catch (err) {
-            console.error("Get all group messages error:", err);
+            console.error("Get all group messages error:", err.message);
             return [];
         }
     }
@@ -402,7 +331,7 @@ class DAO {
             );
             return groupUsers;
         } catch (err) {
-            console.error("Get all group messages error:", err);
+            console.error("Get all group messages error:", err.message);
             return [];
         }
     }
@@ -425,7 +354,7 @@ class DAO {
             await messageCollection.findByIdAndDelete(id);
             return true;
         } catch (err) {
-            console.error(err);
+            console.error(err.message);
             return false;
         }
     }
@@ -446,18 +375,18 @@ class DAO {
         };
         
         function isInSantaClaraCounty(latitude, longitude) {
-            console.log(latitude)
-            console.log(longitude)
+            
+            
             if (
                 latitude >= santaClaraCountyBoundary.south &&
                 latitude <= santaClaraCountyBoundary.north &&
                 longitude >= santaClaraCountyBoundary.west &&
                 longitude <= santaClaraCountyBoundary.east
             ) {
-                console.log("true")
+                
                 return true;
             } else {
-                console.log("false")
+                
                 return false;
             }
         }
@@ -472,7 +401,7 @@ class DAO {
             }
             
         }catch(err){
-            console.log(err)
+            
         }
     }
     getFacilities = async()=>{
@@ -484,7 +413,7 @@ class DAO {
         return facility
     }
     searchFacility = async(description, mobility)=>{
-        console.log("searching facilities...");
+        
         if(description === "Open-Wound"|| description ==="Difficulty-Breathing"){
             return await facilityCollection.find({type:"Emergency Room"});
         }else if((description ==="Sprain"|| description==="Limb-Pain"||description ==="Head-Injury") && mobility ==="No"){
@@ -588,7 +517,7 @@ class DAO {
             const user = await userCollection.findOne({ username: username, confirmGroup: { $in: [group] } });
             return user ? true : false;
         } catch (err) {
-            console.error(err);
+            console.error(err.message);
             return false;
         }
     }
@@ -611,7 +540,7 @@ class DAO {
             const msgs = await messageCollection.find({ receiver: group });
             return msgs;
         } catch (err) {
-            console.error("Get all group messages error:", err);
+            console.error("Get all group messages error:", err.message);
             return [];
         }
     }
@@ -623,7 +552,7 @@ class DAO {
             );
             return groupUsers;
         } catch (err) {
-            console.error("Get all group messages error:", err);
+            console.error("Get all group messages error:", err.message);
             return [];
         }
     }
@@ -646,7 +575,7 @@ class DAO {
             await messageCollection.findByIdAndDelete(id);
             return true;
         } catch (err) {
-            console.error(err);
+            console.error(err.message);
             return false;
         }
     }

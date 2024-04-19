@@ -46,7 +46,7 @@ export const receiveGroupMessage = async (req, res) => {
         for (const specialist of specialists) {
             const specialistActive = await isUserActive(specialist);
             if (specialistActive) {
-                console.log("specialist online", specialist)
+                
                 count_specialist++;
             }
         }
