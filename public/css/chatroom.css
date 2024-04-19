@@ -153,6 +153,16 @@ header, #messageForm {
     position: relative;
 }
 
+#main {
+    height: 100%;
+}
+@media screen and (max-width: 640px) {
+    .row {
+        height: 90vh;
+    }
+}
+
+
 .chatroom-container {
     overflow: auto;
     height: 90%;
@@ -163,6 +173,7 @@ header, #messageForm {
 .users-container {
     /* overflow: auto; */
     height: 100%;
+    /* display: none; */
 }
 
 .container-max-height {
@@ -236,7 +247,7 @@ header, #messageForm {
 
 .notification-icon {
     position: fixed;
-    bottom: 100px;
+    bottom: 50px;
     right: 20px;
     cursor: pointer;
     width: 60px;
@@ -272,7 +283,7 @@ header, #messageForm {
 .dropdown-actions{
     display: none;
     position: fixed !important;
-    bottom: 100px;
+    bottom: 50px;
     left: 2em;
     width: fit-content;
 }

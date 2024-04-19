@@ -35,6 +35,7 @@ const getPrivateMessages = async (otherUsername) => {
   return archive;
 };
 
+
 const sendMessage = async () => {
   const textInput = document.getElementById("textInput");
   const username = localStorage.getItem("username");
@@ -372,12 +373,22 @@ const createIconElement = (username, status) => {
   return iconElement;
 };
 
+hideUserAndShowChatroomUIIfOnMobile = ()=>{
+  if(window.innerWidth<=640){
+    hideUsersUI();
+    showChatroomUI();
+  }
+}
+
 const createUserBodyHeader = (user) => {
   let title = document.createElement("h5");
   title.className = "card-title";
   title.textContent = user.username;
   title.style.cursor = "pointer";
-  title.addEventListener("click", () => showPrivateMessage(user.username));
+  title.addEventListener("click", () => {
+    hideUserAndShowChatroomUIIfOnMobile();
+    showPrivateMessage(user.username)}
+  );
   let cardHeader = document.createElement("div");
   cardHeader.className = "card-header";
   const iconElement = createIconElement(user.username, user.status);
@@ -769,8 +780,28 @@ const checkIfTestOngoing = async () => {
   }
 }
 
+const hideChatroomUI = () => {
+  document.getElementById("chatroom-container").style.display = "none";
+}
+
+const hideUsersUI = () => {
+  document.getElementById("user-container").style.display = "none";
+}
+
+const showUsersUI = () => {
+  document.getElementById("user-container").style.display = "block";
+}
+
+const showChatroomUI = () => {
+  document.getElementById("chatroom-container").style.display = "block";
+}
+
 window.onload = async () => {
   try {
+    if (window.innerWidth<=640) {
+      hideChatroomUI();
+      showUsersUI();
+    }
     await checkIfTestOngoing();
     const username = localStorage.getItem("username");
     if (username) {
