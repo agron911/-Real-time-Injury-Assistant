@@ -84,6 +84,11 @@ class DAO {
             // console.log('userSchemaObject', userSchemaObject);
             const user = await userCollection.create(userSchemaObject);
             const injury = await injuryCollection.create({ username: username, reported: false });
+            if (specialist) {
+                for (let spec of specialist) {
+                    await this.ConfirmGroup(spec, username);
+                }
+            }
             return user;
         } catch (err) {
             console.error("insert failed", err.message);
