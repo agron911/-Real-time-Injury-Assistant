@@ -46,7 +46,7 @@ class Server {
     }
 
     passport.use(new Strategy(options, (jwt_payload, done) => {
-      console.log('Authenticate invoked');
+      
     }))
     this.app.use(passport.initialize());
 
@@ -55,7 +55,7 @@ class Server {
     setupSocket(this.httpServer);
     this.app.use(router);
     this.httpServer.listen(port, function () {
-      console.log(`Listening port... ${port}`);
+      
     });
   }
 

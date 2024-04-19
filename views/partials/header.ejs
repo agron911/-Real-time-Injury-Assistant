@@ -8,6 +8,7 @@
                     data-bs-toggle="dropdown" aria-expanded="false">
                     Status
                 </button>
+                
                 <ul class="dropdown-menu">
                     <li class="menu-item dropdown-item" onclick="changeStatus('ok')">
                         <div class="" href="#">Ok</div>
@@ -25,17 +26,28 @@
             </div>
 
             <div class="buttons-container">
-                <button class="btn btn-outline-primary my-2 my-sm-0" onclick="announcement()" id="announcement-toggle-btn">
+                <button class="btn btn-outline-primary" onclick="getArchive(); closeNavbar() " id="alert-btn">Public Chat</button>
+                <button class="btn btn-outline-primary" onclick="announcement(); closeNavbar() " id="announcement-toggle-btn">Announcement</button>
+                <button class="btn btn-outline-primary" onclick="showSpeedTestModal(); closeNavbar() " id="speed-test-btn">Start Speed Test</button>
+                <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ShowGroupChoices">Counsel Group</button>
+                   <button class="btn btn-outline-primary my-2 my-sm-0" onclick="window.location.href='/waitlists'; closeNavbar() " id="announcement-toggle-btn">
+                    Waitlists
+                </button>
+                <button class="btn btn-outline-primary my-2 my-sm-0" onclick="window.location.href='/firstaid'; closeNavbar() " id="announcement-toggle-btn">
+                    First Aid
+                </button>
+                <button class="btn btn-outline-primary my-2 my-sm-0" onclick="announcement(); closeNavbar() " id="announcement-toggle-btn">
                     Announcement
                 </button>
-
-                <button class="btn btn-outline-primary my-2 my-sm-0" onclick="showSpeedTestModal()" id="speed-test-btn">
-                    Start Speed Test
+                
+                <button class="btn btn-outline-primary my-2 my-sm-0" onclick="navigateToEmergencyServices(); closeNavbar() " id="navigate-to-es-btn">
+                    Emergency Services
+                </button>
+                <button style="background-color: transparent; color:blue" id = 'faciliites-button' class='btn btn-secondary' type='button', onclick = "loadFacilities()">
+                    Facilities
                 </button>
 
-                <button class="btn btn-outline-primary my-2 my-sm-0" onclick="logout()" id="toggle-btn">
-                    Logout
-                </button>
+                <button class="btn btn-outline-primary" onclick="logout(); closeNavbar() " id="toggle-btn">Logout</button>
             </div>
         </div>
     </div>

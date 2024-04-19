@@ -4,6 +4,7 @@
 <body>
   <%- include ('partials/header'); %>
   <%- include ('partials/overlay'); %>
+  <div id="main">
   <div class="notification-icon" onclick="handleAlertClick()">
     <i class="la la-bell"></i>
     <span class="notification-dot"></span>
@@ -13,6 +14,8 @@
     <div id="liveAlertPlaceholder" class="live-alert-placeholder"></div>
     <%- include ('partials/alertMessageModal'); %>
     <%- include ('partials/speedTestModal'); %>
+    <%- include ('partials/editGroupMessageModal'); %>
+    <%- include ('partials/deleteGroupMessageModal'); %>
     <div class="row row-container">
       <div class="col-md-3 users-container">
         <%- include ('partials/userContainer'); %>
@@ -22,6 +25,7 @@
       </div>
     </div>
   </div>
+</div>
   <%- include ('partials/actionsDropdown'); %>
   <script src="https://cdn.socket.io/4.7.3/socket.io.min.js"></script>
   <script src="/js/speedTest.js"></script>

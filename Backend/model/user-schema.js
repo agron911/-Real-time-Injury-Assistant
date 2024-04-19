@@ -35,6 +35,24 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
         enum: ['Active', 'Inactive'],
+    },
+    esp: {
+        type: Boolean,
+        required: true,
+    },
+    waitlistRole: {
+        type: String,
+        required: true,
+        enum: ['undefined', 'citizen', 'provider'],
+    },
+    specialist: {
+        type: [String],
+        required: false,
+    },
+    confirmGroup:{
+        type: [String],
+        required: false,
+        default: [],
     }
 
 })

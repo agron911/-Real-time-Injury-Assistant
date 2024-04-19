@@ -9,7 +9,7 @@ export let io = {};
 export const setupSocket = (server) => {
   io = new Server(server);
   io.on("connection", async(socket) => {
-    console.log("Socket connected!", socket.id);
+    
     
     //const msgs = await getMessages();
 
@@ -20,17 +20,22 @@ export const setupSocket = (server) => {
         await stopTest();
       };
       await deregisterUserSocket(socket.id);
-      console.log("Socket disconnected", socket.id, MainServer.instance.testSocketID);
+      
     });
+    
     
 
     socket.on("chat message", async (data)=>{
           try{
             receiveMessage(data, io)
           }catch(error){
-            console.log(error)
+            
           }
     })
+    socket.on("joinRoom", async(room) => {
+      socket.join(room);
+      
+    });
 
 
   });
