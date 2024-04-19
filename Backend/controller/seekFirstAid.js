@@ -1,8 +1,10 @@
 import { io } from "../utils/socketSetup.js";
 import DAO from "../model/dao.js"
 import OpenAI from "openai";
+import { configDotenv } from 'dotenv';
+configDotenv();
 
-let openai = new OpenAI({ apiKey: "***REMOVED***"});
+let openai = new OpenAI({ apiKey: process.env.CHAT_GPT_API_KEY});
 
 export const firstaidView = (req, res) => {
     const data = { 

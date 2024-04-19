@@ -658,6 +658,152 @@ class DAO {
             throw new Error("Create message error: ", err);
         }
     }
+
+    /*----------------Iter 4 Taige-------------------*/ 
+    /*----------------Seek First Aid-------------------*/
+    createInjury = async (username, reported, timestamp, parts, bleeding, numbness, conscious) => {
+        try {
+            const injury = await injuryCollection.create({ username: username, reported: reported, timestamp: timestamp, parts: parts, bleeding: bleeding, numbness: numbness, conscious: conscious });
+            return injury;
+        } catch (err) {
+            console.error("Insert failed for create injury", err);
+            throw new Error("Insert failed :", err);
+        }
+    }
+
+    getInjuryByUser = async (username) => {
+        try {
+            const injury = await injuryCollection.findOne({ username: username });
+            return injury;
+        } catch (err) {
+            console.error("Injury not found: ", err);
+            throw new Error("Injury not found: ", err);
+        }
+    }
+
+    updateInjury = async (username, timestamp, parts, bleeding, numbness, conscious) => {
+        try {
+            await injuryCollection.findOneAndUpdate({ username: username }, { reported: true, timestamp: timestamp, parts: parts, bleeding: bleeding, numbness: numbness, conscious: conscious });
+        } catch (err) {
+            console.error("Update injury error: ", err);
+            throw new Error("Update injury error: ", err);
+        }
+    }
+
+    updateWaitlistRole = async (username, role) => {
+        try {
+            await userCollection.findOneAndUpdate({ username: username }, { waitlistRole: role });
+        } catch (err) {
+            throw new Error("Update waitlist role error: ", err);
+        }
+    }
+
+    createWaitlist = async (name, description) => {
+        try {
+            const waitlist = await waitlistCollection.create({ name: name, description: description, citizens: [], supplier: []});
+            return waitlist;
+        } catch (err) {
+            console.error("Insert failed for create waitlist", err);
+            return new Error("Insert failed :", err);
+        }
+    }
+
+    getWaitlist = async () => {
+        try {
+            const waitlist = await waitlistCollection.find();
+            return waitlist;
+        } catch (err) {
+            console.error("Waitlist not found: ", err);
+            return new Error("Waitlist not found: ", err);
+        }
+    }
+
+    getWaitlistByName = async (name) => {
+        try {
+            const waitlist = await waitlistCollection.findOne({ name: name });
+            return waitlist;
+        } catch (err) {
+            console.error("Waitlist not found: ", err);
+            return new Error("Waitlist not found: ", err);
+        }
+    }
+
+    addCitizenToWaitlist = async (waitlistName, username, timestamp) => {
+        try {
+            await waitlistCollection.findOneAndUpdate({ name: waitlistName }, { $push: { citizens: { username: username, timestamp: timestamp } } });
+        } catch (err) {
+            throw new Error("Add citizen to waitlist error: ", err);
+        }
+    }
+
+    addSupplierToWaitlist = async (waitlistName, username, count) => {
+        try {
+            await waitlistCollection.findOneAndUpdate({ name: waitlistName }, { $push: { supplier: { username: username, count: count } } });
+        } catch (err) {
+            throw new Error("Add supplier to waitlist error: ", err);
+        }
+    }
+
+    removeSupplierFromWaitlist = async (waitlistName, username) => {
+        try {
+            await waitlistCollection.findOneAndUpdate({ name: waitlistName }, { $pull: { supplier: { username: username } } });
+        } catch (err) {
+            throw new Error("Remove supplier from waitlist error: ", err);
+        }
+    }
+
+    updateCountByName = async (medname, count) => {
+        try {
+            await waitlistCollection.findOneAndUpdate({ name: medname }, { count: count });
+        } catch (err) {
+            throw new Error("Update count by name error: ", err);
+        }
+    }
+
+    removeCitizenFromWaitlist = async (waitlistName, username) => {
+        try {
+            await waitlistCollection.findOneAndUpdate({ name: waitlistName }, { $pull: { citizens: { username: username } } });
+        } catch (err) {
+            throw new Error("Remove citizen from waitlist error: ", err);
+        }
+    }
+
+    emptyCitizensByName = async (medname) => {
+        try {
+            await waitlistCollection.findOneAndUpdate({ name: medname }, { citizens: [] });
+        } catch (err) {
+            throw new Error("Empty citizens by name error: ", err);
+        }
+    }
+
+    createNotification = async (username, supplier, medname, timestamp) => {
+        try {
+            const notification = await notificationCollection.create({ username: username, supplier: supplier, medname: medname, timestamp: timestamp, viewed: false });
+            return notification;
+        } catch (err) {
+            console.error("Insert failed for create notification", err);
+            return new Error("Insert failed :", err);
+        }
+    }
+
+    getNotificationByUser = async (username) => {
+        try {
+            const notifications = await notificationCollection.find({ username: username, viewed: false });
+            return notifications;
+        } catch (err) {
+            console.error("Notification not found: ", err);
+            return new Error("Notification not found: ", err);
+        }
+    }
+
+    deleteNotificationById = async (id) => {
+        try {
+            await notificationCollection.findByIdAndDelete(new mongoose.Types.ObjectId(id));
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
 }
     
 
