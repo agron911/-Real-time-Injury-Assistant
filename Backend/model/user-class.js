@@ -1,5 +1,6 @@
 import DAO from "./dao.js"
 import { prohibitedUsernames } from '../utils/user-config.js';
+import { hashPassword } from "../utils/passwordUtils.js";
 
 class User {
     constructor(userid, username, password, status, usertype, esp, validate, waitlistRole, specialist) {
@@ -32,6 +33,13 @@ class User {
 
     static validate(username, password) {
         // Check username length
+
+        if (isNewUsername) {
+            if (this.usernameExists(username)) {
+                throw new Error("Username already exists");
+            }
+        }
+
         if (!username || username.length < this.usernameMinLength) {
             
             throw new Error("Username length invalid");
@@ -80,6 +88,16 @@ class User {
             confirmGroup: [],
         };
     }
+
+    static async usernameExists(newUsername) {
+        const user = await DAO.getInstance().getUserByName(newUsername);
+        return !!user;
+    }
+
+    static async hashPassword(password) {
+        return await hashPassword(password);
+    }
+    
 }
 
 export default User;

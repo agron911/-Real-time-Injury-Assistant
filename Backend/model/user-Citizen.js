@@ -21,14 +21,6 @@ class Citizen extends User {
     }
     
 
-    // getSchemaObject(){
-    //     return {
-    //         username: this.username,
-    //         status: this.status,
-    //         usertype: this.usertype, 
-    //         esp: this.esp,
-    //     }
-    // }
 }
 
 export default Citizen;

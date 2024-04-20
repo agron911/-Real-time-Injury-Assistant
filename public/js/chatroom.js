@@ -90,11 +90,13 @@ const sendAnnouncementMessage = async (message) => {
   });
 };
 
-
+const capitalizeFirstLetter = (string) =>{
+  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+}
 const editUserProfile = async (username) => {
   if (SUSPEND_NORMAL_OPERATION) return;
   const response = await fetch(url + "/user/" + username, {
-  // const response = await fetch(url + "/user/profile/${userid}" , {
+  // const response = await fetch(url + "/users/profile/${userid}" , {
     method: "GET",
     headers: {
       "Content-type": "application/json; charset=UTF-8",
@@ -103,25 +105,17 @@ const editUserProfile = async (username) => {
   const data = await response.json();
   
   const editModal = new bootstrap.Modal(document.getElementById("editProfileModal"), {});
-  console.log(data);
+  console.log("data",data);
   document.getElementById("edit-username").value = data.username;
   document.getElementById("edit-password").value = "";
   document.getElementById("edit-confirm-password").value = "";
   // document.getElementById("edit-status").value = data.status;
   const statusSelect = document.getElementById("edit-status");
-  for (let option of statusSelect.options) {
-    if (option.value === data.status) {
-      option.selected = true;
-      break;
-    }
-  }
+  statusSelect.value = data.online ? "Active" : "Inactive";
+
   const userTypeSelect = document.getElementById("edit-user-type");
-  for (let option of userTypeSelect.options) {
-    if (option.value === data.userType) {
-      option.selected = true;
-      break;
-    }
-  }
+  userTypeSelect.value = capitalizeFirstLetter(data.usertype);
+
   // document.getElementById("edit-user-type").value = data.userType;
 
   editModal.show();
@@ -134,20 +128,21 @@ const submitEditForm = async () => {
   const confirmPassword = document.getElementById("edit-confirm-password").value;
   const status = document.getElementById("edit-status").value;
   const userType = document.getElementById("edit-user-type").value;
+  const userId = localStorage.getItem("userId");
   if (password !== confirmPassword) {
     alert("Passwords do not match.");
     return;
   }
   try {
-    const response = await fetch(`/users/${username}/profile`, {
+    const response = await fetch(`/users/profile/${userId}`, {
     // const response = await fetch(`/users/profile/${userId}`, {
-      method: 'PUT',
+      method: 'PATCH',
       // PATCH
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        username, password, status, userType
+        userId, username, password, status, userType
       })
     });
 
@@ -473,9 +468,7 @@ const createUserBodyHeader = (user) => {
 
 
   let administrators = getAdministratorsFromLocalStorage();
-  console.log(administrators);
-  console.log(localStorage.getItem("username"));
-  console.log(administrators.includes(localStorage.getItem("username")))
+
   if (administrators.includes(localStorage.getItem("username"))){
     let editOption = document.createElement("a");
     editOption.className = "dropdown-item";

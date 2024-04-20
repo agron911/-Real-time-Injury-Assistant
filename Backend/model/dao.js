@@ -104,6 +104,14 @@ class DAO {
             throw new Error("User not found: ", err);
         }
     }
+    getUserById = async (userId) => {
+        try {
+            const user = await userCollection.findOne({ userId: userId });
+            return user;
+        } catch (err) {
+            throw new Error("User not found: ", err);
+        }
+    }
 
     filterStopWords = async(input) =>{
     

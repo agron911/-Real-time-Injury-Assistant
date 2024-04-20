@@ -14,7 +14,7 @@ import { firstaidView, loadInjuryByUsernames, receiveInjury, createChatMsg} from
 import { createNotification, getNotificationByUsername, handleGetStockSupply, newWaitlist, getWaitlistRole, waitlistCitizenView, waitlistElectView, waitlistProviderView, setWaitlistRole, getWaitlist, joinWaitlist, leaveWaitlist, getWaitlistDetails, handleSupplyWaitlist, deleteNotification} from '../controller/manageWaitlists.js';
 import { loadGroupMessages, receiveGroupMessage, CheckConfirmation, ConfirmGroup, getSpecialists, editGroupMessage, deleteGroupMessage} from '../controller/counselGroup.js';
 import { Facilities, addFacility, getAllFacilities, getFacilityByName, searchFacility, deleteFacility, updateFacilityInfo } from '../controller/facilities.js';
-import {changeUserInfo, changeAccountStatus} from '../controller/adminProfileController.js'
+import {changeUserInfo} from '../controller/adminProfileController.js'
 const router = express.Router();
 
 router.get("/", HomeView);
@@ -98,6 +98,7 @@ router.get("/facility/search", searchFacility)
 router.delete("/facilities", deleteFacility)
 router.patch("/facilities/newinfo", updateFacilityInfo)
 
-router.patch("/admin/info", changeUserInfo)
-router.patch("/admin/accountstatus", changeAccountStatus)
+// router.patch("/admin/info", changeUserInfo)
+router.patch("/users/profile/:username", changeUserInfo)
+// router.patch("/admin/accountstatus", changeAccountStatus)
 export default router;
