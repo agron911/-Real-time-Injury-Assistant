@@ -14,6 +14,7 @@ import { firstaidView, loadInjuryByUsernames, receiveInjury, createChatMsg} from
 import { createNotification, getNotificationByUsername, handleGetStockSupply, newWaitlist, getWaitlistRole, waitlistCitizenView, waitlistElectView, waitlistProviderView, setWaitlistRole, getWaitlist, joinWaitlist, leaveWaitlist, getWaitlistDetails, handleSupplyWaitlist, deleteNotification} from '../controller/manageWaitlists.js';
 import { loadGroupMessages, receiveGroupMessage, CheckConfirmation, ConfirmGroup, getSpecialists, editGroupMessage, deleteGroupMessage} from '../controller/counselGroup.js';
 import { Facilities, addFacility, getAllFacilities, getFacilityByName, searchFacility, deleteFacility, updateFacilityInfo } from '../controller/facilities.js';
+import {changeUserInfo, changeAccountStatus} from '../controller/adminProfileController.js'
 const router = express.Router();
 
 router.get("/", HomeView);
@@ -58,9 +59,6 @@ router.post("/request", createRequest);
 router.put("/request/:id", updateRequest);
 router.delete("/request/:id", deleteRequest);
 
-
-
-
 router.get("/firstaid", firstaidView);
 router.get("/injuries/:username", loadInjuryByUsernames);
 router.post("/injuries/:username", receiveInjury);
@@ -100,7 +98,6 @@ router.get("/facility/search", searchFacility)
 router.delete("/facilities", deleteFacility)
 router.patch("/facilities/newinfo", updateFacilityInfo)
 
-
-// PUT /users/:id/profile
-// router.put("/users/:id/profile", editProfile);
+router.patch("/admin/info", changeUserInfo)
+router.patch("/admin/accountstatus", changeAccountStatus)
 export default router;

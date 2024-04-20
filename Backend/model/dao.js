@@ -295,6 +295,15 @@ class DAO {
         return msgs;
     }
 
+    changeUserInfo = async(userid, accountstatus, username, priveledge, password)=>{
+        try{
+            let res = await userCollection.updateOne({"_id":Object(userid) }, {$set:{"username":username, "useraccountstatus":accountstatus, "usertype":priveledge, "password":password}});
+            //console.log(res);
+        }catch(error){
+            console.log("Error updating userinfo", error);
+        }
+    }
+
     CheckGroupConfirmation = async (group, username) => {
         try {
             // confirmGroup storse a list of users who have confirmed the group

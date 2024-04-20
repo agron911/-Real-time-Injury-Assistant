@@ -20,7 +20,7 @@ export const login = async (req, res) => {
         await DAO.getInstance().updateUserOnline(user.username);
         const users = await DAO.getInstance().getAllUsers();
         io.emit('updateUserList', users);
-        res.status(200).send({ token: "Bearer " + jwtToken });
+        res.status(200).send({ token: "Bearer " + jwtToken, userid: user._id.toString()});
     } else {
         res.status(404).send({ message: 'User not found' });
     }

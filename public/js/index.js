@@ -52,6 +52,7 @@ const login = async (username, password) => {
             const data = await response.json();
             localStorage.setItem("token", data.token);
             localStorage.setItem("username", username);
+            localStorage.setItem("userid", data.userid)
             // await connectToSocket();
             window.location.replace("/chatroom");
         }
