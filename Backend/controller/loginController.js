@@ -20,7 +20,7 @@ export const login = async (req, res) => {
         await DAO.getInstance().updateUserOnline(user.username);
         const users = await DAO.getInstance().getAllUsers();
         io.emit('updateUserList', users);
-        res.status(200).send({ token: "Bearer " + jwtToken });
+        res.status(200).send({ token: "Bearer " + jwtToken, userid: user._id.toString()});
     } else {
         res.status(404).send({ message: 'User not found' });
     }
@@ -82,7 +82,7 @@ export const getUsers = async (req, res) => {
 export const getUser = async (req, res) => {
     try{
         const citizen = await Citizen.retrieveUserByUsername(req.params.username);
-        res.status(200).send(citizen.getSchemaObject());
+        res.status(200).send(citizen);
     } catch (error) {
         res.status(404).send(error.message);
     }
