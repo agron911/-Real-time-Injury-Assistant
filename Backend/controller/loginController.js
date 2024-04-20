@@ -81,8 +81,10 @@ export const getUsers = async (req, res) => {
 
 export const getUser = async (req, res) => {
     try{
-        const citizen = await Citizen.retrieveUserByUsername(req.params.username);
-        res.status(200).send(citizen.getSchemaObject());
+        // const citizen = await Citizen.retrieveUserByUsername(req.params.username);
+        // res.status(200).send(citizen.getSchemaObject());
+        const user = await DAO.getInstance().getUserByName(req.params.username);
+        res.status(200).send(user);
     } catch (error) {
         res.status(404).send(error.message);
     }

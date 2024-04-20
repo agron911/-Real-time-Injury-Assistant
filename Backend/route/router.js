@@ -21,7 +21,7 @@ router.get("/community", indexView);
 router.get("/chatroom", ChatroomView);
 router.get("/emergencyServices", EmergencyServicesView)
 router.get('/test', (req, res) => (res.send("Hello World")));
-router.get("/users", getUsers); //TODO: fix this, should be user
+router.get("/users", getUsers); 
 router.post("/messages/public", receivePublicMessage);
 router.get("/messages/public", loadPublicMessages);
 router.post("/messages/private", receivePrivateMessage);
@@ -33,9 +33,9 @@ router.post("/messages/announcement", receiveAnnouncementMessage);
 router.post("/users/verification", UserJoin);
 router.post("/users/", UserConfirmation);
 router.post("/users/acknowledgement", UserAcknowledgement);
-router.get("/user/:username", getUser);
-router.put("/user/status/:username", updateUserStatus); // TODO: probably it should be user/:username/staus
-router.get("/user/status/:username", getStatus);
+router.get("/user/:username", getUser); //TODO: fix this, should be users
+router.put("/user/status/:username", updateUserStatus); // TODO: probably it should be users/:username/staus
+router.get("/user/status/:username", getStatus); //TODO: fix this, should be users
 
 
 router.patch("/auth/users", loginOrLogout);
@@ -100,4 +100,7 @@ router.get("/facility/search", searchFacility)
 router.delete("/facilities", deleteFacility)
 router.patch("/facilities/newinfo", updateFacilityInfo)
 
+
+// PUT /users/:id/profile
+// router.put("/users/:id/profile", editProfile);
 export default router;

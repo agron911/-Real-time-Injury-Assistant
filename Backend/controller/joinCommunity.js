@@ -23,8 +23,16 @@ export const indexView = (req, res) => {
 };
  
 export async function loginRegister(user_data){
+    
     const userExists = await DAO.getInstance().getUserByName(user_data.username);
+    if(user_data.username ==  "ESNAdmin" && !userExists){
+        await DAO.getInstance().createUser(user_data.username.toLowerCase(),  await hashPassword('admin'), "ok",'administrator', false, 'undefined',user_data.specialists);
+        await DAO.getInstance().updateUserAcknowledgement(user_data.username);
+        return null;
+    }
     if (!userExists) {
+        
+        
         let un = user_data.username;
         const data = {
             username: un.toLowerCase(),
@@ -33,7 +41,6 @@ export async function loginRegister(user_data){
         const hashed_password = await hashPassword(data.password);
         // const citizen = new Citizen(data.username, hashed_password, "undefined", false);
         // citizen.save();
-        console.log("??",user_data.specialists)
         await DAO.getInstance().createUser(data.username, hashed_password, "undefined",'citizen', false, 'undefined',user_data.specialists);
         // res.status(202).send({ data });
         return data;

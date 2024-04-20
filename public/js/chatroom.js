@@ -91,7 +91,85 @@ const sendAnnouncementMessage = async (message) => {
 };
 
 
+const editUserProfile = async (username) => {
+  if (SUSPEND_NORMAL_OPERATION) return;
+  const response = await fetch(url + "/user/" + username, {
+  // const response = await fetch(url + "/user/profile/${userid}" , {
+    method: "GET",
+    headers: {
+      "Content-type": "application/json; charset=UTF-8",
+    },
+  });
+  const data = await response.json();
+  
+  const editModal = new bootstrap.Modal(document.getElementById("editProfileModal"), {});
+  console.log(data);
+  document.getElementById("edit-username").value = data.username;
+  document.getElementById("edit-password").value = "";
+  document.getElementById("edit-confirm-password").value = "";
+  // document.getElementById("edit-status").value = data.status;
+  const statusSelect = document.getElementById("edit-status");
+  for (let option of statusSelect.options) {
+    if (option.value === data.status) {
+      option.selected = true;
+      break;
+    }
+  }
+  const userTypeSelect = document.getElementById("edit-user-type");
+  for (let option of userTypeSelect.options) {
+    if (option.value === data.userType) {
+      option.selected = true;
+      break;
+    }
+  }
+  // document.getElementById("edit-user-type").value = data.userType;
 
+  editModal.show();
+}
+// PUT /users/:id/profile
+const submitEditForm = async () => {
+  if (SUSPEND_NORMAL_OPERATION) return;
+  const username = document.getElementById("edit-username").value;
+  const password = document.getElementById("edit-password").value;
+  const confirmPassword = document.getElementById("edit-confirm-password").value;
+  const status = document.getElementById("edit-status").value;
+  const userType = document.getElementById("edit-user-type").value;
+  if (password !== confirmPassword) {
+    alert("Passwords do not match.");
+    return;
+  }
+  try {
+    const response = await fetch(`/users/${username}/profile`, {
+    // const response = await fetch(`/users/profile/${userId}`, {
+      method: 'PUT',
+      // PATCH
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username, password, status, userType
+      })
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      alert('Profile updated successfully');
+    }else{
+      const error = await response.text();
+      alert('Failed to update profile: ' + error);
+    }
+  } catch (error) {
+    alert('Failed to update profile: ' + error);
+  }
+}
+const getAdministratorsFromLocalStorage = () => {
+  const administratorsJSON = localStorage.getItem('administrators');
+  if (administratorsJSON) {
+    return JSON.parse(administratorsJSON).map(admin => admin.username);
+  } 
+  return [];
+
+};
 
 const showPrivateMessage = async (otherUsername) => {
   setSearchPrivate(otherUsername);
@@ -374,15 +452,46 @@ const createIconElement = (username, status) => {
 
 const createUserBodyHeader = (user) => {
   let title = document.createElement("h5");
-  title.className = "card-title";
+  title.className = "card-title dropdown-toggle";
   title.textContent = user.username;
+  title.setAttribute("data-bs-toggle", "dropdown");
   title.style.cursor = "pointer";
-  title.addEventListener("click", () => showPrivateMessage(user.username));
+  // add show profile on click
+  let dropdown = document.createElement("div");
+  dropdown.className = "dropdown-menu";
+  title.addEventListener("click", (event) => {
+    event.stopPropagation();
+    dropdown.classList.toggle("show");
+  });
+  let dropdownMenu = document.createElement("div");
+  dropdownMenu.className = "dropdown-menu";
+
+  let chatOption = document.createElement("a");
+  chatOption.className = "dropdown-item";
+  chatOption.textContent = "Open Chat";
+  chatOption.addEventListener("click", () => showPrivateMessage(user.username));
+
+
+  let administrators = getAdministratorsFromLocalStorage();
+  console.log(administrators);
+  console.log(localStorage.getItem("username"));
+  console.log(administrators.includes(localStorage.getItem("username")))
+  if (administrators.includes(localStorage.getItem("username"))){
+    let editOption = document.createElement("a");
+    editOption.className = "dropdown-item";
+    editOption.textContent = "Edit Profile";
+    editOption.addEventListener("click", () => editUserProfile(user.username));
+    dropdownMenu.appendChild(editOption);
+  }
+  
+  dropdownMenu.appendChild(chatOption);
+  // title.addEventListener("click", () => showPrivateMessage(user.username));
   let cardHeader = document.createElement("div");
   cardHeader.className = "card-header";
   const iconElement = createIconElement(user.username, user.status);
   cardHeader.appendChild(title);
   cardHeader.appendChild(iconElement);
+  cardHeader.appendChild(dropdownMenu);
   return cardHeader;
 }
 
@@ -712,6 +821,9 @@ const fetchInitialUserList = async () => {
   
   const response = await fetch(url + "/users");
   const users = await response.json();
+
+  const administrators = users.users.filter(user => user.usertype === 'Administrator');
+  localStorage.setItem("administrators", JSON.stringify(administrators));
   displayUsers(users);
 };
 

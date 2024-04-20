@@ -1,0 +1,45 @@
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editProfileModalLabel">Edit User Profile</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="edit-user-form">
+            <div class="mb-3">
+              <label for="edit-username" class="form-label">Username</label>
+              <input type="text" class="form-control" id="edit-username">
+            </div>
+            <div class="mb-3">
+              <label for="edit-password" class="form-label">New Password</label>
+              <input type="password" class="form-control" id="edit-password">
+            </div>
+            <div class="mb-3">
+              <label for="edit-confirm-password" class="form-label">Confirm Password</label>
+              <input type="password" class="form-control" id="edit-confirm-password">
+            </div>
+            <div class="mb-3">
+              <label for="edit-status" class="form-label">Status</label>
+              <select class="form-control" id="edit-status">
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="edit-user-type" class="form-label">User Type</label>
+              <select class="form-control" id="edit-user-type">
+                <option value="Administrator">Administrator</option>
+                <option value="Coordinator">Coordinator</option>
+                <option value="Citizen">Citizen</option>
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" onclick="submitEditForm()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
