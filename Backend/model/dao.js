@@ -91,7 +91,7 @@ class DAO {
             }
             return user;
         } catch (err) {
-            console.error("insert failed", err.message);
+            console.error("insert failed", err);
             throw new Error("Insert failed :", err);
         }
     }
@@ -104,9 +104,9 @@ class DAO {
             throw new Error("User not found: ", err);
         }
     }
-    getUserById = async (userId) => {
+    getUserById = async (userid) => {
         try {
-            const user = await userCollection.findOne({ userId: userId });
+            const user = await userCollection.findOne({ "_id": Object(userid)});
             return user;
         } catch (err) {
             throw new Error("User not found: ", err);
@@ -238,11 +238,13 @@ class DAO {
             throw new Error("Update user esp error: ", err.message);
         }
     }
-    createMessage = async (username, content, timestamp, status, receiver, viewed) => {
+    createMessage = async (userid, receiverid, username, content, timestamp, status, receiver, viewed) => {
         try {
-            const msg = await messageCollection.insertMany({ username: username, content: content, timestamp: timestamp, status: status, receiver: receiver, viewed: viewed });
+            console.log(userid);
+            const msg = await messageCollection.insertMany({ userid: userid, receiverid:receiverid, username: username, content: content, timestamp: timestamp, status: status, receiver: receiver, viewed: viewed });
             return msg;
         } catch (err) {
+            console.log(err);
             throw new Error("Create message error: ", err);
         }
 
@@ -380,9 +382,9 @@ class DAO {
             return false;
         }
     }
-    createGroupMessage = async (username, content, timestamp, status, receiver, viewed, group) => {
+    createGroupMessage = async (userid, username, content, timestamp, status, receiver, viewed, group) => {
         try {
-            const msg = await messageCollection.insertMany({ username: username, content: content, timestamp: timestamp, status: status, receiver: receiver, viewed: viewed, group: group });
+            const msg = await messageCollection.insertMany({ userid:userid, username: username, content: content, timestamp: timestamp, status: status, receiver: receiver, viewed: viewed, group: group, receiverid:"1" });
             return msg;
         } catch (err) {
             throw new Error("Create message error: ", err);
@@ -601,9 +603,9 @@ class DAO {
             return false;
         }
     }
-    createGroupMessage = async (username, content, timestamp, status, receiver, viewed, group) => {
+    createGroupMessage = async (userid, username, content, timestamp, status, receiver, viewed, group) => {
         try {
-            const msg = await messageCollection.insertMany({ username: username, content: content, timestamp: timestamp, status: status, receiver: receiver, viewed: viewed, group: group });
+            const msg = await messageCollection.insertMany({userid:userid, username: username, content: content, timestamp: timestamp, status: status, receiver: receiver, viewed: viewed, group: group, receiverid:"1"});
             return msg;
         } catch (err) {
             throw new Error("Create message error: ", err);
@@ -752,6 +754,16 @@ class DAO {
             await notificationCollection.findByIdAndDelete(new mongoose.Types.ObjectId(id));
         } catch (err) {
             console.error(err);
+        }
+    }
+
+    changeMessageUsername = async(userid, newusername)=>{
+        try{
+            let res = await messageCollection.updateMany({"userid":userid}, {$set:{"username": newusername}});
+            let res2 = await messageCollection.updateMany({"receiverid":userid}, {$set:{"receiver":newusername}});
+            return
+        }catch(er){
+            console.log(err);
         }
     }
 

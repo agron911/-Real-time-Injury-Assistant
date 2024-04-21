@@ -3,8 +3,7 @@ import { prohibitedUsernames } from '../utils/user-config.js';
 import { hashPassword } from "../utils/passwordUtils.js";
 
 class User {
-    constructor(userid, username, password, status, usertype, esp, validate, waitlistRole, specialist) {
-        if (validate && User.validate(username, password)) throw "Invalid username or password"
+    constructor( username, password, status, usertype, esp, waitlistRole, specialist) {
         this.username = username;
         this.status = status;
         this.password = password;
@@ -12,7 +11,8 @@ class User {
         this.esp = esp;
         this.waitlistRole = waitlistRole;
         this.specialist = specialist;
-        this.userid = userid;
+        console.log("Creating a usertype", usertype);
+        console.log("Creating a esp", esp);
     }
 
     static get dao() {
@@ -31,13 +31,12 @@ class User {
         return 3;
     }
 
-    static validate(username, password) {
+    static async validate(username, password) {
         // Check username length
-
-        if (isNewUsername) {
-            if (this.usernameExists(username)) {
-                throw new Error("Username already exists");
-            }
+        let check = await this.usernameExists(username);
+        //console.log(check);
+        if (check) {
+            throw new Error("Username already exists");
         }
 
         if (!username || username.length < this.usernameMinLength) {
@@ -79,19 +78,21 @@ class User {
             username: this.username,
             password: this.password,
             status: this.status,
-            online: false, 
-            acknowledged: false, 
+            online: false,
+            acknowledged: false,
             usertype: this.usertype,
             esp: this.esp,
             waitlistRole: 'undefined',
             specialist: this.specialist,
             confirmGroup: [],
+            useraccountstatus: 'Active',
         };
     }
 
     static async usernameExists(newUsername) {
         const user = await DAO.getInstance().getUserByName(newUsername);
-        return !!user;
+        console.log(user)
+        return !user===null;
     }
 
     static async hashPassword(password) {

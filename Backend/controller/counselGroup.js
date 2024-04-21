@@ -36,7 +36,7 @@ export const ConfirmGroup = async (req, res) => {
 export const receiveGroupMessage = async (req, res) => {
     const timestamp = new Date().toString();
     // new MessageObj(req.body.username, req.body.content, req.body.timestamp, req.body.status, req.body.receiver, req.body.group);
-    const mess = await DAO.getInstance().createGroupMessage(req.body.username, req.body.content, timestamp, req.body.status, req.body.receiver, false, req.body.group);
+    const mess = await DAO.getInstance().createGroupMessage(req.body.userid, req.body.username, req.body.content, timestamp, req.body.status, req.body.receiver, false, req.body.group);
     const users = await DAO.getInstance().getGroupUsers(req.body.group);
     let notificationsSent = 0;
     let view = false;

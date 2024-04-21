@@ -3,9 +3,9 @@ import { io } from "../utils/socketSetup.js";
 import DAO from "../model/dao.js"
 
 export const receiveAnnouncementMessage = async(req, res)=>{
-    const mess = new MessageObj(req.body.username, req.body.content, req.body.timestamp, req.body.status, req.body.receiver);
+    const mess = new MessageObj(req.body.userid, "0", req.body.username, req.body.content, req.body.timestamp, req.body.status, req.body.receiver);
     try{
-        await DAO.getInstance().createMessage(req.body.username, req.body.content, req.body.timestamp, req.body.status, req.body.receiver, true);
+        await DAO.getInstance().createMessage(req.body.userid, "0", req.body.username, req.body.content, req.body.timestamp, req.body.status, req.body.receiver, true);
         io.emit('chat message', mess.obj)
 
         res.send({message: "message received"})

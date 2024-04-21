@@ -27,6 +27,7 @@ function saveUser(){
         console.log(response);
         const {data} = await response.json();
         localStorage.setItem("username", data.username);
+        localStorage.setItem("userid", data.userid)
         document.getElementById("acknowlegementmodal").style.display="none";
         document.getElementById("acknowlegementmodal1").style.display="block";
     })

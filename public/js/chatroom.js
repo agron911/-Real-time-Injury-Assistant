@@ -38,11 +38,12 @@ const getPrivateMessages = async (otherUsername) => {
 const sendMessage = async () => {
   const textInput = document.getElementById("textInput");
   const username = localStorage.getItem("username");
+  const userid = localStorage.getItem("userid");
   if (textInput.value) {
     const status = await getStatus(username);
     if (status) setStatusButtonUI(status);
     if (CHATROOM_USER) {
-      await sendPrivateMessage(CHATROOM_USER, status, textInput.value);
+      await sendPrivateMessage(userid, CHATROOM_USER, status, textInput.value);
       showPrivateMessage(CHATROOM_USER);
     } else if (ANNOUNCEMENT) {
       // TODO: check for coordinator status
@@ -50,17 +51,17 @@ const sendMessage = async () => {
     } else if (GROUPCHAT) {
       sendGroupMessage(MESSAGE_RECEIVER, textInput.value);
     } else {
-      sendPublicMessage(status, textInput.value);
+      sendPublicMessage(userid, status, textInput.value);
     }
     textInput.value = "";
   }
 };
 
-const sendPrivateMessage = async (receiverUsername, status, message) => {
+const sendPrivateMessage = async (userid, receiverUsername, status, message) => {
   if (SUSPEND_NORMAL_OPERATION) return [];
   await fetch(url + "/messages/private", {
     method: "POST",
-    body: JSON.stringify({ username: localStorage.getItem("username"), content: message, status: status, receiver: receiverUsername }),
+    body: JSON.stringify({userid: userid, username: localStorage.getItem("username"), content: message, status: status, receiver: receiverUsername }),
     headers: {
       "Content-type": "application/json; charset=UTF-8",
     },
@@ -68,11 +69,11 @@ const sendPrivateMessage = async (receiverUsername, status, message) => {
 };
 
 
-const sendPublicMessage = async (status, message) => {
+const sendPublicMessage = async (userid, status, message) => {
   if (SUSPEND_NORMAL_OPERATION) return;
   await fetch(url + "/messages/public", {
     method: "POST",
-    body: JSON.stringify({ username: localStorage.getItem("username"), content: message, timestamp: new Date().toString(), status: status, receiver: "all" }),
+    body: JSON.stringify({ userid: userid, username: localStorage.getItem("username"), content: message, timestamp: new Date().toString(), status: status, receiver: "all" }),
     headers: {
       "Content-type": "application/json; charset=UTF-8",
     },
@@ -83,7 +84,7 @@ const sendAnnouncementMessage = async (message) => {
   if (SUSPEND_NORMAL_OPERATION) return
   await fetch(url + "/messages/announcement", {
     method: "POST",
-    body: JSON.stringify({ username: localStorage.getItem("username"), content: message, timestamp: new Date().toString(), status: "undefined", receiver: "announcement" }),
+    body: JSON.stringify({ username: localStorage.getItem("username"), userid:localStorage.getItem("userid"), content: message, timestamp: new Date().toString(), status: "undefined", receiver: "announcement" }),
     headers: {
       "Content-type": "application/json; charset=UTF-8",
     },
@@ -128,7 +129,7 @@ const submitEditForm = async () => {
   const confirmPassword = document.getElementById("edit-confirm-password").value;
   const status = document.getElementById("edit-status").value;
   const userType = document.getElementById("edit-user-type").value;
-  const userId = localStorage.getItem("userId");
+  const userId = localStorage.getItem("userid");
   if (password !== confirmPassword) {
     alert("Passwords do not match.");
     return;
@@ -232,7 +233,7 @@ const sendGroupMessage = async (group, message) => {
   if (SUSPEND_NORMAL_OPERATION) return
   await fetch(url + "/chatrooms/" + group, {
     method: "POST",
-    body: JSON.stringify({ username: localStorage.getItem("username"), content: message, timestamp: new Date().toString(), status: "undefined", receiver: group, group: group }),
+    body: JSON.stringify({userid: localStorage.getItem("userid"),  username: localStorage.getItem("username"), content: message, timestamp: new Date().toString(), status: "undefined", receiver: group, group: group }),
     headers: {
       "Content-type": "application/json; charset=UTF-8",
     },
@@ -780,6 +781,7 @@ const logout = async () => {
     });
     localStorage.setItem("token", null);
     localStorage.setItem("username", null);
+    localStorage.clear()
   } catch (e) { }
 };
 

@@ -13,10 +13,12 @@ export const loadUnreadMessages = async(req, res) => {
 }
 
 export const receivePrivateMessage = async(req, res)=>{
-
+    let receiveruser = await DAO.getInstance().getUserByName(req.body.receiver);
+    let receiveruserid = receiveruser._id.toString()
+    console.log(req.body);
     const timestamp = new Date().toString(); 
-    new MessageObj(req.body.username, req.body.content, req.body.timestamp, req.body.status, req.body.receiver);
-    const mess = await DAO.getInstance().createMessage(req.body.username, req.body.content, timestamp, req.body.status, req.body.receiver, false);
+    new MessageObj(req.body.userid, receiveruserid, req.body.username, req.body.content, req.body.timestamp, req.body.status, req.body.receiver);
+    const mess = await DAO.getInstance().createMessage(req.body.userid, receiveruserid, req.body.username, req.body.content, timestamp, req.body.status, req.body.receiver, false);
 
     // if the user is online, send notification to user through socket
     const userActive = await isUserActive(req.body.receiver);

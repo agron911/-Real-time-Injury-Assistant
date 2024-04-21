@@ -11,12 +11,14 @@ export const ChatroomView = (req, res) => {
 };
 
 export const receivePublicMessage = async(req, res)=>{
-    const mess = new MessageObj(req.body.username, req.body.content, req.body.timestamp, req.body.status, req.body.receiver);
+    console.log(req.body);
+    const mess = new MessageObj(req.body.userid, "0", req.body.username, req.body.content, req.body.timestamp, req.body.status, req.body.receiver);
     try{
-        await DAO.getInstance().createMessage(req.body.username, req.body.content, req.body.timestamp, req.body.status, req.body.receiver, true);
+        await DAO.getInstance().createMessage(req.body.userid,"0", req.body.username, req.body.content, req.body.timestamp, req.body.status, req.body.receiver, true);
         io.emit('chat message', mess.obj)
         res.send({message: "message received"})
     }catch(err){
+        console.log(err);
         res.status(400).send(err);
     }
     

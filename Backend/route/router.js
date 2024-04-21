@@ -32,7 +32,7 @@ router.get("/messages/announcement", loadAnnouncementMessages);
 router.post("/messages/announcement", receiveAnnouncementMessage);
 
 router.post("/users/verification", UserJoin);
-router.post("/users/", UserConfirmation);
+router.post("/users", UserConfirmation);
 router.post("/users/acknowledgement", UserAcknowledgement);
 router.get("/user/:username", getUser); //TODO: fix this, should be users
 router.put("/user/status/:username", updateUserStatus); // TODO: probably it should be users/:username/staus
@@ -99,6 +99,6 @@ router.delete("/facilities", deleteFacility)
 router.patch("/facilities/newinfo", updateFacilityInfo)
 
 // router.patch("/admin/info", changeUserInfo)
-router.patch("/users/profile/:username", changeUserInfo)
+router.patch("/users/profile/:userid", changeUserInfo)
 // router.patch("/admin/accountstatus", changeAccountStatus)
 export default router;

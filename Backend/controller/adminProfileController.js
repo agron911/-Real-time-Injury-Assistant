@@ -8,11 +8,18 @@ import { getSocketIds } from '../model/ActiveUser.js';
 export const changeUserInfo = async (req, res)=>{
     const username = req.body.username;
     const newPassword = req.body.password;
-    const userid = req.body.userid;
+    const userid = req.params.userid;
     const newstatus = req.body.status;
     const newusertype = req.body.usertype;
+    //console.log(req.body);
+    //console.log(req.params)
+    const oldusername = await DAO.getInstance().getUserById(userid).username;
+    if(oldusername !=username){
+        await DAO.getInstance().changeMessageUsername(userid, username)
+    }
     try{
         let user = await DAO.getInstance().getUserById(userid);
+        //console.log(user)
         if(!user){
             res.status(404).send({message: "User not found"});
             return;
@@ -28,6 +35,7 @@ export const changeUserInfo = async (req, res)=>{
             const socketIds = await getSocketIds(user.username);
             io.to(socketIds).emit('logout', { message: "Your account has been deactivated. Please contact support." });
         }
+        res.status(200).send({message: "change saved"})
 
     }catch  (err){
         if (err.message.includes("Invalid username or password") || err.message.includes("Username already exists")) {
@@ -35,6 +43,7 @@ export const changeUserInfo = async (req, res)=>{
         } else if (err.message.includes("User not found")) {
             return res.status(404).send({ message: err.message });
         } else {
+            console.log(err)
             return res.status(500).send({ message: "Failed to update profile due to an unexpected error." });
         }
     }
