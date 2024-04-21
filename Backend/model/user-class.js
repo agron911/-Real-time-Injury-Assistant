@@ -13,6 +13,10 @@ class User {
         this.specialist = specialist;
         console.log("Creating a usertype", usertype);
         console.log("Creating a esp", esp);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2e83f84dd0954f185e15a1514f78eaf8b982f894
     }
 
     static get dao() {
@@ -33,11 +37,15 @@ class User {
 
     static async validate(username, password) {
         // Check username length
+<<<<<<< HEAD
         let check = await this.usernameExists(username);
         //console.log(check);
         if (check) {
             throw new Error("Username already exists");
         }
+=======
+
+>>>>>>> 2e83f84dd0954f185e15a1514f78eaf8b982f894
 
         if (!username || username.length < this.usernameMinLength) {
             

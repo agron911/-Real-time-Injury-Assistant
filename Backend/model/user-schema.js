@@ -39,6 +39,7 @@ const UserSchema = new mongoose.Schema({
     esp: {
         type: Boolean,
         required: true,
+        default: false,
     },
     waitlistRole: {
         type: String,

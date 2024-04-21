@@ -1,22 +1,15 @@
 import { hashPassword} from "../utils/passwordUtils.js"
-import { prohibitedUsernames } from '../utils/user-config.js'; 
 import DAO from "../model/dao.js"
 import { io } from "../utils/socketSetup.js";
 import User from "../model/user-class.js";
 import { getSocketIds } from '../model/ActiveUser.js';
 
 export const changeUserInfo = async (req, res)=>{
-    const username = req.body.username;
+    const username = req.body.username.toLowerCase();
     const newPassword = req.body.password;
-    const userid = req.params.userid;
+    const userid = req.body.userid;
     const newstatus = req.body.status;
     const newusertype = req.body.usertype;
-    //console.log(req.body);
-    //console.log(req.params)
-    const oldusername = await DAO.getInstance().getUserById(userid).username;
-    if(oldusername !=username){
-        await DAO.getInstance().changeMessageUsername(userid, username)
-    }
     try{
         let user = await DAO.getInstance().getUserById(userid);
         //console.log(user)
@@ -25,17 +18,24 @@ export const changeUserInfo = async (req, res)=>{
             return;
         }
 
-        User.validate(username, newPassword);
-
-        const newpassword = await hashPassword(newPassword);
+        if( username !== user.username){
+            username = username.toLowerCase();
+        }
+        if(newPassword !== ""){
+            newPassword = hashPassword(newPassword);
+        }else{
+            console.log("no new password", user.password);
+            newPassword = user.password;
+        }
         
-        await DAO.getInstance().changeUserInfo(userid, newstatus, username, newusertype, newpassword)
+
+        
+        await DAO.getInstance().changeUserInfo(userid, newstatus, username, newusertype, newPassword)
 
         if (newstatus === 'Inactive' && user.status !== 'Inactive') {
             const socketIds = await getSocketIds(user.username);
-            io.to(socketIds).emit('logout', { message: "Your account has been deactivated. Please contact support." });
+            io.to(socketIds).emit('inactive-logout', { message: "Your account has been deactivated. Please contact support." });
         }
-        res.status(200).send({message: "change saved"})
 
     }catch  (err){
         if (err.message.includes("Invalid username or password") || err.message.includes("Username already exists")) {

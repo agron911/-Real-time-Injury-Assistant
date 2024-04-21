@@ -9,7 +9,7 @@ let MESSAGE_RECEIVER = "";
 let PUBLIC_SEARCH_COUNTER = 1;
 let ANNOUNCEMENT_SEARCH_COUNTER = 1
 let PRIVATE_SEARCH_COUNTER = 1;
-let GROUPCHAT=false;
+let GROUPCHAT = false;
 
 let IS_SPECIALIST = false;
 let Anxiety_rule = "You're not alone in your feelings of anxiety; here, you'll find a compassionate space to explore your experiences, learn coping strategies, and connect with others who truly understand."
@@ -31,7 +31,7 @@ const getPrivateMessages = async (otherUsername) => {
     }
   );
   const { archive } = await data.json();
-  
+
   return archive;
 };
 
@@ -91,6 +91,7 @@ const sendAnnouncementMessage = async (message) => {
   });
 };
 
+<<<<<<< HEAD
 const capitalizeFirstLetter = (string) =>{
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 }
@@ -146,28 +147,14 @@ const submitEditForm = async () => {
         userId, username, password, status, userType
       })
     });
+=======
+>>>>>>> 2e83f84dd0954f185e15a1514f78eaf8b982f894
 
-    if (response.ok) {
-      const result = await response.json();
-      alert('Profile updated successfully');
-    }else{
-      const error = await response.text();
-      alert('Failed to update profile: ' + error);
-    }
-  } catch (error) {
-    alert('Failed to update profile: ' + error);
-  }
-}
-const getAdministratorsFromLocalStorage = () => {
-  const administratorsJSON = localStorage.getItem('administrators');
-  if (administratorsJSON) {
-    return JSON.parse(administratorsJSON).map(admin => admin.username);
-  } 
-  return [];
 
-};
 
 const showPrivateMessage = async (otherUsername) => {
+  ANNOUNCEMENT = false;
+  GROUPCHAT = false;
   setSearchPrivate(otherUsername);
   document.getElementById("elect-form").style.display = "none";
   document.getElementById("wall").style.display = "flex";
@@ -206,16 +193,23 @@ const getAnnouncement = async () => {
     },
   });
   const { archive } = await response.json();
-  
+
   return archive;
 }
 
 
 
 async function getArchive() {
+  ANNOUNCEMENT = false;
+  GROUPCHAT = false;
+  CHATROOM_USER = "";
   setSearchPublic();
   document.getElementById("elect-form").style.display = "none";
   document.getElementById("wall").style.display = "flex";
+  const chatroomTypeTitleElement = document.getElementById("chatroom-title");
+  chatroomTypeTitleElement.innerHTML = "Public Chatroom";
+  const messageContainer = document.getElementById("messages");
+  messageContainer.innerHTML = "";
   const response = await getPublicMessages();
   const data = await response.json();
   if (!data.empty) {
@@ -280,7 +274,7 @@ const ConfirmGroupChat = async (group) => {
       }
       confirmationModal.show();
       document.getElementById('JoinGroupConfirm').addEventListener('click', async function () {
-        
+
         await fetch(url + "/chatrooms/" + group + "/" + localStorage.getItem("username"), {
           method: "POST",
           headers: {
@@ -296,18 +290,19 @@ const ConfirmGroupChat = async (group) => {
       return;
     }
   } catch (e) {
-    
+
   }
 }
 
 const GroupChat = async (group) => {
   GROUPCHAT = true;
   CHATROOM_USER = "";
+  ANNOUNCEMENT = false;
 
   setSearchGroup(group);
   document.getElementById("elect-form").style.display = "none";
   document.getElementById("wall").style.display = "flex";
-  
+
   const chatroomTypeTitleElement = document.getElementById("chatroom-title");
   chatroomTypeTitleElement.innerHTML = group + " Group Counsel";
 
@@ -344,10 +339,10 @@ const createEditableMessage = (cardBody, msg) => {
     // Logic to modify message
     document.getElementById("messageEditInput").value = msg.content;
     document.getElementById("saveMessageChanges").onclick = async () => {
-      
+
 
       let editMessageModal = new bootstrap.Modal(document.getElementById('editMessageModal'), {});
-      
+
       editMessageModal.hide();
 
       try {
@@ -364,11 +359,11 @@ const createEditableMessage = (cardBody, msg) => {
         });
 
       } catch (e) {
-        
+
       };
 
     };
-    
+
   });
 
   let deleteButton = document.createElement("button");
@@ -379,7 +374,7 @@ const createEditableMessage = (cardBody, msg) => {
   deleteButton.addEventListener("click", async () => {
     // Logic to delete message
     document.getElementById("deleteMessageChanges").onclick = async () => {
-      
+
 
       try {
         await fetch(url + "/chatrooms/" + MESSAGE_RECEIVER + "/" + msg._id, {
@@ -390,7 +385,7 @@ const createEditableMessage = (cardBody, msg) => {
           },
         });
       } catch (e) {
-        
+
       };
       let deleteMessageModal = new bootstrap.Modal(document.getElementById('deleteMessageModal'), {});
       deleteMessageModal.hide();
@@ -419,7 +414,7 @@ const deleteMessages = (msgId) => {
       messageElement.remove();
     }
   } catch (error) {
-    
+
   }
 }
 
@@ -446,6 +441,14 @@ const createIconElement = (username, status) => {
   return iconElement;
 };
 
+const getAdministratorsFromLocalStorage = () => {
+  const administratorsJSON = localStorage.getItem('administrators');
+  if (administratorsJSON) {
+    return JSON.parse(administratorsJSON).map(admin => admin.username);
+  }
+  return [];
+};
+
 const createUserBodyHeader = (user) => {
   let title = document.createElement("h5");
   title.className = "card-title dropdown-toggle";
@@ -470,14 +473,16 @@ const createUserBodyHeader = (user) => {
 
   let administrators = getAdministratorsFromLocalStorage();
 
-  if (administrators.includes(localStorage.getItem("username"))){
+  const currentUsername = localStorage.getItem("username");
+  if (administrators.includes(currentUsername.toLowerCase()) || user.username === currentUsername) {
     let editOption = document.createElement("a");
     editOption.className = "dropdown-item";
     editOption.textContent = "Edit Profile";
     editOption.addEventListener("click", () => editUserProfile(user.username));
     dropdownMenu.appendChild(editOption);
   }
-  
+
+
   dropdownMenu.appendChild(chatOption);
   // title.addEventListener("click", () => showPrivateMessage(user.username));
   let cardHeader = document.createElement("div");
@@ -606,7 +611,7 @@ const registerSocket = async (username, socketId) => {
       },
     });
   } catch (e) {
-    
+
   }
 };
 
@@ -617,7 +622,7 @@ const connectToSocket = async () => {
   socket.on("updateUserList", async () => { await fetchInitialUserList(); });
   socket.on("status-update", (data) => { updateUserStatusIconEverywhere(data.status, data.username); });
   socket.on("private-message", (data) => { showMessageAlert(data, "primary"); });
-  socket.on("suspendNormalOps", (socketID) => { if (socketID != localStorage.getItem('socketID')) logout();});
+  socket.on("suspendNormalOps", (socketID) => { if (socketID != localStorage.getItem('socketID')) logout(); });
   socket.on("enableNormalOperation", (data) => { SUSPEND_NORMAL_OPERATION = false; });
   socket.on("group-message", async (data) => {
     if (!SUSPEND_NORMAL_OPERATION) {
@@ -625,7 +630,7 @@ const connectToSocket = async () => {
       IS_SPECIALIST = true;
 
       addMessages(data.msg);
-      
+
       if (data.specialist_online && data.msg.username != localStorage.getItem("username")) {
         showMessageAlert(data.msg, "primary");
       } else if (!data.specialist_online) {
@@ -636,6 +641,12 @@ const connectToSocket = async () => {
   });
   socket.on("edit-group-message", (msg) => { editMessages(msg) });
   socket.on("delete-group-message", (msgId) => { deleteMessages(msgId); });
+  socket.on("inactive-logout", (data) => {
+    alert(data.message);
+    sessionStorage.clear();
+    window.location.href = '/login';
+  });
+
 
 };
 
@@ -668,7 +679,7 @@ const closeAlert = (message) => {
 const createAlertHTMLElement = (message, type) => {
   const wrapper = document.createElement("div");
   wrapper.id = message._id;
-  
+
   if (type === "primary") {
     alert_msg = `<div>${message.username}: ${message.content}</div>`
     if (message.receiver == "Anxiety" || message.receiver == "Depression" || message.receiver == "Stress" || message.receiver == "Grief") {
@@ -731,7 +742,7 @@ const getStatus = async (username) => {
     const { status } = await res.json();
     return status;
   } catch (e) {
-    
+
   }
 };
 
@@ -788,6 +799,8 @@ const logout = async () => {
 
 const announcement = async () => {
   ANNOUNCEMENT = true;
+  CHATROOM_USER = "";
+  GROUPCHAT = false;
   setSearchAnnouncement();
   document.getElementById("elect-form").style.display = "none";
   document.getElementById("wall").style.display = "flex";
@@ -813,10 +826,9 @@ const getSpecialists = async (group) => {
 
 const fetchInitialUserList = async () => {
   if (SUSPEND_NORMAL_OPERATION) return;
-  
+
   const response = await fetch(url + "/users");
   const users = await response.json();
-
   const administrators = users.users.filter(user => user.usertype === 'Administrator');
   localStorage.setItem("administrators", JSON.stringify(administrators));
   displayUsers(users);
@@ -855,9 +867,9 @@ const getUnreadMessages = async () => {
 
 const getAlerts = async () => {
   const unreadMessages = await getUnreadMessages();
-  
+
   for (const msg of unreadMessages) {
-    
+
     showMessageAlert(msg, "primary");
   }
 };
@@ -870,7 +882,7 @@ const checkIfTestOngoing = async () => {
     },
   });
   const responseData = await response.json();
-  
+
   if (responseData) {
     SUSPEND_NORMAL_OPERATION = true;
   }
@@ -893,7 +905,7 @@ window.onload = async () => {
       await getAlerts();
     }
   } catch (err) {
-    
+
   }
 };
 
@@ -964,7 +976,7 @@ function setSearchStatusEmergency() {
 }
 
 const searchByUsername = async (searchValue) => {
-  
+
   try {
     const response = await fetch(url + "/users/username/search?user=" + searchValue, {
       method: "GET",
@@ -974,15 +986,15 @@ const searchByUsername = async (searchValue) => {
     });
     const { search_result } = await response.json();
     const data = { users: search_result };
-    
+
     displayUsers(data);
   } catch (e) {
-    
+
   }
 }
 
 const searchByStatus = async () => {
-  
+
   try {
     const response = await fetch(url + "/users/status/search?status=" + USERS_SEARCH_STATUS, {
       method: "GET",
@@ -992,10 +1004,10 @@ const searchByStatus = async () => {
     });
     const { search_result } = await response.json();
     const data = { users: search_result };
-    
+
     displayUsers(data);
   } catch (e) {
-    
+
   }
 }
 
@@ -1047,7 +1059,7 @@ function createMessageElement(search_result) {
 }
 
 const searchPublicMessages = async (searchValue) => {
-  
+
   try {
     const response = await fetch(url + "/messages/public/search?content=" + searchValue + "&limit=" + (PUBLIC_SEARCH_COUNTER * 10).toString(), {
       method: "GET",
@@ -1058,14 +1070,14 @@ const searchPublicMessages = async (searchValue) => {
     const { search_result } = await response.json();
     createMessageElement(search_result);
   } catch (e) {
-    
+
   }
   PUBLIC_SEARCH_COUNTER += 1;
 }
 
 
 const searchAnnouncementMessages = async (searchValue) => {
-  
+
   try {
     const response = await fetch(url + "/messages/announcement/search?content=" + searchValue + "&limit=" + (ANNOUNCEMENT_SEARCH_COUNTER * 10).toString(), {
       method: "GET",
@@ -1077,14 +1089,14 @@ const searchAnnouncementMessages = async (searchValue) => {
     createMessageElement(search_result);
 
   } catch (e) {
-    
+
   }
   ANNOUNCEMENT_SEARCH_COUNTER += 1;
 }
 
 
 const searchPrivateMessages = async (searchValue) => {
-  
+
   try {
     const response = await fetch(url + "/messages/private/search?receiver=" + localStorage.getItem("username") + "&sender=" + MESSAGE_RECEIVER + "&content=" + searchValue + "&limit=" + (PRIVATE_SEARCH_COUNTER * 10).toString(), {
 
@@ -1097,7 +1109,7 @@ const searchPrivateMessages = async (searchValue) => {
     createMessageElement(search_result);
 
   } catch (e) {
-    
+
   }
   if (searchValue == "status") {
     PRIVATE_SEARCH_COUNTER = 0;
@@ -1135,7 +1147,7 @@ function closeNavbar() {
   bsCollapse.hide();
 }
 
-const loadFacilities = async ()=>{
-  window.location.href='/facilities'
-  
+const loadFacilities = async () => {
+  window.location.href = '/facilities'
+
 }
