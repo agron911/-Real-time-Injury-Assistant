@@ -91,7 +91,6 @@ class User {
 
     static async usernameExists(newUsername) {
         const user = await DAO.getInstance().getUserByName(newUsername);
-        console.log(user)
         return !user===null;
     }
 

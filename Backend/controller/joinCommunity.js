@@ -23,7 +23,7 @@ export const indexView = (req, res) => {
 };
  
 export async function loginRegister(user_data){
-    const userExists = await DAO.getInstance().getUserByName(user_data.username);
+    
     const check = userExists ===null;
     if(user_data.username ==  "ESNAdmin" && check){
         await DAO.getInstance().createUser(user_data.username.toLowerCase(),  await hashPassword('admin'), "ok",'administrator', false, 'undefined',user_data.specialists);
@@ -47,7 +47,8 @@ export async function loginRegister(user_data){
 }
 
 export const UserConfirmation = async (req, res) => { 
-    var user_confirmation_result = await loginRegister(req.body)
+    
+    let user_confirmation_result = await loginRegister(req.body)
     if(user_confirmation_result != null){
         res.status(202).send({data: user_confirmation_result});
     }

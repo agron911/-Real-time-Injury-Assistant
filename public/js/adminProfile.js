@@ -3,10 +3,10 @@ const capitalizeFirstLetter = (string) => {
 }
 let originalUsername = '';
 let originalPassword = '';
-const editUserProfile = async (username) => {
+
+const editUserProfile = async (userid) => {
     if (SUSPEND_NORMAL_OPERATION) return;
-    const response = await fetch(url + "/user/" + username, {
-        // const response = await fetch(url + "/users/profile/${userid}" , {
+        const response = await fetch(url + `/users/profile/${userid}` , {
         method: "GET",
         headers: {
             "Content-type": "application/json; charset=UTF-8",
@@ -16,14 +16,11 @@ const editUserProfile = async (username) => {
     originalUsername = data.username;
     originalPassword = '';
     const editModal = new bootstrap.Modal(document.getElementById("editProfileModal"), {});
-    localStorage.setItem("userId", data._id);
     document.getElementById("edit-username").value = data.username;
     document.getElementById("edit-password").value = "";
     document.getElementById("edit-confirm-password").value = "";
 
     const administrators = getAdministratorsFromLocalStorage();
-    console.log("admin", administrators);
-    console.log("data", localStorage.getItem("username"));
     if (administrators.includes(localStorage.getItem("username").toLowerCase())) {
         const statusSelect = document.getElementById("edit-status");
         statusSelect.value = data.useraccountstatus;
@@ -32,6 +29,11 @@ const editUserProfile = async (username) => {
 
         
     }else{
+        const statusSelect = document.getElementById("edit-status");
+        statusSelect.value = data.useraccountstatus;
+        const userTypeSelect = document.getElementById("edit-user-type");
+        userTypeSelect.value = capitalizeFirstLetter(data.usertype);
+
         document.getElementById("edit-status").disabled = true;
         document.getElementById("edit-user-type").disabled = true;
     }
@@ -42,6 +44,9 @@ const editUserProfile = async (username) => {
 }
 // PUT /users/:id/profile
 const submitEditForm = async () => {
+    const privilege = await checkPrivilege(localStorage.getItem("userid"));
+    console.log(privilege);
+ 
     if (SUSPEND_NORMAL_OPERATION) return;
     const isUsernameValid = usernameChanged ? await validateUsername() : true;
     const isPasswordValid = passwordChanged ? await validatePassword() && await validateConfirmPassword() : true;
@@ -70,10 +75,10 @@ const submitEditForm = async () => {
                 userId, username, password, status, usertype
             })
         });
-        console.log(response);
         if (response.ok) {
             const result = await response.json();
-            console.log(result);
+            localStorage.setItem("username", result.data.username);
+
             alert('Profile updated successfully');
             window.location.reload();
         } else {
@@ -165,4 +170,23 @@ confirmPasswordInput.addEventListener('input', ()=>{
     }
 });
 
+
+const checkPrivilege = async(userid)=>{
+    //router.post("/users/:id/privilege", UserActionValidation)
+    const response = await fetch(`/users/${userid}/privilege`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+    if (response.ok) {
+        const result = await response.json();
+        return result.data;
+    } else {
+        const error = await response.text();
+        alert('Failed to check privilege: ' + error);
+    }
+
+
+}
 

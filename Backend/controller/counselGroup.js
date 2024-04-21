@@ -66,6 +66,7 @@ export const receiveGroupMessage = async (req, res) => {
                     io.to(socketId).emit('group-message', { msg: msg, specialist_online: view });
                 });
             } else if (UserActive) {
+
                 const socketIds = await getSocketIds(user.username);
                 const msg = await DAO.getInstance().updateMessageById(mess[0]._id, { viewed: true });
                 socketIds.forEach(socketId => {

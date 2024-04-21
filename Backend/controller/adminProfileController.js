@@ -36,7 +36,7 @@ export const changeUserInfo = async (req, res)=>{
             const socketIds = await getSocketIds(user.username);
             io.to(socketIds).emit('inactive-logout', { message: "Your account has been deactivated. Please contact support." });
         }
-        res.status(200).send({message: "Profile updated successfully"});
+        res.status(200).send({data:{message: "User information updated successfully", username: username}});
 
     }catch  (err){
         if (err.message.includes("Invalid username or password") || err.message.includes("Username already exists")) {
@@ -54,3 +54,31 @@ export const changeUserInfo = async (req, res)=>{
 
 
 
+
+export const getUserProfile = async (req, res) =>{
+    try{
+        const user = await DAO.getInstance().getUserById(req.params.userid);
+        if(user){
+            res.status(200).send(user);
+        }else{
+            res.status(404).send({message: "User not found"});
+        }
+    }
+    catch(err){
+        res.status(500).send({message: "Failed to get user profile"});
+    }
+}
+
+export const UserActionValidation = async (req, res) =>{
+    try{
+        const user = await DAO.getInstance().getUserById(req.params.id);
+        if(user){
+            res.status(200).send({data: user.usertype});
+        }else{
+            res.status(404).send({message: "User not found"});
+        }
+    }
+    catch(err){
+        res.status(500).send({message: "Failed to get user profile"});
+    }
+}

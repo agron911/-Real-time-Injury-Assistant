@@ -10,7 +10,7 @@ let PUBLIC_SEARCH_COUNTER = 1;
 let ANNOUNCEMENT_SEARCH_COUNTER = 1
 let PRIVATE_SEARCH_COUNTER = 1;
 let GROUPCHAT = false;
-
+let PRIVATE_CHAT_OPEN = false;
 let IS_SPECIALIST = false;
 let Anxiety_rule = "You're not alone in your feelings of anxiety; here, you'll find a compassionate space to explore your experiences, learn coping strategies, and connect with others who truly understand."
 let Depression_rule = "Welcome to a place of understanding and support, where we can share our struggles with depression without judgment, and together, find moments of light and hope."
@@ -40,21 +40,28 @@ const sendMessage = async () => {
   const username = localStorage.getItem("username");
   const userid = localStorage.getItem("userid");
   if (textInput.value) {
-    const status = await getStatus(username);
+    const status = await getStatus(userid);
     if (status) setStatusButtonUI(status);
     if (CHATROOM_USER) {
       await sendPrivateMessage(userid, CHATROOM_USER, status, textInput.value);
       showPrivateMessage(CHATROOM_USER);
     } else if (ANNOUNCEMENT) {
       // TODO: check for coordinator status
-      sendAnnouncementMessage(textInput.value);
+      const privilege = await checkPrivilege(userid);
+      if (privilege === "Coordinator" || privilege === "Administrator"){
+        sendAnnouncementMessage(textInput.value);
+      }else{
+        alert("You do not have the privilege to send an announcement");
+      }
     } else if (GROUPCHAT) {
       sendGroupMessage(MESSAGE_RECEIVER, textInput.value);
     } else {
+      // console.log("sending public message",userid, status, textInput.value);
       sendPublicMessage(userid, status, textInput.value);
     }
     textInput.value = "";
   }
+  return;
 };
 
 const sendPrivateMessage = async (userid, receiverUsername, status, message) => {
@@ -94,6 +101,7 @@ const sendAnnouncementMessage = async (message) => {
 const showPrivateMessage = async (otherUsername) => {
   ANNOUNCEMENT = false;
   GROUPCHAT = false;
+  PRIVATE_CHAT_OPEN = true;
   setSearchPrivate(otherUsername);
   document.getElementById("elect-form").style.display = "none";
   document.getElementById("wall").style.display = "flex";
@@ -110,6 +118,7 @@ const showPrivateMessage = async (otherUsername) => {
   window.scrollTo(0, document.body.scrollHeight);
   messageContainer.scrollTo(0, messageContainer.scrollHeight);
   CHATROOM_USER = otherUsername;
+
 };
 
 const getPublicMessages = async () => {
@@ -141,6 +150,7 @@ const getAnnouncement = async () => {
 async function getArchive() {
   ANNOUNCEMENT = false;
   GROUPCHAT = false;
+  PRIVATE_CHAT_OPEN = false;
   CHATROOM_USER = "";
   setSearchPublic();
   document.getElementById("elect-form").style.display = "none";
@@ -237,7 +247,7 @@ const GroupChat = async (group) => {
   GROUPCHAT = true;
   CHATROOM_USER = "";
   ANNOUNCEMENT = false;
-
+  PRIVATE_CHAT_OPEN = false;
   setSearchGroup(group);
   document.getElementById("elect-form").style.display = "none";
   document.getElementById("wall").style.display = "flex";
@@ -417,7 +427,7 @@ const createUserBodyHeader = (user) => {
     let editOption = document.createElement("a");
     editOption.className = "dropdown-item";
     editOption.textContent = "Edit Profile";
-    editOption.addEventListener("click", () => editUserProfile(user.username));
+    editOption.addEventListener("click", () => editUserProfile(user._id));
     dropdownMenu.appendChild(editOption);
   }
 
@@ -560,7 +570,12 @@ const connectToSocket = async () => {
   socket.on("chat message", (msg) => { if (!SUSPEND_NORMAL_OPERATION) addMessages(msg) });
   socket.on("updateUserList", async () => { await fetchInitialUserList(); });
   socket.on("status-update", (data) => { updateUserStatusIconEverywhere(data.status, data.username); });
-  socket.on("private-message", (data) => { showMessageAlert(data, "primary"); });
+  socket.on("private-message", (data) => { 
+    showMessageAlert(data, "primary");
+    if(PRIVATE_CHAT_OPEN){
+      addMessages(data);
+    }
+});
   socket.on("suspendNormalOps", (socketID) => { if (socketID != localStorage.getItem('socketID')) logout(); });
   socket.on("enableNormalOperation", (data) => { SUSPEND_NORMAL_OPERATION = false; });
   socket.on("group-message", async (data) => {
@@ -673,10 +688,10 @@ const navigateToEmergencyServices = () => {
   window.location.replace('/emergencyServices');
 }
 
-const getStatus = async (username) => {
+const getStatus = async (userid) => {
   if (SUSPEND_NORMAL_OPERATION) return;
   try {
-    const res = await fetch(url + "/user/status/" + username, {
+    const res = await fetch(url + "/users/status/" + userid, {
       method: "GET",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -733,6 +748,7 @@ const logout = async () => {
         "Content-type": "application/json; charset=UTF-8",
       },
     });
+
     localStorage.setItem("token", null);
     localStorage.setItem("username", null);
     localStorage.clear()
@@ -741,9 +757,11 @@ const logout = async () => {
 
 
 const announcement = async () => {
+
   ANNOUNCEMENT = true;
   CHATROOM_USER = "";
   GROUPCHAT = false;
+  PRIVATE_CHAT_OPEN = false;
   setSearchAnnouncement();
   document.getElementById("elect-form").style.display = "none";
   document.getElementById("wall").style.display = "flex";
@@ -757,6 +775,7 @@ const announcement = async () => {
       addMessages(msg);
     }
   }
+  window.scrollTo(0, document.body.scrollHeight);
   messageContainer.scrollTo(0, messageContainer.scrollHeight);
 };
 
@@ -835,6 +854,7 @@ window.onload = async () => {
   try {
     await checkIfTestOngoing();
     const username = localStorage.getItem("username");
+    const userid = localStorage.getItem("userid");
     if (username) {
       const toggleButton = document.getElementById("toggle-btn");
       await connectToSocket();
@@ -843,7 +863,7 @@ window.onload = async () => {
       //   await logout();
       //   window.location.replace("/");
       // });
-      const status = await getStatus(username);
+      const status = await getStatus(userid);
       if (status) setStatusButtonUI(status);
       await getAlerts();
     }

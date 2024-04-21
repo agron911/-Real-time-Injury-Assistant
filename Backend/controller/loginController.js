@@ -5,6 +5,10 @@ import DAO from '../model/dao.js';
 import Citizen from '../model/user-Citizen.js';
 
 export const loginOrLogout = async (req, res) => {
+    const userExists = await DAO.getInstance().getUserByName(req.body.username);
+    if (userExists.useraccountstatus == "Inactive") {
+        return res.status(401).send({message: "User is inactive"});
+    }
     const isOnline = req.body.isOnline
     if (isOnline) {
         login(req, res);
@@ -81,8 +85,6 @@ export const getUsers = async (req, res) => {
 
 export const getUser = async (req, res) => {
     try{
-        // const citizen = await Citizen.retrieveUserByUsername(req.params.username);
-        // res.status(200).send(citizen.getSchemaObject());
         const user = await DAO.getInstance().getUserByName(req.params.username);
         res.status(200).send(user);
     } catch (error) {
