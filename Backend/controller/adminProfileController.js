@@ -4,6 +4,17 @@ import { io } from "../utils/socketSetup.js";
 import User from "../model/user-class.js";
 import { getSocketIds } from '../model/ActiveUser.js';
 
+export const getUserId = async (req, res)=>{
+    try{
+        const user = await DAO.getInstance().getUserByName(req.params.username);
+        const userid = user._id.toString();
+        res.status(200).send({result:userid})
+    }catch(err){
+        res.status(400).send();
+    }
+    
+}
+
 export const changeUserInfo = async (req, res)=>{
     const username = req.body.username.toLowerCase();
     const newPassword = req.body.password;
