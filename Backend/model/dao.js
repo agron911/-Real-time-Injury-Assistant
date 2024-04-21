@@ -307,8 +307,8 @@ class DAO {
 
     changeUserInfo = async(userid, accountstatus, username, priveledge, password)=>{
         try{
-            let res = await userCollection.updateOne({"_id":Object(userid) }, {$set:{"username":username, "useraccountstatus":accountstatus, "usertype":priveledge, "password":password}});
-            //console.log(res);
+            let res = await userCollection.updateOne({_id:Object(userid) }, {$set:{"username":username, "useraccountstatus":accountstatus, "usertype":priveledge, "password":password}});
+            console.log(res);
         }catch(error){
             console.log("Error updating userinfo", error);
         }
