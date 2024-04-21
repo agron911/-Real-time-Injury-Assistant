@@ -26,12 +26,14 @@ const editUserProfile = async (username) => {
     console.log("data", localStorage.getItem("username"));
     if (administrators.includes(localStorage.getItem("username").toLowerCase())) {
         const statusSelect = document.getElementById("edit-status");
-        statusSelect.value = data.useraccountstatus ? "Active" : "Inactive";
+        statusSelect.value = data.useraccountstatus;
         const userTypeSelect = document.getElementById("edit-user-type");
         userTypeSelect.value = capitalizeFirstLetter(data.usertype);
+
+        
     }else{
-        document.getElementById("edit-status").style.display = "none";
-        document.getElementById("edit-user-type").style.display = "none";
+        document.getElementById("edit-status").disabled = true;
+        document.getElementById("edit-user-type").disabled = true;
     }
 
     editModal.show();
@@ -41,13 +43,19 @@ const editUserProfile = async (username) => {
 // PUT /users/:id/profile
 const submitEditForm = async () => {
     if (SUSPEND_NORMAL_OPERATION) return;
+    const isUsernameValid = usernameChanged ? await validateUsername() : true;
+    const isPasswordValid = passwordChanged ? await validatePassword() && await validateConfirmPassword() : true;
+
+    if (!isUsernameValid || !isPasswordValid) {
+        alert("Please correct the errors in the form.");
+        return;
+    }
     const username = document.getElementById("edit-username").value;
     const password = document.getElementById("edit-password").value;
     const confirmPassword = document.getElementById("edit-confirm-password").value;
     const status = document.getElementById("edit-status").value;
     const usertype = document.getElementById("edit-user-type").value;
     const userId = localStorage.getItem("userId");
-    console.log("userId", userId);
     if (password !== confirmPassword) {
         alert("Passwords do not match.");
         return;
@@ -62,7 +70,7 @@ const submitEditForm = async () => {
                 userId, username, password, status, usertype
             })
         });
-
+        console.log(response);
         if (response.ok) {
             const result = await response.json();
             console.log(result);

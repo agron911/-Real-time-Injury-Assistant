@@ -5,11 +5,11 @@ import User from "../model/user-class.js";
 import { getSocketIds } from '../model/ActiveUser.js';
 
 export const changeUserInfo = async (req, res)=>{
-    const username = req.body.username.toLowerCase();
-    const newPassword = req.body.password;
-    const userid = req.body.userid;
-    const newstatus = req.body.status;
-    const newusertype = req.body.usertype;
+    let username = req.body.username.toLowerCase();
+    let newPassword = req.body.password;
+    const userid = req.body.userId;
+    let newstatus = req.body.status;
+    let newusertype = req.body.usertype;
     try{
         let user = await DAO.getInstance().getUserById(userid);
         //console.log(user)
@@ -22,7 +22,7 @@ export const changeUserInfo = async (req, res)=>{
             username = username.toLowerCase();
         }
         if(newPassword !== ""){
-            newPassword = hashPassword(newPassword);
+            newPassword = await hashPassword(newPassword);
         }else{
             console.log("no new password", user.password);
             newPassword = user.password;
@@ -36,6 +36,7 @@ export const changeUserInfo = async (req, res)=>{
             const socketIds = await getSocketIds(user.username);
             io.to(socketIds).emit('inactive-logout', { message: "Your account has been deactivated. Please contact support." });
         }
+        res.status(200).send({message: "Profile updated successfully"});
 
     }catch  (err){
         if (err.message.includes("Invalid username or password") || err.message.includes("Username already exists")) {

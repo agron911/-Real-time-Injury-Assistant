@@ -91,68 +91,6 @@ const sendAnnouncementMessage = async (message) => {
   });
 };
 
-
-const capitalizeFirstLetter = (string) => {
-  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
-}
-const editUserProfile = async (username) => {
-  if (SUSPEND_NORMAL_OPERATION) return;
-  const response = await fetch(url + "/user/" + username, {
-    // const response = await fetch(url + "/users/profile/${userid}" , {
-    method: "GET",
-    headers: {
-      "Content-type": "application/json; charset=UTF-8",
-    },
-  });
-  const data = await response.json();
-
-  const editModal = new bootstrap.Modal(document.getElementById("editProfileModal"), {});
-  console.log("data", data);
-  document.getElementById("edit-username").value = data.username;
-  document.getElementById("edit-password").value = "";
-  document.getElementById("edit-confirm-password").value = "";
-  // document.getElementById("edit-status").value = data.status;
-  const statusSelect = document.getElementById("edit-status");
-  statusSelect.value = data.online ? "Active" : "Inactive";
-
-  const userTypeSelect = document.getElementById("edit-user-type");
-  userTypeSelect.value = capitalizeFirstLetter(data.usertype);
-
-  // document.getElementById("edit-user-type").value = data.userType;
-
-  editModal.show();
-}
-// PUT /users/:id/profile
-const submitEditForm = async () => {
-  if (SUSPEND_NORMAL_OPERATION) return;
-  const username = document.getElementById("edit-username").value;
-  const password = document.getElementById("edit-password").value;
-  const confirmPassword = document.getElementById("edit-confirm-password").value;
-  const status = document.getElementById("edit-status").value;
-  const userType = document.getElementById("edit-user-type").value;
-  const userId = localStorage.getItem("userid");
-  if (password !== confirmPassword) {
-    alert("Passwords do not match.");
-    return;
-  }
-  try {
-    const response = await fetch(`/users/profile/${userId}`, {
-      // const response = await fetch(`/users/profile/${userId}`, {
-      method: 'PATCH',
-      // PATCH
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        userId, username, password, status, userType
-      })
-    });
-  } catch (e) {
-    console.log(e);
-  }
-}
-
-
 const showPrivateMessage = async (otherUsername) => {
   ANNOUNCEMENT = false;
   GROUPCHAT = false;
@@ -643,13 +581,17 @@ const connectToSocket = async () => {
   socket.on("edit-group-message", (msg) => { editMessages(msg) });
   socket.on("delete-group-message", (msgId) => { deleteMessages(msgId); });
   socket.on("inactive-logout", (data) => {
-    alert(data.message);
-    sessionStorage.clear();
-    window.location.href = '/login';
+    $('#logoutModal').find('.modal-body').text(data.message);
+    $('#logoutModal').modal('show');
+
   });
 
-
 };
+
+$('#logoutConfirm').click(function() {
+  sessionStorage.clear();
+  logout();
+});
 
 const showMessage = (message) => {
   const titleElement = document.getElementById("message-modal-title");
