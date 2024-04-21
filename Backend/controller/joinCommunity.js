@@ -39,10 +39,7 @@ export async function loginRegister(user_data){
             password: user_data.password
         };
         const hashed_password = await hashPassword(data.password);
-        // const citizen = new Citizen(data.username, hashed_password, "undefined", false);
-        // citizen.save();
-        await DAO.getInstance().createUser(data.username, hashed_password, "undefined",'citizen', false, 'undefined',user_data.specialists);
-        // res.status(202).send({ data });
+        await DAO.getInstance().createUser(data.username, hashed_password,"ok",'citizen', false, 'undefined',user_data.specialists);
         return data;
     } else {
         //res.status(400).send({message: "User exists!"});

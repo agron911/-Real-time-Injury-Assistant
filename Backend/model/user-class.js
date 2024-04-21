@@ -3,8 +3,7 @@ import { prohibitedUsernames } from '../utils/user-config.js';
 import { hashPassword } from "../utils/passwordUtils.js";
 
 class User {
-    constructor(userid, username, password, status, usertype, esp, validate, waitlistRole, specialist) {
-        if (validate && User.validate(username, password)) throw "Invalid username or password"
+    constructor( username, password, status, usertype, esp, waitlistRole, specialist) {
         this.username = username;
         this.status = status;
         this.password = password;
@@ -12,7 +11,9 @@ class User {
         this.esp = esp;
         this.waitlistRole = waitlistRole;
         this.specialist = specialist;
-        this.userid = userid;
+        console.log("Creating a usertype", usertype);
+        console.log("Creating a esp", esp);
+
     }
 
     static get dao() {
@@ -34,11 +35,6 @@ class User {
     static validate(username, password) {
         // Check username length
 
-        if (isNewUsername) {
-            if (this.usernameExists(username)) {
-                throw new Error("Username already exists");
-            }
-        }
 
         if (!username || username.length < this.usernameMinLength) {
             
@@ -86,6 +82,7 @@ class User {
             waitlistRole: 'undefined',
             specialist: this.specialist,
             confirmGroup: [],
+            useraccountstatus: 'Active',
         };
     }
 

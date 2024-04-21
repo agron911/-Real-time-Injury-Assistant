@@ -99,6 +99,6 @@ router.delete("/facilities", deleteFacility)
 router.patch("/facilities/newinfo", updateFacilityInfo)
 
 // router.patch("/admin/info", changeUserInfo)
-router.patch("/users/profile/:username", changeUserInfo)
+router.patch("/users/profile/:id", changeUserInfo)
 // router.patch("/admin/accountstatus", changeAccountStatus)
 export default router;

@@ -2,8 +2,8 @@ import DAO from './dao.js';
 import User from './user-class.js';
 
 class Citizen extends User {
-    constructor(userid, username, password, status, esp, waitlistRole, specialist) {
-        super(userid, username, password, status, "Citizen", esp, waitlistRole, specialist);
+    constructor(username, password, status, esp, waitlistRole, specialist) {
+        super(username, password, status, "Citizen", esp, waitlistRole, specialist);
     }
 
     async modifyEsp(esp){
