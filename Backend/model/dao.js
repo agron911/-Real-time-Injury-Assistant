@@ -106,11 +106,7 @@ class DAO {
     }
     getUserById = async (userid) => {
         try {
-<<<<<<< HEAD
             const user = await userCollection.findOne({ "_id": Object(userid)});
-=======
-            const user = await userCollection.findOne({ _id: userId });
->>>>>>> 2e83f84dd0954f185e15a1514f78eaf8b982f894
             return user;
         } catch (err) {
             throw new Error("User not found: ", err);

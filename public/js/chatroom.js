@@ -61,7 +61,7 @@ const sendPrivateMessage = async (userid, receiverUsername, status, message) => 
   if (SUSPEND_NORMAL_OPERATION) return [];
   await fetch(url + "/messages/private", {
     method: "POST",
-    body: JSON.stringify({userid: userid, username: localStorage.getItem("username"), content: message, status: status, receiver: receiverUsername }),
+    body: JSON.stringify({ userid: userid, username: localStorage.getItem("username"), content: message, status: status, receiver: receiverUsername }),
     headers: {
       "Content-type": "application/json; charset=UTF-8",
     },
@@ -84,30 +84,30 @@ const sendAnnouncementMessage = async (message) => {
   if (SUSPEND_NORMAL_OPERATION) return
   await fetch(url + "/messages/announcement", {
     method: "POST",
-    body: JSON.stringify({ username: localStorage.getItem("username"), userid:localStorage.getItem("userid"), content: message, timestamp: new Date().toString(), status: "undefined", receiver: "announcement" }),
+    body: JSON.stringify({ username: localStorage.getItem("username"), userid: localStorage.getItem("userid"), content: message, timestamp: new Date().toString(), status: "undefined", receiver: "announcement" }),
     headers: {
       "Content-type": "application/json; charset=UTF-8",
     },
   });
 };
 
-<<<<<<< HEAD
-const capitalizeFirstLetter = (string) =>{
+
+const capitalizeFirstLetter = (string) => {
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 }
 const editUserProfile = async (username) => {
   if (SUSPEND_NORMAL_OPERATION) return;
   const response = await fetch(url + "/user/" + username, {
-  // const response = await fetch(url + "/users/profile/${userid}" , {
+    // const response = await fetch(url + "/users/profile/${userid}" , {
     method: "GET",
     headers: {
       "Content-type": "application/json; charset=UTF-8",
     },
   });
   const data = await response.json();
-  
+
   const editModal = new bootstrap.Modal(document.getElementById("editProfileModal"), {});
-  console.log("data",data);
+  console.log("data", data);
   document.getElementById("edit-username").value = data.username;
   document.getElementById("edit-password").value = "";
   document.getElementById("edit-confirm-password").value = "";
@@ -137,7 +137,7 @@ const submitEditForm = async () => {
   }
   try {
     const response = await fetch(`/users/profile/${userId}`, {
-    // const response = await fetch(`/users/profile/${userId}`, {
+      // const response = await fetch(`/users/profile/${userId}`, {
       method: 'PATCH',
       // PATCH
       headers: {
@@ -147,9 +147,10 @@ const submitEditForm = async () => {
         userId, username, password, status, userType
       })
     });
-=======
->>>>>>> 2e83f84dd0954f185e15a1514f78eaf8b982f894
-
+  } catch (e) {
+    console.log(e);
+  }
+}
 
 
 const showPrivateMessage = async (otherUsername) => {
@@ -227,7 +228,7 @@ const sendGroupMessage = async (group, message) => {
   if (SUSPEND_NORMAL_OPERATION) return
   await fetch(url + "/chatrooms/" + group, {
     method: "POST",
-    body: JSON.stringify({userid: localStorage.getItem("userid"),  username: localStorage.getItem("username"), content: message, timestamp: new Date().toString(), status: "undefined", receiver: group, group: group }),
+    body: JSON.stringify({ userid: localStorage.getItem("userid"), username: localStorage.getItem("username"), content: message, timestamp: new Date().toString(), status: "undefined", receiver: group, group: group }),
     headers: {
       "Content-type": "application/json; charset=UTF-8",
     },
