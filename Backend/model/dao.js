@@ -81,7 +81,7 @@ class DAO {
     createUser = async (username, hashed_password, status, usertype, esp, waitlistRole, specialist) => {
         try {
             const userSchemaObject = UserFactory.createUser(usertype, username, hashed_password, status, esp, waitlistRole, specialist).toSchemaObject();
-            // 
+            // console.log('userSchemaObject', userSchemaObject);
             const user = await userCollection.create(userSchemaObject);
             const injury = await injuryCollection.create({ username: username, reported: false });
             if (specialist) {
@@ -271,6 +271,7 @@ class DAO {
     }
 
     removeInactiveUserMessages = async (messages) =>{
+        if(messages.length<=0) return [];
         let inActiveUsers = await this.getInactiveUsers();
         inActiveUsers = inActiveUsers.map((userid) => userid.toString());
         // console.log('inActiveUsers', inActiveUsers, inActiveUsers.includes(messages[0].userid), inActiveUsers.includes(messages[0].receiverid));
@@ -294,11 +295,14 @@ class DAO {
                     { userid: receiverid, receiverid: userid }
                 ]
             }).sort({ timestamp: 1 });
-            // console.log('1',msgs.length, msgs);
+
+            msgs = msgs?await this.removeInactiveUserMessages(msgs):[];
+
             msgs = await this.removeInactiveUserMessages(msgs);
             // console.log('2',msgs.length);
             return msgs;
         } catch (err) {
+            console.log("err", err);
             throw new Error("Get all private messages error: ", err);
         }
     }
