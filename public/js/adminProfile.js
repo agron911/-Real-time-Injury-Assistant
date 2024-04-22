@@ -3,15 +3,16 @@ const capitalizeFirstLetter = (string) => {
 }
 let originalUsername = '';
 let originalPassword = '';
-
-const editUserProfile = async (userid) => {
+let editUserId = '';
+const editUserProfile = async (id) => {
     if (SUSPEND_NORMAL_OPERATION) return;
-        const response = await fetch(url + `/users/profile/${userid}` , {
+        const response = await fetch(url + `/users/profile/${id}` , {
         method: "GET",
         headers: {
             "Content-type": "application/json; charset=UTF-8",
         },
     });
+    
     const data = await response.json();
     originalUsername = data.username;
     originalPassword = '';
@@ -37,7 +38,7 @@ const editUserProfile = async (userid) => {
         document.getElementById("edit-status").disabled = true;
         document.getElementById("edit-user-type").disabled = true;
     }
-
+    editUserId = id;
     editModal.show();
 
 
@@ -60,33 +61,33 @@ const submitEditForm = async () => {
     const confirmPassword = document.getElementById("edit-confirm-password").value;
     const status = document.getElementById("edit-status").value;
     const usertype = document.getElementById("edit-user-type").value;
-    const userId = localStorage.getItem("userId");
+    const id  = editUserId;
     if (password !== confirmPassword) {
         alert("Passwords do not match.");
         return;
     }
     try {
-        const response = await fetch(`/users/profile/${userId}`, {
+        const response = await fetch(`/users/profile/${id}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                userId, username, password, status, usertype
+                id, username, password, status, usertype
             })
         });
+        const result = await response.json();
         if (response.ok) {
-            const result = await response.json();
             localStorage.setItem("username", result.data.username);
 
             alert('Profile updated successfully');
             window.location.reload();
         } else {
-            const error = await response.text();
-            alert('Failed to update profile: ' + error);
+            
+            alert('Failed to update profile: ' + result.message);
         }
     } catch (error) {
-        alert('Failed to update profile: ' + error);
+        alert('Failed to update profile: ' + error.message);
     }
 }
 

@@ -47,8 +47,9 @@ export const logout = async (req, res) => {
 export const registerUserSocket = async (req, res) => {
     const username = req.params.username;
     const user = await DAO.getInstance().getUserByName(username);
+    const userid = user._id.toString();
     if (user) {
-        await addActiveUser(username, req.body.socketId, req.body.esp?true:false);
+        await addActiveUser(userid, username, req.body.socketId, req.body.esp?true:false);
         await DAO.getInstance().updateUserOnline(username);
         const users = await DAO.getInstance().getAllUsers();
         io.emit('updateUserList', users );

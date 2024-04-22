@@ -768,6 +768,15 @@ class DAO {
         }
     }
 
+    getAdministrators = async () => {
+        try {
+            const administrators = await userCollection.find({ usertype: "Administrator" });
+            return administrators;
+        } catch (err) {
+            throw new Error("Get administrators error: ", err);
+        }
+    }
+
 }
     
 

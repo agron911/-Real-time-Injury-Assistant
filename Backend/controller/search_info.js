@@ -76,8 +76,17 @@ export const searchByUsername = async (req, res) => {
 
 
 export const searchByStatus = async (req, res) => {
+    console.log("searchByStatus");
     const status = req.query.status;
-    const result = await DAO.getInstance().search_by_status(status);
-    res.status(200).send({ search_result: result });
+    if (!status) {
+        return res.status(400).send({ message: "Status parameter is required." });
+    }
+    try {
+        const result = await DAO.getInstance().search_by_status(status);
+        res.status(200).send({ search_result: result });
+    } catch (err) {
+        console.error("Error searching by status:", err);
+        res.status(500).send({ message: "Failed to search by status" });
+    }
 }
 

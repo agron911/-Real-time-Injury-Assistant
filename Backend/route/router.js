@@ -36,7 +36,7 @@ router.post("/users", UserConfirmation);
 router.post("/users/acknowledgement", UserAcknowledgement);
 router.get("/user/:username", getUser); //TODO: fix this, should be users
 router.put("/user/status/:username", updateUserStatus); // TODO: probably it should be users/:username/staus
-router.get("/users/status/:userid", getStatus); //TODO: fix this, should be users
+router.get("/user/status/:userid", getStatus); 
 
 
 router.patch("/auth/users", loginOrLogout);
@@ -98,12 +98,7 @@ router.get("/facility/search", searchFacility)
 router.delete("/facilities", deleteFacility)
 router.patch("/facilities/newinfo", updateFacilityInfo)
 
-router.get("/users/profile/:userid", getUserProfile)
-router.patch("/users/profile/:userid", changeUserInfo)
-=======
+router.get("/users/profile/:id", getUserProfile)
 router.patch("/users/profile/:id", changeUserInfo)
->>>>>>> 2e83f84dd0954f185e15a1514f78eaf8b982f894
-router.get("/users/profile/:username", getUserId)
-// router.patch("/admin/accountstatus", changeAccountStatus)
 router.get("/users/:id/privilege", UserActionValidation)
 export default router;

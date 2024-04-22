@@ -18,12 +18,12 @@ export const getUserId = async (req, res)=>{
 export const changeUserInfo = async (req, res)=>{
     let username = req.body.username.toLowerCase();
     let newPassword = req.body.password;
-    const userid = req.body.userId;
+    const userid = req.body.id;
     let newstatus = req.body.status;
     let newusertype = req.body.usertype;
     try{
         let user = await DAO.getInstance().getUserById(userid);
-        //console.log(user)
+        console.log(user)
         if(!user){
             res.status(404).send({message: "User not found"});
             return;
@@ -38,15 +38,23 @@ export const changeUserInfo = async (req, res)=>{
             console.log("no new password", user.password);
             newPassword = user.password;
         }
-        
+        if ( (newusertype !== 'Administrator' && user.usertype === 'Administrator') || (newusertype === 'Administrator' &&  newstatus === 'Inactive')) {
+            const administrators = await DAO.getInstance().getAdministrators();
+            console.log(administrators);
+            if (administrators.length === 1) {
+                res.status(400).send({ message: "There must be at least one administrator active." });
+                return;
+            }
+        }
 
         
         await DAO.getInstance().changeUserInfo(userid, newstatus, username, newusertype, newPassword)
 
         if (newstatus === 'Inactive' && user.status !== 'Inactive') {
-            const socketIds = await getSocketIds(user.username);
+            const socketIds = await getSocketIds(userid);
             io.to(socketIds).emit('inactive-logout', { message: "Your account has been deactivated. Please contact support." });
         }
+        
         res.status(200).send({data:{message: "User information updated successfully", username: username}});
 
     }catch  (err){
@@ -68,7 +76,7 @@ export const changeUserInfo = async (req, res)=>{
 
 export const getUserProfile = async (req, res) =>{
     try{
-        const user = await DAO.getInstance().getUserById(req.params.userid);
+        const user = await DAO.getInstance().getUserById(req.params.id);
         if(user){
             res.status(200).send(user);
         }else{
