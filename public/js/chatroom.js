@@ -121,7 +121,7 @@ const showPrivateMessage = async (otherUsername) => {
   const messageContainer = document.getElementById("messages");
   messageContainer.innerHTML = "";
   chatroomTypeTitleElement.innerHTML = otherUsername + " Chatroom";
-  if (msgs && msgs.length>0) {
+  if (msgs && msgs.length > 0) {
     for (let msg of msgs) {
       addMessages(msg);
     }
@@ -234,7 +234,7 @@ const ConfirmGroupChat = async (group) => {
       }
       confirmationModal.show();
       document.getElementById('JoinGroupConfirm').addEventListener('click', async function () {
-        
+
         await fetch(url + "/chatrooms/" + group + "/" + localStorage.getItem("username"), {
           method: "POST",
           headers: {
@@ -249,7 +249,7 @@ const ConfirmGroupChat = async (group) => {
       });
     } else {
       hideUsersUI();
-        showChatroomUI();
+      showChatroomUI();
       await GroupChat(group);
       return;
     }
@@ -413,8 +413,8 @@ const getAdministratorsFromLocalStorage = () => {
   return [];
 };
 
-hideUserAndShowChatroomUIIfOnMobile = ()=>{
-  if(window.innerWidth<=640){
+hideUserAndShowChatroomUIIfOnMobile = () => {
+  if (window.innerWidth <= 640) {
     hideUsersUI();
     showChatroomUI();
   }
@@ -439,7 +439,7 @@ const createUserBodyHeader = (user) => {
   let chatOption = document.createElement("a");
   chatOption.className = "dropdown-item";
   chatOption.textContent = "Open Chat";
-  chatOption.addEventListener("click", () => {hideUserAndShowChatroomUIIfOnMobile();showPrivateMessage(user.username)});
+  chatOption.addEventListener("click", () => { hideUserAndShowChatroomUIIfOnMobile(); showPrivateMessage(user.username) });
 
   let administrators = getAdministratorsFromLocalStorage();
 
@@ -813,14 +813,14 @@ const fetchInitialUserList = async () => {
   let users = await response.json();
   let administrators = users.users.filter(user => user.usertype === 'Administrator');
   localStorage.setItem("administrators", JSON.stringify(administrators));
-  if(administrators){
+  if (administrators) {
     console.log("Administrators", users);
-    administrators = administrators.map((administrator)=>administrator.username);
-    if(!administrators.includes(localStorage.getItem("username"))){
+    administrators = administrators.map((administrator) => administrator.username);
+    if (!administrators.includes(localStorage.getItem("username"))) {
       console.log("here", administrators);
-      users.users = users.users.filter(user=>user.useraccountstatus=="Active");
+      users.users = users.users.filter(user => user.useraccountstatus == "Active");
     }
-  } 
+  }
   displayUsers(users);
 };
 
@@ -906,7 +906,7 @@ const getUserProfile = async () => {
 
 window.onload = async () => {
   try {
-    if (window.innerWidth<=640) {
+    if (window.innerWidth <= 640) {
       hideChatroomUI();
       showUsersUI();
     }

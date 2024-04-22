@@ -56,7 +56,7 @@ export const receiveGroupMessage = async (req, res) => {
 
             if (user.username == req.body.username) {
 
-                const socketIds = await getSocketIds(user.username);
+                const socketIds = await getSocketIds(user._id);
                 let view = false
                 if (count_specialist > 0) {
                     view = true;
@@ -67,7 +67,7 @@ export const receiveGroupMessage = async (req, res) => {
                 });
             } else if (UserActive) {
 
-                const socketIds = await getSocketIds(user.username);
+                const socketIds = await getSocketIds(user._id);
                 const msg = await DAO.getInstance().updateMessageById(mess[0]._id, { viewed: true });
                 socketIds.forEach(socketId => {
                     io.to(socketId).emit('group-message', { msg: msg, specialist_online: true });
@@ -106,7 +106,8 @@ export const editGroupMessage = async (req, res) => {
             const userActive = await isUserActive(user.username);
 
             if (userActive) {
-                const socketIds = await getSocketIds(userActive._id);
+                console.log("userActive", user);
+                const socketIds = await getSocketIds(user._id);
                 socketIds.forEach(socketId => {
                     io.to(socketId).emit('edit-group-message', message);
                 });
