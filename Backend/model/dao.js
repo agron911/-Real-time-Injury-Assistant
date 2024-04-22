@@ -81,7 +81,7 @@ class DAO {
     createUser = async (username, hashed_password, status, usertype, esp, waitlistRole, specialist) => {
         try {
             const userSchemaObject = UserFactory.createUser(usertype, username, hashed_password, status, esp, waitlistRole, specialist).toSchemaObject();
-            // 
+            // console.log('userSchemaObject', userSchemaObject);
             const user = await userCollection.create(userSchemaObject);
             const injury = await injuryCollection.create({ username: username, reported: false });
             if (specialist) {
@@ -297,6 +297,8 @@ class DAO {
             }).sort({ timestamp: 1 });
             console.log('1',msgs.length, msgs, userid, receiverid);
             msgs = msgs?await this.removeInactiveUserMessages(msgs):[];
+            console.log('1',msgs.length, msgs);
+            msgs = await this.removeInactiveUserMessages(msgs);
             console.log('2',msgs.length);
             return msgs;
         } catch (err) {

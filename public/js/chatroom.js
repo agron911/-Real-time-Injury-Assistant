@@ -437,7 +437,6 @@ const createUserBodyHeader = (user) => {
   chatOption.textContent = "Open Chat";
   chatOption.addEventListener("click", () => {hideUserAndShowChatroomUIIfOnMobile();showPrivateMessage(user.username)});
 
-
   let administrators = getAdministratorsFromLocalStorage();
 
   const currentUsername = localStorage.getItem("username");
