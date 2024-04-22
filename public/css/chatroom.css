@@ -6,8 +6,13 @@ body {
 }
 
 header, #messageForm {
-    background-color: rgb(168, 196, 244);
+    background-color:#198754;
     backdrop-filter: blur(10px);
+}
+
+.header-title {
+    color: #ffffff !important;
+    font-weight: 600;
 }
 
 #messages {
@@ -78,6 +83,7 @@ header, #messageForm {
 
 .nav-bar-container {
     display: flex;
+    align-items: center;
     justify-content: space-between;
 }
 
@@ -87,8 +93,8 @@ header, #messageForm {
 }
 
 .status-button {
-    background-color: transparent;
-    border-color: blue;
+    background-color: transparent !important;
+    border-color: transparent !important;
     min-width: 5em;
     justify-content: center;
     display: flex;
@@ -153,6 +159,16 @@ header, #messageForm {
     position: relative;
 }
 
+#main {
+    height: 100%;
+}
+@media screen and (max-width: 640px) {
+    .row {
+        height: 90vh;
+    }
+}
+
+
 .chatroom-container {
     overflow: auto;
     height: 90%;
@@ -163,6 +179,7 @@ header, #messageForm {
 .users-container {
     /* overflow: auto; */
     height: 100%;
+    /* display: none; */
 }
 
 .container-max-height {
@@ -235,22 +252,23 @@ header, #messageForm {
 }
 
 .notification-icon {
-    position: fixed;
-    bottom: 100px;
-    right: 20px;
+    /* position: fixed; */
+    /* bottom: 50px;
+    right: 20px; */
     cursor: pointer;
-    width: 60px;
+    width: 30px;
     /* Adjust based on the size of your icon */
-    height: 60px;
+    height: 30px;
     /* Adjust based on the size of your icon */
     border-radius: 50%;
-    background-color: #f0f0f0;
+    /* background-color: #1f9bbd; */
     /* Your desired background color */
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 2px solid #000;
+    border: 2px solid #ffffff;
     z-index: 999;
+    color: #ffffff;
     /* Adjust border color and thickness as needed */
 }
 
@@ -271,16 +289,16 @@ header, #messageForm {
 
 .dropdown-actions{
     display: none;
-    position: fixed !important;
-    bottom: 100px;
-    left: 2em;
+    /* position: fixed !important; */
+    /* bottom: 24px;
+    left: 10px; */
     width: fit-content;
 }
 
 .kebab-menu{
     font-size: 24px;
     border-radius: 50%;
-    background-color: #4CAF50;
+    /* background-color: #4c9eaf; */
     padding: 10px;
     color: white;
 }
