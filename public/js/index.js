@@ -89,6 +89,7 @@ const verifyUser = async (username, password, specialistCategories) => {
             "Content-type": "application/json; charset=UTF-8"
         }
     });
+    
 }
 
 const alertUser = (statusCode) => {
@@ -126,7 +127,7 @@ const submitJoinForm = async () => {
         } else if (response.status == 206) {
             login(usernameInput.value, passwordInput.value)
         } else {
-            alertUser(response.statusCode);
+            alertUser(response.status);
         }
     }
 }

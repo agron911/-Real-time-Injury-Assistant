@@ -343,9 +343,10 @@ class DAO {
                 }
                 username = username.toLowerCase();
             }
-            
-            if ((priviledge !== 'Administrator' && user.usertype === 'Administrator') || (priviledge === 'Administrator' && accountstatus === 'Inactive')) {
+            console.log("priviledge level", priviledge, user.usertype);
+            if ((priviledge != "Administrator" && user.usertype == "Administrator") || (priviledge === 'Administrator' && accountstatus === 'Inactive')) {
                 const administrators = await DAO.getInstance().getAdministrators();
+                console.log("Administrators numbers", administrators.length);
                 if (administrators.length <= 1) {
                     return { success: false, message: "There must be at least one administrator active." };
                 }
@@ -361,7 +362,8 @@ class DAO {
                 if(actioner && actioner.usertype != 'Administrator' && (await comparePassword(await hashPassword(password), user.password)) ){
                     return { success: false, message: "Only administrator can change password"}
                 }
-                password = await hashPassword(password);
+                console.log("password changed", password);
+                // password = await hashPassword(password);
             } else {
                 password = user.password;
             }

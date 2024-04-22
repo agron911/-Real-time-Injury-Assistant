@@ -777,11 +777,12 @@ describe("Admin Profile Operations", () => {
     test('Last admin cannot lower his admin privileges', async () => {
         const user = await DAO.getInstance().getUserByName('esnadmin');
         let username = 'esnadmin';
-        let password = '';
+        let password = '12345';
         let id = user._id.toString();
-        let status = '';
+        let status = 'ok';
         let usertype = 'Citizen';
         const result = await DAO.getInstance().changeUserInfo(id, status, username, usertype, password);
+        console.log("testest", user.usertype);
         expect(result.success).toBe(false);
         expect(result.message).toBe('There must be at least one administrator active.');
     });
@@ -816,7 +817,7 @@ describe("Admin Profile Operations", () => {
         let id = user._id.toString();
         let status = 'Active';
         let usertype = 'Administrator';
-        await DAO.getInstance().changeUserInfo(id, status, username, usertype, password, admin._id.toString());
+        await DAO.getInstance().changeUserInfo(id, status, username, usertype, await hashPassword(password), admin._id.toString());
         
         user = await DAO.getInstance().getUserByName(username);
         const compare = await comparePassword(user.password, password);

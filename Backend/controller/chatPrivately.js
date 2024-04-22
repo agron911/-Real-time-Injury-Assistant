@@ -42,9 +42,10 @@ export const loadPrivateMessages = async(req, res) => {
     // res.status(200).send({archive: "messages"})
     // return;
     try{
+        console.log(req.query.username1, req.query.username2)
         const user1 = await DAO.getInstance().getUserByName(req.query.username1);
         const user2 = await DAO.getInstance().getUserByName(req.query.username2);
-        // console.log(user1._id.toString(), user2._id.toString());
+        console.log(user1._id.toString(), user2._id.toString());
         // if(!user1 || !user2 ) {
         //     res.status(300).send({user1, user2})
         //     return;
