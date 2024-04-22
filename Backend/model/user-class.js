@@ -11,8 +11,6 @@ class User {
         this.esp = esp;
         this.waitlistRole = waitlistRole;
         this.specialist = specialist;
-        
-        
     }
 
     static get dao() {
