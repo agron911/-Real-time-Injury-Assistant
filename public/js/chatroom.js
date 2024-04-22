@@ -301,7 +301,7 @@ const createEditableMessage = (cardBody, msg) => {
   modifyButton.setAttribute("data-bs-target", "#editMessageModal");
   modifyButton.addEventListener("click", async () => {
     // Logic to modify message
-    document.getElementById("messageEditInput").value = msg.content;
+    document.getElementById("messageEditInput").value = document.querySelector(`[data-message-id="${msg._id}"]`).querySelector(".card-text").textContent;
     document.getElementById("saveMessageChanges").onclick = async () => {
 
 
@@ -378,7 +378,7 @@ const deleteMessages = (msgId) => {
       messageElement.remove();
     }
   } catch (error) {
-
+    console.log("error when delete msg card",error);
   }
 }
 

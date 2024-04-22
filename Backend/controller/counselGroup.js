@@ -126,14 +126,12 @@ export const editGroupMessage = async (req, res) => {
 export const deleteGroupMessage = async (req, res) => {
     const messageId = req.body.messageId;
     const users = await DAO.getInstance().getGroupUsers(req.body.group);
-
     try {
         const message = await DAO.getInstance().deleteMessageById(messageId);
         for (const user of users) {
             const userActive = await isUserActive(user.username);
-
             if (userActive) {
-                const socketIds = await getSocketIds(user.username);
+                const socketIds = await getSocketIds(user._id);
                 socketIds.forEach(socketId => {
                     io.to(socketId).emit('delete-group-message', messageId);
                 });

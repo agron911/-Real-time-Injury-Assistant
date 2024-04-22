@@ -51,7 +51,6 @@ export const registerUserSocket = async (req, res) => {
     if (user) {
         const userid = user._id.toString();
         await addActiveUser(userid, username, req.body.socketId, req.body.esp?true:false);
-        console.log("active user added");
         await DAO.getInstance().updateUserOnline(username);
         const users = await DAO.getInstance().getAllUsers();
         io.emit('updateUserList', users );
