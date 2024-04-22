@@ -16,13 +16,13 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Use Node.js ${{ matrix.node-version }}  
-      env:
-        CHAT_GPT_API_KEY: '***REMOVED***'
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: echo $CHAT_GPT_API_KEY
+    - run: |
+        touch .env
+        echo ENGINE_API_KEY=${{'***REMOVED***'}} >> .env
     - run: npm ci
     - run: npm run coverage
 
