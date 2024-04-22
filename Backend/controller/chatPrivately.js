@@ -39,25 +39,30 @@ export const receivePrivateMessage = async(req, res)=>{
 
 // Retrieve all private messages between two users
 export const loadPrivateMessages = async(req, res) => {
-    
+    // res.status(200).send({archive: "messages"})
+    // return;
     try{
         const user1 = await DAO.getInstance().getUserByName(req.query.username1);
-    const user2 = await DAO.getInstance().getUserByName(req.query.username2);
-    console.log(user1._id.toString(), user2._id.toString());
+        const user2 = await DAO.getInstance().getUserByName(req.query.username2);
+        // console.log(user1._id.toString(), user2._id.toString());
+        // if(!user1 || !user2 ) {
+        //     res.status(300).send({user1, user2})
+        //     return;
+        // }
+        let messages = await DAO.getInstance().getAllPrivateMessages(user1._id.toString(), user2._id.toString());
     
-    let messages = await DAO.getInstance().getAllPrivateMessages(user1._id.toString(), user2._id.toString());
         messages = await Promise.all(messages.map(async (message) => {
-            console.log("dsda");
+            // console.log("dsda");
             const user = await DAO.getInstance().getUserById(message.userid);
             return {
                 ...message._doc,
                 username: user.username,
             }; 
         }));
-        console.log("messages", messages);
+        // console.log("messages", messages);
         res.status(200).send({archive: messages})
     }catch(err){
-        res.status(400).send({message: "Error in loading all private messages"});
+        res.status(400).send({message: "Error in loading all private messages", "message": err.stack});
     }
     // console.log("herrrr");
 }

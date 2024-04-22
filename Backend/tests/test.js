@@ -4,6 +4,7 @@ import DAO from '../model/dao.js';
 import Citizen from '../model/user-Citizen.js';
 import User from '../model/user-class.js';
 import Request from '../model/request-class.js';
+import { changeUserInfo } from '../controller/adminProfileController.js';
 import e from 'express';
 /**
  * Connect to a new in-memory database before running any tests.
