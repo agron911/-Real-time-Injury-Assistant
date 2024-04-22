@@ -17,7 +17,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Use Node.js ${{ matrix.node-version }}  
       env:
-        CHAT_GPT_API_KEY: ***REMOVED***
+        CHAT_GPT_API_KEY: '***REMOVED***'
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
