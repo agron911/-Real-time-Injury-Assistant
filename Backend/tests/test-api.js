@@ -217,8 +217,11 @@ describe('Testing Chat privately API', () => {
         let userid = '1'
         let receiverid = '2'
         await DAO.getInstance().createMessage(userid, receiverid, user1, "a send to T", "100", 'ok', user2, true)
+        console.log("here1");
         await DAO.getInstance().createMessage(receiverid, userid, user2, "T send to a", "100", 'ok', user1, true)
-        const response = (await request(Server.instance.app).get("/messages/private?username1=" + user1 + "&username2=" + user2));
+        console.log("here2");
+        const response = await request(Server.instance.app).get("/messages/private?username1=" + user1 + "&username2=" + user2);
+        console.log("here3");
         expect(response.statusCode).toBe(200);
         expect(response.body.archive[0].content).toContain('a send to T');
         expect(response.body.archive[1].content).toContain('T send to a');

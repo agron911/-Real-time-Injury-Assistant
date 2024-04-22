@@ -39,12 +39,13 @@ export const receivePrivateMessage = async(req, res)=>{
 
 // Retrieve all private messages between two users
 export const loadPrivateMessages = async(req, res) => {
-    const user1 = await DAO.getInstance().getUserByName(req.query.username1);
+    
+    try{
+        const user1 = await DAO.getInstance().getUserByName(req.query.username1);
     const user2 = await DAO.getInstance().getUserByName(req.query.username2);
     console.log(user1._id.toString(), user2._id.toString());
     
     let messages = await DAO.getInstance().getAllPrivateMessages(user1._id.toString(), user2._id.toString());
-    try{
         messages = await Promise.all(messages.map(async (message) => {
             console.log("dsda");
             const user = await DAO.getInstance().getUserById(message.userid);
