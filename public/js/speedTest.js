@@ -8,6 +8,7 @@ async function send_post_request(){
     const resp = await fetch(url+"/messages/public", {
         method:"POST",
         body: JSON.stringify({
+            userid: "0",
             username: "henry",
             content: twentycharstr,
             timestamp: new Date().toString(),
