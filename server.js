@@ -26,7 +26,6 @@ class Server {
 
     this.app = express();
     this.httpServer = createServer(this.app);
-    const port = 3000;
 
     this.app.use(cors());
     // Setting up view engine
@@ -54,14 +53,21 @@ class Server {
     
     setupSocket(this.httpServer);
     this.app.use(router);
-    this.httpServer.listen(port, function () {
-      
-    });
+    // this.httpServer.listen(port, function () {
+    //   console.log(`Listening port... ${port}`);
+    // });
   }
 
-  static createAndRun(isTest) {
+  static create(isTest) {
     Server.instance = new Server(isTest);
     return Server.instance;
+  }
+
+  static run(){
+    const port = 3000;
+    Server.instance.app.listen(port, function () {
+      console.log(`Listening port... ${port}`);
+    });
   }
 
   static disableRoutes(socketID) {
