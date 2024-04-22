@@ -14,6 +14,7 @@ import { firstaidView, loadInjuryByUsernames, receiveInjury, createChatMsg} from
 import { createNotification, getNotificationByUsername, handleGetStockSupply, newWaitlist, getWaitlistRole, waitlistCitizenView, waitlistElectView, waitlistProviderView, setWaitlistRole, getWaitlist, joinWaitlist, leaveWaitlist, getWaitlistDetails, handleSupplyWaitlist, deleteNotification} from '../controller/manageWaitlists.js';
 import { loadGroupMessages, receiveGroupMessage, CheckConfirmation, ConfirmGroup, getSpecialists, editGroupMessage, deleteGroupMessage} from '../controller/counselGroup.js';
 import { Facilities, addFacility, getAllFacilities, getFacilityByName, searchFacility, deleteFacility, updateFacilityInfo } from '../controller/facilities.js';
+import {changeUserInfo, getUserProfile, UserActionValidation, getUserId} from '../controller/adminProfileController.js'
 const router = express.Router();
 
 router.get("/", HomeView);
@@ -21,7 +22,7 @@ router.get("/community", indexView);
 router.get("/chatroom", ChatroomView);
 router.get("/emergencyServices", EmergencyServicesView)
 router.get('/test', (req, res) => (res.send("Hello World")));
-router.get("/users", getUsers); //TODO: fix this, should be user
+router.get("/users", getUsers); 
 router.post("/messages/public", receivePublicMessage);
 router.get("/messages/public", loadPublicMessages);
 router.post("/messages/private", receivePrivateMessage);
@@ -31,11 +32,11 @@ router.get("/messages/announcement", loadAnnouncementMessages);
 router.post("/messages/announcement", receiveAnnouncementMessage);
 
 router.post("/users/verification", UserJoin);
-router.post("/users/", UserConfirmation);
+router.post("/users", UserConfirmation);
 router.post("/users/acknowledgement", UserAcknowledgement);
-router.get("/user/:username", getUser);
-router.put("/user/status/:username", updateUserStatus); // TODO: probably it should be user/:username/staus
-router.get("/user/status/:username", getStatus);
+router.get("/user/:username", getUser); //TODO: fix this, should be users
+router.put("/user/status/:username", updateUserStatus); // TODO: probably it should be users/:username/staus
+router.get("/user/status/:userid", getStatus); 
 
 
 router.patch("/auth/users", loginOrLogout);
@@ -57,9 +58,6 @@ router.get("/request", getRequests);
 router.post("/request", createRequest);
 router.put("/request/:id", updateRequest);
 router.delete("/request/:id", deleteRequest);
-
-
-
 
 router.get("/firstaid", firstaidView);
 router.get("/injuries/:username", loadInjuryByUsernames);
@@ -100,4 +98,7 @@ router.get("/facility/search", searchFacility)
 router.delete("/facilities", deleteFacility)
 router.patch("/facilities/newinfo", updateFacilityInfo)
 
+router.get("/users/profile/:id", getUserProfile)
+router.patch("/users/profile/:id", changeUserInfo)
+router.get("/users/:id/privilege", UserActionValidation)
 export default router;

@@ -9,8 +9,8 @@ let MESSAGE_RECEIVER = "";
 let PUBLIC_SEARCH_COUNTER = 1;
 let ANNOUNCEMENT_SEARCH_COUNTER = 1
 let PRIVATE_SEARCH_COUNTER = 1;
-let GROUPCHAT=false;
-
+let GROUPCHAT = false;
+let PRIVATE_CHAT_OPEN = false;
 let IS_SPECIALIST = false;
 let Anxiety_rule = "You're not alone in your feelings of anxiety; here, you'll find a compassionate space to explore your experiences, learn coping strategies, and connect with others who truly understand."
 let Depression_rule = "Welcome to a place of understanding and support, where we can share our struggles with depression without judgment, and together, find moments of light and hope."
@@ -31,36 +31,45 @@ const getPrivateMessages = async (otherUsername) => {
     }
   );
   const { archive } = await data.json();
-  
+
   return archive;
 };
 
 const sendMessage = async () => {
   const textInput = document.getElementById("textInput");
   const username = localStorage.getItem("username");
+  const userid = localStorage.getItem("userid");
   if (textInput.value) {
-    const status = await getStatus(username);
+    const status = await getStatus(userid);
     if (status) setStatusButtonUI(status);
     if (CHATROOM_USER) {
-      await sendPrivateMessage(CHATROOM_USER, status, textInput.value);
+      await sendPrivateMessage(userid, CHATROOM_USER, status, textInput.value);
       showPrivateMessage(CHATROOM_USER);
     } else if (ANNOUNCEMENT) {
       // TODO: check for coordinator status
-      sendAnnouncementMessage(textInput.value);
+      const privilege = await checkPrivilege(userid);
+      if (privilege === "Coordinator" || privilege === "Administrator") {
+        sendAnnouncementMessage(textInput.value);
+      } else {
+        alert("You do not have the privilege to send an announcement");
+      }
     } else if (GROUPCHAT) {
       sendGroupMessage(MESSAGE_RECEIVER, textInput.value);
     } else {
-      sendPublicMessage(status, textInput.value);
+      // 
+      sendPublicMessage(userid, status, textInput.value);
     }
     textInput.value = "";
   }
+  return;
 };
 
-const sendPrivateMessage = async (receiverUsername, status, message) => {
+const sendPrivateMessage = async (userid, receiverUsername, status, message) => {
   if (SUSPEND_NORMAL_OPERATION) return [];
+  console.log("receiver: " + receiverUsername);
   await fetch(url + "/messages/private", {
     method: "POST",
-    body: JSON.stringify({ username: localStorage.getItem("username"), content: message, status: status, receiver: receiverUsername }),
+    body: JSON.stringify({ userid: userid, username: localStorage.getItem("username"), content: message, status: status, receiver: receiverUsername }),
     headers: {
       "Content-type": "application/json; charset=UTF-8",
     },
@@ -68,11 +77,11 @@ const sendPrivateMessage = async (receiverUsername, status, message) => {
 };
 
 
-const sendPublicMessage = async (status, message) => {
+const sendPublicMessage = async (userid, status, message) => {
   if (SUSPEND_NORMAL_OPERATION) return;
   await fetch(url + "/messages/public", {
     method: "POST",
-    body: JSON.stringify({ username: localStorage.getItem("username"), content: message, timestamp: new Date().toString(), status: status, receiver: "all" }),
+    body: JSON.stringify({ userid: userid, username: localStorage.getItem("username"), content: message, timestamp: new Date().toString(), status: status, receiver: "all" }),
     headers: {
       "Content-type": "application/json; charset=UTF-8",
     },
@@ -83,7 +92,7 @@ const sendAnnouncementMessage = async (message) => {
   if (SUSPEND_NORMAL_OPERATION) return
   await fetch(url + "/messages/announcement", {
     method: "POST",
-    body: JSON.stringify({ username: localStorage.getItem("username"), content: message, timestamp: new Date().toString(), status: "undefined", receiver: "announcement" }),
+    body: JSON.stringify({ username: localStorage.getItem("username"), userid: localStorage.getItem("userid"), content: message, timestamp: new Date().toString(), status: "undefined", receiver: "announcement" }),
     headers: {
       "Content-type": "application/json; charset=UTF-8",
     },
@@ -92,8 +101,17 @@ const sendAnnouncementMessage = async (message) => {
 
 
 
-
 const showPrivateMessage = async (otherUsername) => {
+  ANNOUNCEMENT = false;
+  GROUPCHAT = false;
+  // let resp = await fetch(url + "/users/profile/" + otherUsername, {
+  //   method: "GET",
+  //   headers: {
+  //     "Content-type": "application/json; charset=UTF-8",
+  //   },
+  // })
+
+  PRIVATE_CHAT_OPEN = true;
   setSearchPrivate(otherUsername);
   document.getElementById("elect-form").style.display = "none";
   document.getElementById("wall").style.display = "flex";
@@ -102,7 +120,7 @@ const showPrivateMessage = async (otherUsername) => {
   const messageContainer = document.getElementById("messages");
   messageContainer.innerHTML = "";
   chatroomTypeTitleElement.innerHTML = otherUsername + " Chatroom";
-  if (!msgs.empty) {
+  if (msgs && msgs.length>0) {
     for (let msg of msgs) {
       addMessages(msg);
     }
@@ -110,6 +128,7 @@ const showPrivateMessage = async (otherUsername) => {
   window.scrollTo(0, document.body.scrollHeight);
   messageContainer.scrollTo(0, messageContainer.scrollHeight);
   CHATROOM_USER = otherUsername;
+
 };
 
 const getPublicMessages = async () => {
@@ -132,16 +151,24 @@ const getAnnouncement = async () => {
     },
   });
   const { archive } = await response.json();
-  
+
   return archive;
 }
 
 
 
 async function getArchive() {
+  ANNOUNCEMENT = false;
+  GROUPCHAT = false;
+  PRIVATE_CHAT_OPEN = false;
+  CHATROOM_USER = "";
   setSearchPublic();
   document.getElementById("elect-form").style.display = "none";
   document.getElementById("wall").style.display = "flex";
+  const chatroomTypeTitleElement = document.getElementById("chatroom-title");
+  chatroomTypeTitleElement.innerHTML = "Public Chatroom";
+  const messageContainer = document.getElementById("messages");
+  messageContainer.innerHTML = "";
   const response = await getPublicMessages();
   const data = await response.json();
   if (!data.empty) {
@@ -159,7 +186,7 @@ const sendGroupMessage = async (group, message) => {
   if (SUSPEND_NORMAL_OPERATION) return
   await fetch(url + "/chatrooms/" + group, {
     method: "POST",
-    body: JSON.stringify({ username: localStorage.getItem("username"), content: message, timestamp: new Date().toString(), status: "undefined", receiver: group, group: group }),
+    body: JSON.stringify({ userid: localStorage.getItem("userid"), username: localStorage.getItem("username"), content: message, timestamp: new Date().toString(), status: "undefined", receiver: group, group: group }),
     headers: {
       "Content-type": "application/json; charset=UTF-8",
     },
@@ -206,7 +233,7 @@ const ConfirmGroupChat = async (group) => {
       }
       confirmationModal.show();
       document.getElementById('JoinGroupConfirm').addEventListener('click', async function () {
-        
+
         await fetch(url + "/chatrooms/" + group + "/" + localStorage.getItem("username"), {
           method: "POST",
           headers: {
@@ -222,18 +249,19 @@ const ConfirmGroupChat = async (group) => {
       return;
     }
   } catch (e) {
-    
+
   }
 }
 
 const GroupChat = async (group) => {
   GROUPCHAT = true;
   CHATROOM_USER = "";
-
+  ANNOUNCEMENT = false;
+  PRIVATE_CHAT_OPEN = false;
   setSearchGroup(group);
   document.getElementById("elect-form").style.display = "none";
   document.getElementById("wall").style.display = "flex";
-  
+
   const chatroomTypeTitleElement = document.getElementById("chatroom-title");
   chatroomTypeTitleElement.innerHTML = group + " Group Counsel";
 
@@ -270,10 +298,10 @@ const createEditableMessage = (cardBody, msg) => {
     // Logic to modify message
     document.getElementById("messageEditInput").value = msg.content;
     document.getElementById("saveMessageChanges").onclick = async () => {
-      
+
 
       let editMessageModal = new bootstrap.Modal(document.getElementById('editMessageModal'), {});
-      
+
       editMessageModal.hide();
 
       try {
@@ -290,11 +318,11 @@ const createEditableMessage = (cardBody, msg) => {
         });
 
       } catch (e) {
-        
+
       };
 
     };
-    
+
   });
 
   let deleteButton = document.createElement("button");
@@ -305,7 +333,7 @@ const createEditableMessage = (cardBody, msg) => {
   deleteButton.addEventListener("click", async () => {
     // Logic to delete message
     document.getElementById("deleteMessageChanges").onclick = async () => {
-      
+
 
       try {
         await fetch(url + "/chatrooms/" + MESSAGE_RECEIVER + "/" + msg._id, {
@@ -316,7 +344,7 @@ const createEditableMessage = (cardBody, msg) => {
           },
         });
       } catch (e) {
-        
+
       };
       let deleteMessageModal = new bootstrap.Modal(document.getElementById('deleteMessageModal'), {});
       deleteMessageModal.hide();
@@ -345,7 +373,7 @@ const deleteMessages = (msgId) => {
       messageElement.remove();
     }
   } catch (error) {
-    
+
   }
 }
 
@@ -372,17 +400,56 @@ const createIconElement = (username, status) => {
   return iconElement;
 };
 
+const getAdministratorsFromLocalStorage = () => {
+  const administratorsJSON = localStorage.getItem('administrators');
+  if (administratorsJSON) {
+    return JSON.parse(administratorsJSON).map(admin => admin.username);
+  }
+  return [];
+};
+
 const createUserBodyHeader = (user) => {
   let title = document.createElement("h5");
-  title.className = "card-title";
+  title.className = "card-title dropdown-toggle";
   title.textContent = user.username;
+  title.setAttribute("data-bs-toggle", "dropdown");
   title.style.cursor = "pointer";
-  title.addEventListener("click", () => showPrivateMessage(user.username));
+  // add show profile on click
+  let dropdown = document.createElement("div");
+  dropdown.className = "dropdown-menu";
+  title.addEventListener("click", (event) => {
+    event.stopPropagation();
+    dropdown.classList.toggle("show");
+  });
+  let dropdownMenu = document.createElement("div");
+  dropdownMenu.className = "dropdown-menu";
+
+  let chatOption = document.createElement("a");
+  chatOption.className = "dropdown-item";
+  chatOption.textContent = "Open Chat";
+  chatOption.addEventListener("click", () => showPrivateMessage(user.username));
+
+
+  let administrators = getAdministratorsFromLocalStorage();
+
+  const currentUsername = localStorage.getItem("username");
+  if (administrators.includes(currentUsername.toLowerCase()) || user.username === currentUsername) {
+    let editOption = document.createElement("a");
+    editOption.className = "dropdown-item";
+    editOption.textContent = "Edit Profile";
+    editOption.addEventListener("click", () => editUserProfile(user._id));
+    dropdownMenu.appendChild(editOption);
+  }
+
+
+  dropdownMenu.appendChild(chatOption);
+  // title.addEventListener("click", () => showPrivateMessage(user.username));
   let cardHeader = document.createElement("div");
   cardHeader.className = "card-header";
   const iconElement = createIconElement(user.username, user.status);
   cardHeader.appendChild(title);
   cardHeader.appendChild(iconElement);
+  cardHeader.appendChild(dropdownMenu);
   return cardHeader;
 }
 
@@ -503,7 +570,7 @@ const registerSocket = async (username, socketId) => {
       },
     });
   } catch (e) {
-    
+
   }
 };
 
@@ -513,8 +580,13 @@ const connectToSocket = async () => {
   socket.on("chat message", (msg) => { if (!SUSPEND_NORMAL_OPERATION) addMessages(msg) });
   socket.on("updateUserList", async () => { await fetchInitialUserList(); });
   socket.on("status-update", (data) => { updateUserStatusIconEverywhere(data.status, data.username); });
-  socket.on("private-message", (data) => { showMessageAlert(data, "primary"); });
-  socket.on("suspendNormalOps", (socketID) => { if (socketID != localStorage.getItem('socketID')) logout();});
+  socket.on("private-message", (data) => {
+    showMessageAlert(data, "primary");
+    if (PRIVATE_CHAT_OPEN) {
+      addMessages(data);
+    }
+  });
+  socket.on("suspendNormalOps", (socketID) => { if (socketID != localStorage.getItem('socketID')) logout(); });
   socket.on("enableNormalOperation", (data) => { SUSPEND_NORMAL_OPERATION = false; });
   socket.on("group-message", async (data) => {
     if (!SUSPEND_NORMAL_OPERATION) {
@@ -522,7 +594,7 @@ const connectToSocket = async () => {
       IS_SPECIALIST = true;
 
       addMessages(data.msg);
-      
+
       if (data.specialist_online && data.msg.username != localStorage.getItem("username")) {
         showMessageAlert(data.msg, "primary");
       } else if (!data.specialist_online) {
@@ -533,8 +605,18 @@ const connectToSocket = async () => {
   });
   socket.on("edit-group-message", (msg) => { editMessages(msg) });
   socket.on("delete-group-message", (msgId) => { deleteMessages(msgId); });
+  socket.on("inactive-logout", (data) => {
+    $('#logoutModal').find('.modal-body').text(data.message);
+    $('#logoutModal').modal('show');
+
+  });
 
 };
+
+$('#logoutConfirm').click(function () {
+  sessionStorage.clear();
+  logout();
+});
 
 const showMessage = (message) => {
   const titleElement = document.getElementById("message-modal-title");
@@ -565,7 +647,7 @@ const closeAlert = (message) => {
 const createAlertHTMLElement = (message, type) => {
   const wrapper = document.createElement("div");
   wrapper.id = message._id;
-  
+
   if (type === "primary") {
     alert_msg = `<div>${message.username}: ${message.content}</div>`
     if (message.receiver == "Anxiety" || message.receiver == "Depression" || message.receiver == "Stress" || message.receiver == "Grief") {
@@ -616,10 +698,10 @@ const navigateToEmergencyServices = () => {
   window.location.replace('/emergencyServices');
 }
 
-const getStatus = async (username) => {
+const getStatus = async (userid) => {
   if (SUSPEND_NORMAL_OPERATION) return;
   try {
-    const res = await fetch(url + "/user/status/" + username, {
+    const res = await fetch(url + "/user/status/" + userid, {
       method: "GET",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -628,7 +710,7 @@ const getStatus = async (username) => {
     const { status } = await res.json();
     return status;
   } catch (e) {
-    
+
   }
 };
 
@@ -676,14 +758,20 @@ const logout = async () => {
         "Content-type": "application/json; charset=UTF-8",
       },
     });
+
     localStorage.setItem("token", null);
     localStorage.setItem("username", null);
+    localStorage.clear()
   } catch (e) { }
 };
 
 
 const announcement = async () => {
+
   ANNOUNCEMENT = true;
+  CHATROOM_USER = "";
+  GROUPCHAT = false;
+  PRIVATE_CHAT_OPEN = false;
   setSearchAnnouncement();
   document.getElementById("elect-form").style.display = "none";
   document.getElementById("wall").style.display = "flex";
@@ -692,11 +780,12 @@ const announcement = async () => {
   const messageContainer = document.getElementById("messages");
   messageContainer.innerHTML = "";
   chatroomTypeTitleElement.innerHTML = "Announcement";
-  if (!msgs.empty) {
+  if (msgs.length > 0) {
     for (let msg of msgs) {
       addMessages(msg);
     }
   }
+  window.scrollTo(0, document.body.scrollHeight);
   messageContainer.scrollTo(0, messageContainer.scrollHeight);
 };
 
@@ -709,9 +798,18 @@ const getSpecialists = async (group) => {
 
 const fetchInitialUserList = async () => {
   if (SUSPEND_NORMAL_OPERATION) return;
-  
   const response = await fetch(url + "/users");
-  const users = await response.json();
+  let users = await response.json();
+  let administrators = users.users.filter(user => user.usertype === 'Administrator');
+  localStorage.setItem("administrators", JSON.stringify(administrators));
+  if(administrators){
+    console.log("Administrators", users);
+    administrators = administrators.map((administrator)=>administrator.username);
+    if(!administrators.includes(localStorage.getItem("username"))){
+      console.log("here", administrators);
+      users.users = users.users.filter(user=>user.useraccountstatus=="Active");
+    }
+  } 
   displayUsers(users);
 };
 
@@ -748,9 +846,9 @@ const getUnreadMessages = async () => {
 
 const getAlerts = async () => {
   const unreadMessages = await getUnreadMessages();
-  
+
   for (const msg of unreadMessages) {
-    
+
     showMessageAlert(msg, "primary");
   }
 };
@@ -763,7 +861,7 @@ const checkIfTestOngoing = async () => {
     },
   });
   const responseData = await response.json();
-  
+
   if (responseData) {
     SUSPEND_NORMAL_OPERATION = true;
   }
@@ -773,20 +871,15 @@ window.onload = async () => {
   try {
     await checkIfTestOngoing();
     const username = localStorage.getItem("username");
+    const userid = localStorage.getItem("userid");
     if (username) {
-      const toggleButton = document.getElementById("toggle-btn");
       await connectToSocket();
-      // toggleButton.addEventListener("click", async (e) => {
-      //   e.preventDefault();
-      //   await logout();
-      //   window.location.replace("/");
-      // });
-      const status = await getStatus(username);
+      const status = await getStatus(userid);
       if (status) setStatusButtonUI(status);
       await getAlerts();
     }
   } catch (err) {
-    
+
   }
 };
 
@@ -857,7 +950,7 @@ function setSearchStatusEmergency() {
 }
 
 const searchByUsername = async (searchValue) => {
-  
+
   try {
     const response = await fetch(url + "/users/username/search?user=" + searchValue, {
       method: "GET",
@@ -867,15 +960,15 @@ const searchByUsername = async (searchValue) => {
     });
     const { search_result } = await response.json();
     const data = { users: search_result };
-    
+
     displayUsers(data);
   } catch (e) {
-    
+
   }
 }
 
 const searchByStatus = async () => {
-  
+
   try {
     const response = await fetch(url + "/users/status/search?status=" + USERS_SEARCH_STATUS, {
       method: "GET",
@@ -885,10 +978,10 @@ const searchByStatus = async () => {
     });
     const { search_result } = await response.json();
     const data = { users: search_result };
-    
+
     displayUsers(data);
   } catch (e) {
-    
+
   }
 }
 
@@ -940,7 +1033,6 @@ function createMessageElement(search_result) {
 }
 
 const searchPublicMessages = async (searchValue) => {
-  
   try {
     const response = await fetch(url + "/messages/public/search?content=" + searchValue + "&limit=" + (PUBLIC_SEARCH_COUNTER * 10).toString(), {
       method: "GET",
@@ -951,14 +1043,14 @@ const searchPublicMessages = async (searchValue) => {
     const { search_result } = await response.json();
     createMessageElement(search_result);
   } catch (e) {
-    
+
   }
   PUBLIC_SEARCH_COUNTER += 1;
 }
 
 
 const searchAnnouncementMessages = async (searchValue) => {
-  
+
   try {
     const response = await fetch(url + "/messages/announcement/search?content=" + searchValue + "&limit=" + (ANNOUNCEMENT_SEARCH_COUNTER * 10).toString(), {
       method: "GET",
@@ -970,14 +1062,14 @@ const searchAnnouncementMessages = async (searchValue) => {
     createMessageElement(search_result);
 
   } catch (e) {
-    
+
   }
   ANNOUNCEMENT_SEARCH_COUNTER += 1;
 }
 
 
 const searchPrivateMessages = async (searchValue) => {
-  
+
   try {
     const response = await fetch(url + "/messages/private/search?receiver=" + localStorage.getItem("username") + "&sender=" + MESSAGE_RECEIVER + "&content=" + searchValue + "&limit=" + (PRIVATE_SEARCH_COUNTER * 10).toString(), {
 
@@ -990,7 +1082,7 @@ const searchPrivateMessages = async (searchValue) => {
     createMessageElement(search_result);
 
   } catch (e) {
-    
+
   }
   if (searchValue == "status") {
     PRIVATE_SEARCH_COUNTER = 0;
@@ -1028,7 +1120,7 @@ function closeNavbar() {
   bsCollapse.hide();
 }
 
-const loadFacilities = async ()=>{
-  window.location.href='/facilities'
-  
+const loadFacilities = async () => {
+  window.location.href = '/facilities'
+
 }

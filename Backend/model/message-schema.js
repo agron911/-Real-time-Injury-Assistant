@@ -1,6 +1,14 @@
 import mongoose from 'mongoose';
 
 const messageSchema  = new mongoose.Schema({
+    userid:{
+        type: String,
+        required: true
+    },
+    receiverid:{
+        type: String,
+        required: false
+    },
     username:{
         type: String,
         required: true

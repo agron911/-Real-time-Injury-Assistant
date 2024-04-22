@@ -1,9 +1,9 @@
 import DAO from "./dao.js"
 import { prohibitedUsernames } from '../utils/user-config.js';
+import { hashPassword } from "../utils/passwordUtils.js";
 
 class User {
-    constructor(username, password, status, usertype, esp, validate, waitlistRole, specialist) {
-        if (validate && User.validate(username, password)) throw "Invalid username or password"
+    constructor( username, password, status, usertype, esp, waitlistRole, specialist) {
         this.username = username;
         this.status = status;
         this.password = password;
@@ -11,6 +11,8 @@ class User {
         this.esp = esp;
         this.waitlistRole = waitlistRole;
         this.specialist = specialist;
+        
+        
     }
 
     static get dao() {
@@ -29,8 +31,14 @@ class User {
         return 3;
     }
 
-    static validate(username, password) {
+    static async validate(username, password) {
         // Check username length
+        let check = await this.usernameExists(username);
+        //
+        if (check) {
+            throw new Error("Username already exists");
+        }
+
         if (!username || username.length < this.usernameMinLength) {
             
             throw new Error("Username length invalid");
@@ -70,15 +78,26 @@ class User {
             username: this.username,
             password: this.password,
             status: this.status,
-            online: false, 
-            acknowledged: false, 
+            online: false,
+            acknowledged: false,
             usertype: this.usertype,
             esp: this.esp,
             waitlistRole: 'undefined',
             specialist: this.specialist,
             confirmGroup: [],
+            useraccountstatus: 'Active',
         };
     }
+
+    static async usernameExists(newUsername) {
+        const user = await DAO.getInstance().getUserByName(newUsername);
+        return !user===null;
+    }
+
+    static async hashPassword(password) {
+        return await hashPassword(password);
+    }
+    
 }
 
 export default User;

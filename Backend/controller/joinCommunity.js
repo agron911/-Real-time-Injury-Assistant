@@ -24,27 +24,35 @@ export const indexView = (req, res) => {
  
 export async function loginRegister(user_data){
     const userExists = await DAO.getInstance().getUserByName(user_data.username);
-    if (!userExists) {
+    if (userExists && userExists.useraccountstatus == "Inactive") {
+        return ("User is inactive");
+    }
+    const check = userExists === null;
+
+    if(user_data.username ==  "ESNAdmin" && check){
+        await DAO.getInstance().createUser(user_data.username.toLowerCase(),  await hashPassword('admin'), "ok",'administrator', false, 'undefined',user_data.specialists);
+        await DAO.getInstance().updateUserAcknowledgement(user_data.username);
+        return null;
+    }
+    if (check) {
         let un = user_data.username;
         const data = {
             username: un.toLowerCase(),
             password: user_data.password
         };
         const hashed_password = await hashPassword(data.password);
-        // const citizen = new Citizen(data.username, hashed_password, "undefined", false);
-        // citizen.save();
-        console.log("??",user_data.specialists)
-        await DAO.getInstance().createUser(data.username, hashed_password, "undefined",'citizen', false, 'undefined',user_data.specialists);
-        // res.status(202).send({ data });
+        let newuser = await DAO.getInstance().createUser(data.username, hashed_password,"ok",'Citizen', false, 'undefined',user_data.specialists);
+        data.userid = newuser._id.toString();
         return data;
-    } else {
+    }else {
         //res.status(400).send({message: "User exists!"});
         return null
     }
 }
 
 export const UserConfirmation = async (req, res) => { 
-    var user_confirmation_result = await loginRegister(req.body)
+    
+    let user_confirmation_result = await loginRegister(req.body)
     if(user_confirmation_result != null){
         res.status(202).send({data: user_confirmation_result});
     }
@@ -78,8 +86,9 @@ export const UserJoin = async (req, res) => {
 
     var status = 0;
     try{
-        User.validate(data.username, data.password);
-    }catch(err){
+        await User.validate(data.username, data.password);
+    }
+    catch (err){
         if(err.message =="Username length invalid"){
             res.status(401).send({message: "Username length invalid"});
             return;
@@ -92,7 +101,6 @@ export const UserJoin = async (req, res) => {
             res.status(403).send({message: "Username prohibited"});
             return;
         }
-        console.log(err)
     }
 
     // if (ruleCheck) {
@@ -123,7 +131,7 @@ export const UserAcknowledgement = async (req, res) => {
             await DAO.getInstance().updateUserAcknowledgement(username);
             res.status(200).send({message: "Acknowledged"});
         } catch (err) {
-            console.log(err);
+            
             res.status(500).send('Something went wrong!');
         }
     } else {

@@ -3,44 +3,46 @@ const url = ""
 let SUSPEND_NORMAL_OPERATION = false;
 let specialistCategories = [];
 
-function cancelUser(){
+function cancelUser() {
     usernameInput.value = '';
     passwordInput.value = '';
-    document.getElementById("acknowlegementmodal").style.display="none"
+    document.getElementById("acknowlegementmodal").style.display = "none"
 
 }
 
-function saveUser(){
-    if(SUSPEND_NORMAL_OPERATION) return
-    fetch(url+"/users",{
-        method:"POST",
+function saveUser() {
+    if (SUSPEND_NORMAL_OPERATION) return
+    fetch(url + "/users", {
+        method: "POST",
         body: JSON.stringify({
             "username": usernameInput.value,
             "password": passwordInput.value,
             "specialists": specialistCategories,
         }),
         headers: {
-        "Content-type": "application/json; charset=UTF-8"
+            "Content-type": "application/json; charset=UTF-8"
         }
     })
-    .then(async(response)=>{
-        console.log(response);
-        const {data} = await response.json();
-        localStorage.setItem("username", data.username);
-        document.getElementById("acknowlegementmodal").style.display="none";
-        document.getElementById("acknowlegementmodal1").style.display="block";
-    })
-    .catch(error => console.log(error))
+        .then(async (response) => {
+            const { data } = await response.json();
+            localStorage.setItem("username", data.username);
+            localStorage.setItem("userid", data.userid)
+            document.getElementById("acknowlegementmodal").style.display = "none";
+            document.getElementById("acknowlegementmodal1").style.display = "block";
+        })
+        .catch((error) => {
+            //
+        })
 }
 
 const login = async (username, password) => {
     await checkIfTestOngoing();
-    if(SUSPEND_NORMAL_OPERATION) return;
-    try {    
-        const response = await fetch(url+"/auth/users",{
-            method:"PATCH",
+    if (SUSPEND_NORMAL_OPERATION) return;
+    try {
+        const response = await fetch(url + "/auth/users", {
+            method: "PATCH",
             body: JSON.stringify({
-                username, 
+                username,
                 password,
                 isOnline: true
             }),
@@ -48,22 +50,35 @@ const login = async (username, password) => {
                 "Content-type": "application/json; charset=UTF-8"
             }
         })
-        if (response.status==200) {
-            const data = await response.json();
+        //    return res.status(401).send({message: "User is inactive"});
+
+        const data = await response.json();
+        if (response.status == 401) {
+            $('#logoutModal').modal('show');
+            return;
+        }
+        if (response.status == 200) {
             localStorage.setItem("token", data.token);
             localStorage.setItem("username", username);
+            localStorage.setItem("userid", data.userid)
             // await connectToSocket();
             window.location.replace("/chatroom");
         }
     } catch (e) {
-        console.log("login error", e);
+        
     }
 }
+$('#logoutConfirm').click(function () {
+    sessionStorage.clear();
+    localStorage.clear();
+    //reload
+    window.location.replace("/community");
+});
 
 const verifyUser = async (username, password, specialistCategories) => {
     await checkIfTestOngoing();
-    if(SUSPEND_NORMAL_OPERATION) return;
-    return await fetch(url+"/users/verification", {
+    if (SUSPEND_NORMAL_OPERATION) return;
+    return await fetch(url + "/users/verification", {
         method: "POST",
         body: JSON.stringify({
             "username": username,
@@ -76,8 +91,8 @@ const verifyUser = async (username, password, specialistCategories) => {
     });
 }
 
-const alertUser = (statusCode) =>{
-    if (statusCode == 400){
+const alertUser = (statusCode) => {
+    if (statusCode == 400) {
         alert(`Username exist. \nPlease re-enter a different username or input correct password.`);
     } else if (statusCode == 401) {
         alert(`Username must be at least 3 characters long.`);
@@ -88,18 +103,18 @@ const alertUser = (statusCode) =>{
     } else {
         alert(`Server experienced a problem`);
     }
-} 
+}
 
 const getSpecialistCategories = async () => {
     const categories = [];
     document.querySelectorAll('.form-check-input').forEach(input => {
-        if(input.checked) categories.push(input.value);
+        if (input.checked) categories.push(input.value);
     });
     return categories;
 };
 
 
-const submitJoinForm = async ()=>{
+const submitJoinForm = async () => {
     const usernameInput = document.getElementById('usernameInput');
     const passwordInput = document.getElementById('passwordInput');
     specialistCategories = await getSpecialistCategories();
@@ -107,21 +122,21 @@ const submitJoinForm = async ()=>{
     if (usernameInput && passwordInput) {
         const response = await verifyUser(usernameInput.value, passwordInput.value, specialistCategories);
         if (response.status == 201) {
-            document.getElementById("acknowlegementmodal").style.display="block";
-        } else if (response.status == 206){
+            document.getElementById("acknowlegementmodal").style.display = "block";
+        } else if (response.status == 206) {
             login(usernameInput.value, passwordInput.value)
         } else {
             alertUser(response.statusCode);
         }
     }
-} 
-    
+}
 
-async function userAcknowledged(){
+
+async function userAcknowledged() {
     await checkIfTestOngoing();
-    if(SUSPEND_NORMAL_OPERATION) return
-    try{
-        const response = await fetch(url + "/users/acknowledgement",{
+    if (SUSPEND_NORMAL_OPERATION) return
+    try {
+        const response = await fetch(url + "/users/acknowledgement", {
             method: "POST",
             body: JSON.stringify({
                 "username": localStorage.getItem("username"),
@@ -130,35 +145,34 @@ async function userAcknowledged(){
                 "Content-type": "application/json; charset=UTF-8"
             }
         });
-        if(response.status==200){
+        if (response.status == 200) {
             window.location.replace('/chatroom');
-            document.getElementById("acknowlegementmodal1").style.display="none"
+            document.getElementById("acknowlegementmodal1").style.display = "none"
             usernameInput.value = '';
             passwordInput.value = '';
         }
-    } catch(error) {
-        console.log(error);
+    } catch (error) {
+        
     }
 }
 
 window.onload = async () => {
     try {
-      await checkIfTestOngoing();
-    } catch(error) {
+        await checkIfTestOngoing();
+    } catch (error) {
 
-    }  
+    }
 }
 
 const checkIfTestOngoing = async () => {
-    const response = await fetch(url + "/speedTest",{
-      method: "GET",
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
+    const response = await fetch(url + "/speedTest", {
+        method: "GET",
+        headers: {
+            "Content-type": "application/json; charset=UTF-8",
+        },
     });
     const responseData = await response.json();
-    console.log("responseData", responseData);
-    if(responseData) {
-      SUSPEND_NORMAL_OPERATION = true;
+    if (responseData) {
+        SUSPEND_NORMAL_OPERATION = true;
     }
 }
