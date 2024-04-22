@@ -79,7 +79,7 @@ export const receiveGroupMessage = async (req, res) => {
     }
     catch (err) {
         if (!res.headersSent) {
-            res.status(500).send({ error: "An error occurred." });
+            res.status(500).send({ error: "An error occurred."+err.message   });
         }
     }
 
@@ -106,7 +106,7 @@ export const editGroupMessage = async (req, res) => {
             const userActive = await isUserActive(user.username);
 
             if (userActive) {
-                const socketIds = await getSocketIds(user.username);
+                const socketIds = await getSocketIds(userActive._id);
                 socketIds.forEach(socketId => {
                     io.to(socketId).emit('edit-group-message', message);
                 });

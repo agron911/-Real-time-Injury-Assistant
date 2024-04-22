@@ -234,7 +234,7 @@ const ConfirmGroupChat = async (group) => {
       }
       confirmationModal.show();
       document.getElementById('JoinGroupConfirm').addEventListener('click', async function () {
-
+        
         await fetch(url + "/chatrooms/" + group + "/" + localStorage.getItem("username"), {
           method: "POST",
           headers: {
@@ -243,9 +243,13 @@ const ConfirmGroupChat = async (group) => {
         });
         let confirmationModal = new bootstrap.Modal(document.getElementById('confirmJoinGroup'), {});
         confirmationModal.hide();
+        hideUsersUI();
+        showChatroomUI();
         await GroupChat(group);
       });
     } else {
+      hideUsersUI();
+        showChatroomUI();
       await GroupChat(group);
       return;
     }

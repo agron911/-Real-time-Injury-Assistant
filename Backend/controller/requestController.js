@@ -75,7 +75,6 @@ export const updateRequest = async (req, res) => {
         const originalRequest = await DAO.getInstance().getRequestById(id);
         const updatedRequest = await DAO.getInstance().updateRequest(id, newRequest);
         const request = new Request(updatedRequest.username, updatedRequest.content, updatedRequest.severity, updatedRequest.assignedTo, updatedRequest.status, updatedRequest.id);
-        res.status(201).send(request.getSchemaObject());
         io.emit('update-request-wall');
 
         if(originalRequest.status=="UNRESOLVED"&&updatedRequest.status=="ONGOING"){
@@ -84,6 +83,8 @@ export const updateRequest = async (req, res) => {
                 io.to(socketId).emit('notify-citizen', request.id);            
             });
         }
+        res.status(201).send(request.getSchemaObject());
+        
 
     } catch (e){
         res.status(404).send(e.message); 
