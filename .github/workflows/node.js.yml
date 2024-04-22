@@ -22,7 +22,7 @@ jobs:
         cache: 'npm'
     - run: |
         touch .env
-        echo ENGINE_API_KEY=${{'***REMOVED***'}} >> .env
+        echo CHAT_GPT_API_KEY=${{'***REMOVED***'}} >> .env
     - run: npm ci
     - run: npm run coverage
 
