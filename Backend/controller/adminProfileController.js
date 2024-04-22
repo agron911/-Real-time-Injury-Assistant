@@ -21,18 +21,32 @@ export const changeUserInfo = async (req, res) => {
     const userid = req.body.id;
     let newstatus = req.body.status;
     let newusertype = req.body.usertype;
+    let actionerid = req.body.actionerid;
     try {
+        let actioner;
+        if(actionerid){
+            actioner = await DAO.getInstance().getUserById(actionerid);
+        } 
         let user = await DAO.getInstance().getUserById(userid);
         //
+
         if (!user) {
             res.status(404).send({ message: "User not found" });
             return;
         }
 
         if (username !== user.username) {
+            if(actioner && actioner.id !== user.id && actioner.usertype != 'Administrator' ){
+                res.status(400).send({message: "Only user or administrator can change username"});
+                return;
+            }
             username = username.toLowerCase();
         }
         if (newPassword !== "") {
+            if(actioner && actioner.usertype != 'Administrator' ){
+                res.status(400).send({message: "Only administrator can change username"});
+                return;
+            }
             newPassword = await hashPassword(newPassword);
         } else {
 
@@ -47,6 +61,12 @@ export const changeUserInfo = async (req, res) => {
             }
         }
 
+        if(newusertype !== user.usertype) {
+            if(actioner && actioner.usertype != 'Administrator' ){
+                res.status(400).send({message: "Only administrator can change newusertype"});
+                return;
+            }
+        }
 
         await DAO.getInstance().changeUserInfo(userid, newstatus, username, newusertype, newPassword)
 

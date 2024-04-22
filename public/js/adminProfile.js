@@ -78,6 +78,7 @@ const submitEditForm = async () => {
         });
         const result = await response.json();
         if (response.ok) {
+            console.log("new user name", result.data.user.username);
             if(localStorage.getItem('userid') == result.data.user._id ){            
                 localStorage.setItem("username", result.data.user.username);
             }

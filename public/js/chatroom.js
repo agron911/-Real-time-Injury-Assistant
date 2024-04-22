@@ -890,6 +890,16 @@ const showChatroomUI = () => {
   document.getElementById("chatroom-container").style.display = "block";
 }
 
+const getUserProfile = async () => {
+  const response = await fetch(url + "/users/profile/" + localStorage.getItem('userid'), {
+    method: "GET",
+    headers: {
+      "Content-type": "application/json; charset=UTF-8",
+    },
+  });
+  return await response.json();
+}
+
 window.onload = async () => {
   try {
     if (window.innerWidth<=640) {
@@ -897,8 +907,9 @@ window.onload = async () => {
       showUsersUI();
     }
     await checkIfTestOngoing();
-    const username = localStorage.getItem("username");
     const userid = localStorage.getItem("userid");
+    const username = (await getUserProfile()).username;
+    localStorage.setItem("username", username);
     if (username) {
       await connectToSocket();
       const status = await getStatus(userid);
