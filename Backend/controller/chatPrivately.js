@@ -14,7 +14,7 @@ export const loadUnreadMessages = async(req, res) => {
 
 export const receivePrivateMessage = async(req, res)=>{
     let receiveruser = await DAO.getInstance().getUserByName(req.body.receiver);
-    console.log("recv  : ", receiveruser);
+    
     let receiveruserid = receiveruser._id.toString();
     const timestamp = new Date().toString(); 
     new MessageObj(req.body.userid, receiveruserid, req.body.username, req.body.content, req.body.timestamp, req.body.status, req.body.receiver);
@@ -23,7 +23,8 @@ export const receivePrivateMessage = async(req, res)=>{
     // if the user is online, send notification to user through socket
     const userActive = await isUserActive(req.body.receiver);
     if (userActive) {
-        const socketIds = await getSocketIds(req.body.receiver);
+        const socketIds = await getSocketIds(receiveruserid);
+        console.log("socketIds: " + socketIds);
         const msg = await DAO.getInstance().updateMessageById(mess[0]._id, {viewed: true});
         socketIds.forEach(socketId => {
             io.to(socketId).emit('private-message', msg);            
@@ -38,10 +39,24 @@ export const receivePrivateMessage = async(req, res)=>{
 
 // Retrieve all private messages between two users
 export const loadPrivateMessages = async(req, res) => {
-    const messages = await DAO.getInstance().getAllPrivateMessages(req.query.username1, req.query.username2);
+    const user1 = await DAO.getInstance().getUserByName(req.query.username1);
+    const user2 = await DAO.getInstance().getUserByName(req.query.username2);
+    console.log(user1._id.toString(), user2._id.toString());
+    
+    let messages = await DAO.getInstance().getAllPrivateMessages(user1._id.toString(), user2._id.toString());
     try{
-        res.status(200).send({archive:messages})
+        messages = await Promise.all(messages.map(async (message) => {
+            console.log("dsda");
+            const user = await DAO.getInstance().getUserById(message.userid);
+            return {
+                ...message._doc,
+                username: user.username,
+            }; 
+        }));
+        console.log("messages", messages);
+        res.status(200).send({archive: messages})
     }catch(err){
         res.status(400).send({message: "Error in loading all private messages"});
     }
+    // console.log("herrrr");
 }

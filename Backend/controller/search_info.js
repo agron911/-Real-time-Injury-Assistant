@@ -76,7 +76,7 @@ export const searchByUsername = async (req, res) => {
 
 
 export const searchByStatus = async (req, res) => {
-    console.log("searchByStatus");
+    
     const status = req.query.status;
     if (!status) {
         return res.status(400).send({ message: "Status parameter is required." });

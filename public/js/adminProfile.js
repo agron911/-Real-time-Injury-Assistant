@@ -46,7 +46,7 @@ const editUserProfile = async (id) => {
 // PUT /users/:id/profile
 const submitEditForm = async () => {
     const privilege = await checkPrivilege(localStorage.getItem("userid"));
-    console.log(privilege);
+    
  
     if (SUSPEND_NORMAL_OPERATION) return;
     const isUsernameValid = usernameChanged ? await validateUsername() : true;
@@ -78,8 +78,9 @@ const submitEditForm = async () => {
         });
         const result = await response.json();
         if (response.ok) {
-            localStorage.setItem("username", result.data.username);
-
+            if(localStorage.getItem('userid') == result.data.user._id ){            
+                localStorage.setItem("username", result.data.user.username);
+            }
             alert('Profile updated successfully');
             window.location.reload();
         } else {

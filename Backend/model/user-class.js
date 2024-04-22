@@ -11,8 +11,8 @@ class User {
         this.esp = esp;
         this.waitlistRole = waitlistRole;
         this.specialist = specialist;
-        console.log("Creating a usertype", usertype);
-        console.log("Creating a esp", esp);
+        
+        
     }
 
     static get dao() {
@@ -34,7 +34,7 @@ class User {
     static async validate(username, password) {
         // Check username length
         let check = await this.usernameExists(username);
-        //console.log(check);
+        //
         if (check) {
             throw new Error("Username already exists");
         }

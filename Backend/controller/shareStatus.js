@@ -19,7 +19,7 @@ export const updateUserStatus = async (req, res) =>{
 export const getStatus = async (req, res) =>{
     const userid = req.params.userid;
     try{
-        console.log("getsts",userid);
+        
         const user = await DAO.getInstance().getUserById(userid);
         res.status(200).send({status: user.status});
     }catch(err){

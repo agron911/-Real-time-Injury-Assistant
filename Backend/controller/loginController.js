@@ -6,7 +6,7 @@ import Citizen from '../model/user-Citizen.js';
 
 export const loginOrLogout = async (req, res) => {
     const userExists = await DAO.getInstance().getUserByName(req.body.username);
-    if (userExists.useraccountstatus == "Inactive") {
+    if (userExists && userExists.useraccountstatus == "Inactive") {
         return res.status(401).send({message: "User is inactive"});
     }
     const isOnline = req.body.isOnline
@@ -47,9 +47,11 @@ export const logout = async (req, res) => {
 export const registerUserSocket = async (req, res) => {
     const username = req.params.username;
     const user = await DAO.getInstance().getUserByName(username);
-    const userid = user._id.toString();
+    
     if (user) {
+        const userid = user._id.toString();
         await addActiveUser(userid, username, req.body.socketId, req.body.esp?true:false);
+        console.log("active user added");
         await DAO.getInstance().updateUserOnline(username);
         const users = await DAO.getInstance().getAllUsers();
         io.emit('updateUserList', users );

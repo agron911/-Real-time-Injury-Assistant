@@ -23,7 +23,7 @@ export const changeUserInfo = async (req, res)=>{
     let newusertype = req.body.usertype;
     try{
         let user = await DAO.getInstance().getUserById(userid);
-        console.log(user)
+        //
         if(!user){
             res.status(404).send({message: "User not found"});
             return;
@@ -35,12 +35,12 @@ export const changeUserInfo = async (req, res)=>{
         if(newPassword !== ""){
             newPassword = await hashPassword(newPassword);
         }else{
-            console.log("no new password", user.password);
+            
             newPassword = user.password;
         }
         if ( (newusertype !== 'Administrator' && user.usertype === 'Administrator') || (newusertype === 'Administrator' &&  newstatus === 'Inactive')) {
             const administrators = await DAO.getInstance().getAdministrators();
-            console.log(administrators);
+            
             if (administrators.length === 1) {
                 res.status(400).send({ message: "There must be at least one administrator active." });
                 return;
@@ -54,8 +54,8 @@ export const changeUserInfo = async (req, res)=>{
             const socketIds = await getSocketIds(userid);
             io.to(socketIds).emit('inactive-logout', { message: "Your account has been deactivated. Please contact support." });
         }
-        
-        res.status(200).send({data:{message: "User information updated successfully", username: username}});
+        const newUser = await DAO.getInstance().getUserById(userid);
+        res.status(200).send({data:{message: "User information updated successfully", user: newUser}});
 
     }catch  (err){
         if (err.message.includes("Invalid username or password") || err.message.includes("Username already exists")) {
@@ -63,7 +63,7 @@ export const changeUserInfo = async (req, res)=>{
         } else if (err.message.includes("User not found")) {
             return res.status(404).send({ message: err.message });
         } else {
-            console.log(err)
+            //
             return res.status(500).send({ message: "Failed to update profile due to an unexpected error." });
         }
     }

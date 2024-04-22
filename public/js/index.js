@@ -31,7 +31,7 @@ function saveUser() {
             document.getElementById("acknowlegementmodal1").style.display = "block";
         })
         .catch((error) => {
-            console.log(error)
+            //
         })
 }
 
@@ -65,7 +65,7 @@ const login = async (username, password) => {
             window.location.replace("/chatroom");
         }
     } catch (e) {
-        console.log("login error", e);
+        
     }
 }
 $('#logoutConfirm').click(function () {
@@ -152,7 +152,7 @@ async function userAcknowledged() {
             passwordInput.value = '';
         }
     } catch (error) {
-        console.log(error);
+        
     }
 }
 

@@ -56,7 +56,7 @@ const sendMessage = async () => {
     } else if (GROUPCHAT) {
       sendGroupMessage(MESSAGE_RECEIVER, textInput.value);
     } else {
-      // console.log("sending public message",userid, status, textInput.value);
+      // 
       sendPublicMessage(userid, status, textInput.value);
     }
     textInput.value = "";
@@ -66,6 +66,7 @@ const sendMessage = async () => {
 
 const sendPrivateMessage = async (userid, receiverUsername, status, message) => {
   if (SUSPEND_NORMAL_OPERATION) return [];
+  console.log("receiver: " + receiverUsername);
   await fetch(url + "/messages/private", {
     method: "POST",
     body: JSON.stringify({ userid: userid, username: localStorage.getItem("username"), content: message, status: status, receiver: receiverUsername }),
@@ -119,7 +120,7 @@ const showPrivateMessage = async (otherUsername) => {
   const messageContainer = document.getElementById("messages");
   messageContainer.innerHTML = "";
   chatroomTypeTitleElement.innerHTML = otherUsername + " Chatroom";
-  if (!msgs.empty) {
+  if (msgs && msgs.length>0) {
     for (let msg of msgs) {
       addMessages(msg);
     }
@@ -779,7 +780,7 @@ const announcement = async () => {
   const messageContainer = document.getElementById("messages");
   messageContainer.innerHTML = "";
   chatroomTypeTitleElement.innerHTML = "Announcement";
-  if (!msgs.empty) {
+  if (msgs.length > 0) {
     for (let msg of msgs) {
       addMessages(msg);
     }
@@ -797,11 +798,18 @@ const getSpecialists = async (group) => {
 
 const fetchInitialUserList = async () => {
   if (SUSPEND_NORMAL_OPERATION) return;
-
   const response = await fetch(url + "/users");
-  const users = await response.json();
-  const administrators = users.users.filter(user => user.usertype === 'Administrator');
+  let users = await response.json();
+  let administrators = users.users.filter(user => user.usertype === 'Administrator');
   localStorage.setItem("administrators", JSON.stringify(administrators));
+  if(administrators){
+    console.log("Administrators", users);
+    administrators = administrators.map((administrator)=>administrator.username);
+    if(!administrators.includes(localStorage.getItem("username"))){
+      console.log("here", administrators);
+      users.users = users.users.filter(user=>user.useraccountstatus=="Active");
+    }
+  } 
   displayUsers(users);
 };
 
@@ -865,13 +873,7 @@ window.onload = async () => {
     const username = localStorage.getItem("username");
     const userid = localStorage.getItem("userid");
     if (username) {
-      const toggleButton = document.getElementById("toggle-btn");
       await connectToSocket();
-      // toggleButton.addEventListener("click", async (e) => {
-      //   e.preventDefault();
-      //   await logout();
-      //   window.location.replace("/");
-      // });
       const status = await getStatus(userid);
       if (status) setStatusButtonUI(status);
       await getAlerts();
@@ -1031,7 +1033,6 @@ function createMessageElement(search_result) {
 }
 
 const searchPublicMessages = async (searchValue) => {
-
   try {
     const response = await fetch(url + "/messages/public/search?content=" + searchValue + "&limit=" + (PUBLIC_SEARCH_COUNTER * 10).toString(), {
       method: "GET",
