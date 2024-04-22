@@ -65,7 +65,7 @@ class Server {
 
   static run(){
     const port = 3000;
-    Server.instance.app.listen(port, function () {
+    Server.instance.httpServer.listen(port, function () {
       console.log(`Listening port... ${port}`);
     });
   }
