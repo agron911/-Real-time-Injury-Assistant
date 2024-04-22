@@ -274,7 +274,7 @@ class DAO {
         if(messages.length<=0) return [];
         let inActiveUsers = await this.getInactiveUsers();
         inActiveUsers = inActiveUsers.map((userid) => userid.toString());
-        console.log('inActiveUsers', inActiveUsers, inActiveUsers.includes(messages[0].userid), inActiveUsers.includes(messages[0].receiverid));
+        // console.log('inActiveUsers', inActiveUsers, inActiveUsers.includes(messages[0].userid), inActiveUsers.includes(messages[0].receiverid));
         messages = messages.filter(message => !(inActiveUsers.includes(message.userid.toString())||inActiveUsers.includes(message.receiverid.toString())));
         return messages;
     }
@@ -295,11 +295,11 @@ class DAO {
                     { userid: receiverid, receiverid: userid }
                 ]
             }).sort({ timestamp: 1 });
-            console.log('1',msgs.length, msgs, userid, receiverid);
+
             msgs = msgs?await this.removeInactiveUserMessages(msgs):[];
-            console.log('1',msgs.length, msgs);
+
             msgs = await this.removeInactiveUserMessages(msgs);
-            console.log('2',msgs.length);
+            // console.log('2',msgs.length);
             return msgs;
         } catch (err) {
             console.log("err", err);

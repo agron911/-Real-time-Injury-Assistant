@@ -2,6 +2,7 @@ import { connect, closeDatabase, clearDatabase } from './db-handler';
 import { hashPassword, comparePassword } from "../utils/passwordUtils.js";
 import DAO from '../model/dao.js';
 import Citizen from '../model/user-Citizen.js';
+import User from '../model/user-class.js';
 import Request from '../model/request-class.js';
 import e from 'express';
 /**
@@ -22,21 +23,22 @@ afterAll( async () =>  await closeDatabase() );
 
 describe('Password Operations', () => {
 
-    test('Rejects passwords shorter than minimum length', () => {
+    test('Rejects passwords shorter than minimum length', async () => {
         try{
-            Citizen.validate('daniel', '1');
+            await User.validate('daniel', '1');
         }catch(err){
             expect(err.message || err).toBe("Password length invalid")
         }
     })
-    test('Accepts valid password length',  () => {
-        const isvalid = Citizen.validate('daniel', '1234');
+
+    test('Accepts valid password length', async () => {
+        const isvalid = await User.validate('daniel', '1234');
         expect(isvalid).toBe(0);
     })
+
     test('Test existing user password match', async() => {
         const hashedpassword = await hashPassword('1234')
         const new_user = await DAO.getInstance().createUser('daniel2', hashedpassword, 'ok', 'Citizen', false, 'undefined', []);
-        
         const passwordresult =  await comparePassword(new_user.password, '1234')
         expect(passwordresult).toBe(true);
         
@@ -50,22 +52,22 @@ describe('Password Operations', () => {
 })
 
 describe('Username Operations', () => {
-    test('Accepts usernames with valid length', () => {
-        const isvalid = Citizen.validate('Taige', '1234');
+    test('Accepts usernames with valid length', async () => {
+        const isvalid = await Citizen.validate('Taige', '1234');
         expect(isvalid).toBe(0);
     })
 
-    test('Rejects usernames with prohibited words', () => {
+    test('Rejects usernames with prohibited words', async () => {
         try{
-            Citizen.validate('careers', '1234');
+            await Citizen.validate('careers', '1234');
         }catch(err){
             expect(err.message || err).toBe ("Username prohibited")
         }
     })
     
-    test('Rejects usernames shorter than minimum length', () => {
+    test('Rejects usernames shorter than minimum length', async () => {
         try{
-            Citizen.validate('d', '1234');
+            await Citizen.validate('d', '1234');
         }catch(err){
             expect(err.message || err).toBe ("Username length invalid")
         }
@@ -75,50 +77,63 @@ describe('Username Operations', () => {
         await DAO.getInstance().createUser('daniel', await hashPassword('1234'), 'ok','Citizen', false)
         const citizen = await DAO.getInstance().getUserByName('Daniel')
         expect(citizen).not.toBeNull()
+        expect(citizen.username).toBe('daniel')
     });
 
     test('Successfully creates and retrieves a user', async() => {
         await DAO.getInstance().createUser('daniel2', await hashPassword('1234'), 'ok','Citizen', false)
         const citizen = await DAO.getInstance().getUserByName('daniel2')
         expect(citizen).not.toBeNull()
+        expect(citizen.username).toBe('daniel2')
     });
 
 })
 
 describe('Update information', () => {
-    test("Update user's online ", async () => {
-        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok','Citizen', false)
+    test("Update user's online after creating", async () => {
+        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok','Citizen', false, 'undefined', [])
         await DAO.getInstance().updateUserOnline('agron')
         let citizen = await DAO.getInstance().getUserByName('agron')
         let online_sts = citizen.online;
         expect(online_sts).toBe(true)
+    });
 
+    test("Update user's offline after creating", async () => {
+        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok','Citizen', false, 'undefined', [])
         await DAO.getInstance().updateUserOffline('agron')
-        citizen = await DAO.getInstance().getUserByName('agron')
-        online_sts = citizen.online;
+        let citizen = await DAO.getInstance().getUserByName('agron')
+        let online_sts = citizen.online;
         expect(online_sts).toBe(false)
     });
 
     test("Update user's Acknowledgement", async () => {
-        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok','Citizen', false)
+        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok','Citizen', false, 'undefined', [])
         await DAO.getInstance().updateUserAcknowledgement('agron')
         let citizen = await DAO.getInstance().getUserByName('agron')
         let acknowledged = citizen.acknowledged;
         expect(acknowledged).toBe(true)
     })
 
-    test("Update user's status", async () => {
-        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok','Citizen', false)
+    test("Create user with status ok", async () => {
+        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok','Citizen', false, 'undefined', [])
         let citizen = await DAO.getInstance().getUserByName('agron');
         let status = citizen.status;
         expect(status).toBe('ok')
+    })
+
+    test("Update user's status to help", async () => {
+        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok','Citizen', false, 'undefined', [])
         await DAO.getInstance().updateUserStatus('agron', 'help')
-        citizen = await DAO.getInstance().getUserByName('agron')
-        status = citizen.status;
+        let citizen = await DAO.getInstance().getUserByName('agron')
+        let status = citizen.status;
         expect(status).toBe('help')
+    })
+
+    test("Update user's status to emergency", async () => {
+        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok','Citizen', false, 'undefined', [])
         await DAO.getInstance().updateUserStatus('agron', 'emergency')
-        citizen = await DAO.getInstance().getUserByName('agron')
-        status = citizen.status;
+        let citizen = await DAO.getInstance().getUserByName('agron')
+        let status = citizen.status;
         expect(status).toBe('emergency')
     })
 });
@@ -130,7 +145,9 @@ describe("Message Operations", () => {
         let content = 'test public'
         let status = 'ok'
         let receiver = 'all'
-        await DAO.getInstance().createMessage(citizen, content , date_now, status, receiver, false)
+        let userid = '0'
+        let receiverid = '0'
+        await DAO.getInstance().createMessage(userid, receiverid, citizen, content , date_now, status, receiver, false)
         let message = await DAO.getInstance().getAllMessages("all")
         let msg = message.filter(msg => msg.username === citizen && msg.timestamp === date_now)
         expect(msg[0].content).toBe(content)
@@ -143,8 +160,10 @@ describe("Message Operations", () => {
         let content = 'test public'
         let status = 'ok'
         let receiver = 'daniel'
-        await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
-        let message = await DAO.getInstance().getAllPrivateMessages(citizen, receiver)
+        let userid = '1'
+        let receiverid = '2'
+        await DAO.getInstance().createMessage(userid, receiverid, citizen, content, date_now, status, receiver , false)
+        let message = await DAO.getInstance().getAllPrivateMessages(userid, receiverid)
         let msg = message.filter(msg => msg.username === citizen && msg.timestamp === date_now)
         expect(msg[0].content).toBe(content)
     })
@@ -155,7 +174,7 @@ describe("Message Operations", () => {
 
 describe('Search operation for stop words', () => {
 
-    test('Rejects stop words in PublicMessage', async () => {
+    test('Filter stop words in PublicMessage', async () => {
         const input = "this";
         
         let citizen = 'agron123'
@@ -164,15 +183,15 @@ describe('Search operation for stop words', () => {
         let status = 'ok'
         let receiver = 'all'
         let limit = 10
-        await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
-
-
+        let userid = '1'
+        let receiverid = '2'
+        await DAO.getInstance().createMessage(userid, receiverid, citizen, content, date_now, status, receiver , false)
         const result = await DAO.getInstance().search_by_public_messages(input, limit);
         expect(result).toBe(null);
 
     });
 
-    test('Rejects stop words in PrivateMessage', async () => {
+    test('Filter stop words in PrivateMessage', async () => {
         const input = "this";
         
         let citizen = 'agron123'
@@ -181,7 +200,9 @@ describe('Search operation for stop words', () => {
         let status = 'ok'
         let receiver = 'daniel'
         let limit = 10
-        await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
+        let userid = '1'
+        let receiverid = '2'
+        await DAO.getInstance().createMessage(userid, receiverid, citizen, content, date_now, status, receiver , false)
 
 
         const result = await DAO.getInstance().search_by_private_messages(input, citizen, receiver, limit);
@@ -201,11 +222,15 @@ describe('Search operation', () => {
         let status = 'ok'
         let receiver = 'all'
         let limit = 10
-        await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
-  
+        let userid = '1'
+        let receiverid = '2'
+        await DAO.getInstance().createMessage(userid, receiverid, citizen, content, date_now, status, receiver , false)
         const result = await DAO.getInstance().search_by_public_messages(input, limit);
         expect(result).not.toBeNull()
+        expect(result[0].username).toBe(citizen)
+        expect(result[0].content).toBe(content)
     })
+
     test('Accept search words in public', async () => {
         const input = "@#";
         let citizen = 'agron123'
@@ -214,12 +239,14 @@ describe('Search operation', () => {
         let status = 'ok'
         let receiver = 'all'
         let limit = 10
-        await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
-  
+        let userid = '1'
+        let receiverid = '2'
+        await DAO.getInstance().createMessage(userid, receiverid, citizen, content, date_now, status, receiver , false)
         const result = await DAO.getInstance().search_by_public_messages(input, limit);
-        
         expect(result).not.toBeNull()
+        expect(result.length).toBe(0);
     })
+
     test('Rejects stop words in PublicMessage', async () => {
         const input = "is";
         
@@ -229,9 +256,9 @@ describe('Search operation', () => {
         let status = 'ok'
         let receiver = 'all'
         let limit = 10
-        await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
-
-
+        let userid = '1'
+        let receiverid = '2'
+        await DAO.getInstance().createMessage(userid, receiverid, citizen, content, date_now, status, receiver , false)
         const result = await DAO.getInstance().search_by_public_messages(input, limit);
         expect(result).toBe(null);
 
@@ -244,7 +271,9 @@ describe('Search operation', () => {
         let status = 'ok'
         let receiver = 'announcement'
         let limit = 10
-        await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
+        let userid = '1'
+        let receiverid = '2'
+        await DAO.getInstance().createMessage(userid, receiverid, citizen, content, date_now, status, receiver , false)
         const result = await DAO.getInstance().search_by_announcement(input, citizen, receiver, limit);
         expect(result).toBeNull()
 
@@ -257,7 +286,9 @@ describe('Search operation', () => {
         let status = 'ok'
         let receiver = 'announcement'
         let limit = 10
-        await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
+        let userid = '1'
+        let receiverid = '2'
+        await DAO.getInstance().createMessage(userid, receiverid, citizen, content, date_now, status, receiver , false)
         const result = await DAO.getInstance().search_by_announcement(input, citizen, receiver, limit);
         expect(result).toBeNull()
 
@@ -271,10 +302,14 @@ describe('Search operation', () => {
         let status = 'ok'
         let receiver = 'daniel'
         let limit = 10
-        await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
+        let userid = '1'
+        let receiverid = '2'
+        await DAO.getInstance().createMessage(userid, receiverid, citizen, content, date_now, status, receiver , false)
 
         const result = await DAO.getInstance().search_by_private_messages(input, citizen, receiver, limit);
         expect(result).not.toBeNull()
+        expect(result[0].username).toBe(citizen)
+        expect(result[0].content).toBe(content)
     })
     test('Reject search mulitple words in private', async () => {
         const input = "is an";
@@ -284,7 +319,9 @@ describe('Search operation', () => {
         let status = 'ok'
         let receiver = 'daniel'
         let limit = 10
-        await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
+        let userid = '1'
+        let receiverid = '2'
+        await DAO.getInstance().createMessage(userid, receiverid, citizen, content, date_now, status, receiver , false)
 
         const result = await DAO.getInstance().search_by_private_messages(input, citizen, receiver, limit);
         expect(result).toBeNull()
@@ -297,7 +334,9 @@ describe('Search operation', () => {
         let status = 'ok'
         let receiver = 'daniel'
         let limit = 10
-        await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
+        let userid = '1'
+        let receiverid = '2'
+        await DAO.getInstance().createMessage(userid, receiverid, citizen, content, date_now, status, receiver , false)
 
         const result = await DAO.getInstance().search_by_private_messages(input, citizen, receiver, limit);
         expect(result).toBeNull()
@@ -311,10 +350,13 @@ describe('Search operation', () => {
         let status = 'ok'
         let receiver = 'announcement'
         let limit = 10
-        await DAO.getInstance().createMessage(citizen, content, date_now, status, receiver , false)
+        let userid = '1'
+        let receiverid = '2'
+        await DAO.getInstance().createMessage(userid, receiverid, citizen, content, date_now, status, receiver , false)
         const result = await DAO.getInstance().search_by_announcement(input, limit);
-        
         expect(result).not.toBeNull()
+        expect(result[0].username).toBe(citizen)
+        expect(result[0].content).toBe(content)
     })
     test('Accept search in status', async () => {
         let citizen = 'agron123'
@@ -322,6 +364,8 @@ describe('Search operation', () => {
         await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'Citizen', false, 'undefined', [])
         const result = await DAO.getInstance().search_by_status(status);
         expect(result).not.toBeNull()
+        expect(result[0].username).toBe(citizen)
+        expect(result[0].status).toBe(status)
     })
     test('Accept search in username', async () => {
         let citizen = 'agron123'
@@ -329,6 +373,8 @@ describe('Search operation', () => {
         await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'Citizen', false, 'undefined', [])
         const result = await DAO.getInstance().search_by_username(citizen);
         expect(result).not.toBeNull()
+        expect(result[0].username).toBe(citizen)
+        expect(result[0].status).toBe(status)
     })
     test('Accept search in username', async () => {
         let citizen = 'agron123'
@@ -336,6 +382,8 @@ describe('Search operation', () => {
         await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'Citizen', false, 'undefined', [])
         const result = await DAO.getInstance().search_by_username(citizen);
         expect(result).not.toBeNull()
+        expect(result[0].username).toBe(citizen)
+        expect(result[0].status).toBe(status)
     })
   
 
@@ -492,7 +540,7 @@ describe('Request handling', () => {
 })
 
 describe('Report First Aid Operations', () => {
-    test('Create and Get injury positive', async () => {
+    test('Create and Get injury with newly created user', async () => {
         let username = 'dummy';
         let reported = true;
         let timestamp = new Date().toString();
@@ -511,13 +559,13 @@ describe('Report First Aid Operations', () => {
         expect(injuries.conscious).toBe(conscious)
     })
 
-    test('Create and Get injury negative', async () => {
+    test('Create and Get injury for undefined users', async () => {
         let username = 'dummy';
         let injuries = await DAO.getInstance().getInjuryByUser(username)
         expect(injuries).toBeNull()
     })
 
-    test('Update injury positive', async () => {
+    test('Update injury if users wish to update injury', async () => {
         let username = 'dummy';
         let reported = true;
         let timestamp = new Date().toString();
@@ -533,7 +581,7 @@ describe('Report First Aid Operations', () => {
         expect(injuries.parts).toBe('legs')
     })
 
-    test('Update injury negative', async () => {
+    test('Update injury the previous injury should be removed', async () => {
         let username = 'dummy';
         let reported = true;
         let timestamp = new Date().toString();
@@ -549,7 +597,7 @@ describe('Report First Aid Operations', () => {
         expect(injuries.parts).not.toBe(parts)
     })
 
-    test('Create waitlist positive', async () => {
+    test('Create waitlist with matching medname and description', async () => {
         let medname = 'dummy';
         let description = 'dummy description';
         await DAO.getInstance().createWaitlist(medname, description)
@@ -558,13 +606,13 @@ describe('Report First Aid Operations', () => {
         expect(waitlist.description).toBe(description)
     })
 
-    test('Create waitlist negative', async () => {
+    test('Create waitlist without descriptions', async () => {
         let medname = 'dummy';
         let waitlist = await DAO.getInstance().getWaitlistByName(medname)
         expect(waitlist).toBeNull()
     })
 
-    test('Create multiple waitlist positive', async () => {
+    test('Create multiple waitlist', async () => {
         let medname = 'dummy';
         let medname2 = 'dummy2';
         let description = 'dummy description';
@@ -576,7 +624,7 @@ describe('Report First Aid Operations', () => {
         expect(waitlists[1].name).toBe(medname2)
     })
 
-    test('Join waitlist positive', async () => {
+    test('Join waitlist with a newly creater user', async () => {
         let medname = 'dummy';
         let description = 'dummy description';
         await DAO.getInstance().createWaitlist(medname, description)
@@ -588,7 +636,7 @@ describe('Report First Aid Operations', () => {
         expect(waitlist.citizens[0].username).toBe(username)
     })
 
-    test('Remove waitlist negative', async () => {
+    test('Remove waitlist and verifying user does not exit', async () => {
         let medname = 'dummy';
         let description = 'dummy description';
         await DAO.getInstance().createWaitlist(medname, description)
@@ -600,7 +648,7 @@ describe('Report First Aid Operations', () => {
         expect(waitlist.citizens[0].username).not.toBe('test')
     })
 
-    test('Empty waitlist positive', async () => {
+    test('Empty waitlist by dropping the waitlist', async () => {
         let medname = 'dummy';
         let description = 'dummy description';
         await DAO.getInstance().createWaitlist(medname, description)
@@ -635,8 +683,9 @@ describe("Counsel Group Operations", () => {
         let content = "test cnt"
         let status = 'ok'
         let group = 'Anxiety';
+        let userid = '1'
         await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen', false, 'undefined', [])
-        const msg = await DAO.getInstance().createGroupMessage(citizen, content, new Date().toString(), 'ok', group, false, group)
+        const msg = await DAO.getInstance().createGroupMessage(userid, citizen, content, new Date().toString(), 'ok', group, false, group)
         // Assuming there are messages sent to 'existingGroup'
         expect(msg[0].content).toBe(content);
     });
@@ -645,8 +694,9 @@ describe("Counsel Group Operations", () => {
         let content = "test cnt"
         let status = 'ok'
         let group = 'Anxiety';
+        let userid = '1'
         await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen', false, 'undefined', [])
-        await DAO.getInstance().createGroupMessage(citizen, content, new Date().toString(), 'ok', group, false, group)
+        await DAO.getInstance().createGroupMessage(userid, citizen, content, new Date().toString(), 'ok', group, false, group)
         const messages = await DAO.getInstance().getAllGroupMessages(group)
         expect(messages.length).toBe(1)
     });
@@ -671,11 +721,12 @@ describe("Counsel Group Operations", () => {
         let citizen = 'agron123'
         let status = 'ok'
         let group = ['Anxiety','Stress','Depression'];
-        const user = await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen', false, 'undefined', group)
+        await DAO.getInstance().createUser(citizen, await hashPassword('1234'), status,'citizen', false, 'undefined', group)
+        const user = await DAO.getInstance().getUserByName(citizen);
         expect(user.username).toBe(citizen);
-        
-        expect(user.specialist).toEqual(group);
+        expect(user.confirmGroup).toEqual(group);
     })
+
     test('Retrieve all specialists in a group', async () => {
         let citizen = 'specialist1'
         let status = 'ok'
@@ -684,16 +735,17 @@ describe("Counsel Group Operations", () => {
         let citizen2 = 'specialist2'
         let status2 = 'ok'
         await DAO.getInstance().createUser(citizen2, await hashPassword('1234'), status2,'citizen', false, 'undefined', group)
-
         const specialists = await DAO.getInstance().getSpecialists(group);
         expect(specialists[0]).toBe(citizen);
         expect(specialists[1]).toBe(citizen2);
     });
+
     test('Delete a message by ID', async () => {
         let citizen = 'agron123'
         let content = "test cnt"
         let group = 'Anxiety';
-        await DAO.getInstance().createGroupMessage(citizen, content, new Date().toString(), 'ok', group, false, group)
+        let userid = '1'
+        await DAO.getInstance().createGroupMessage(userid, citizen, content, new Date().toString(), 'ok', group, false, group)
         let messages = await DAO.getInstance().getAllGroupMessages(group)
         expect(messages[0].content).toBe(content);
         const messageId = messages[0]._id;
@@ -705,7 +757,8 @@ describe("Counsel Group Operations", () => {
         let citizen = 'agron123'
         let content = "test cnt"
         let group = 'Anxiety';
-        await DAO.getInstance().createGroupMessage(citizen, content, new Date().toString(), 'ok', group, false, group)
+        let userid = '1'
+        await DAO.getInstance().createGroupMessage(userid, citizen, content, new Date().toString(), 'ok', group, false, group)
         let messages = await DAO.getInstance().getAllGroupMessages(group)
         expect(messages[0].content).toBe(content);
         const messageId = messages[0]._id;
