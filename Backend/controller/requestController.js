@@ -49,13 +49,18 @@ const getRequestsByStatus = async (res, statuses) =>{
 
 
 export const getRequests = async (req, res) => {
-    const statuses = req.query.status;
-    const username = req.query.username;
-    if(statuses){
-        getRequestsByStatus(res, statuses);
-    } else if (username){
-        getRequestsByUsername(res, username);
-    }        
+    try {
+        const statuses = req.query.status;
+        const username = req.query.username;
+        if(statuses){
+            getRequestsByStatus(res, statuses);
+        } else if (username){
+            getRequestsByUsername(res, username);
+        }
+    } catch (e){
+        res.status(500).send("somethine went wrong");
+    }
+            
 }
 
 export const getRequest = async (req, res) => {
