@@ -8,7 +8,7 @@ import { stopWords } from '../utils/user-config.js';
 import injuryCollection from "./injury-schema.js";
 import waitlistCollection from "./waitlist-schema.js";
 import notificationCollection from "./notification-schema.js";
-import { hashPassword } from "../utils/passwordUtils.js";
+import { comparePassword, hashPassword } from "../utils/passwordUtils.js";
 
 class DAO {
 
@@ -281,6 +281,12 @@ class DAO {
 
     getAllMessages = async (receiver) => {
         try {
+            if(receiver != "all" && receiver != "announcement"){
+                const user = await this.getUserByName(receiver);
+                if(user.useraccountstatus == 'Inactive') {
+                    throw new Error("User is inactive");
+                }
+            }
             const msgs = await messageCollection.find({ receiver: receiver });
             return await this.removeInactiveUserMessages(msgs);
         } catch (err) {
@@ -321,25 +327,43 @@ class DAO {
         return msgs;
     }
 
-    changeUserInfo = async(userid, accountstatus, username, priviledge, password)=>{
+    changeUserInfo = async(userid, accountstatus, username, priviledge, password, actionerid)=>{
         try{
-            let user = await this.getUserById(userid);
+            let actioner;
+            if(actionerid){
+                actioner = await DAO.getInstance().getUserById(actionerid);
+            } 
+            let user = await DAO.getInstance().getUserById(userid);
             if (!user) {
                 return { success: false, message: "User not found" };
             }
             if (username.toLowerCase() !== user.username.toLowerCase()) {
+                if(actioner && actioner.id !== user.id && actioner.usertype != 'Administrator' ){
+                    return { success: false, message: "Only user or administrator can change username"};
+                }
                 username = username.toLowerCase();
             }
-            if (password !== "") {
-                password = await hashPassword(password);
-            } else {
-                password = user.password;
-            }
+            
             if ((priviledge !== 'Administrator' && user.usertype === 'Administrator') || (priviledge === 'Administrator' && accountstatus === 'Inactive')) {
-                const administrators = await this.getAdministrators();
+                const administrators = await DAO.getInstance().getAdministrators();
                 if (administrators.length <= 1) {
                     return { success: false, message: "There must be at least one administrator active." };
                 }
+            }
+
+            if(accountstatus !== user.usertype) {
+                if(actioner && actioner.usertype != 'Administrator' ){
+                    return { success: false, message:"Only administrator can change usertype"}
+                }
+            }
+            if (password !== "") {
+                // console.log("password changed",(await comparePassword(await hashPassword(password), user.password)), user.password, await hashPassword(password));
+                if(actioner && actioner.usertype != 'Administrator' && (await comparePassword(await hashPassword(password), user.password)) ){
+                    return { success: false, message: "Only administrator can change password"}
+                }
+                password = await hashPassword(password);
+            } else {
+                password = user.password;
             }
             let res = await userCollection.updateOne({_id:Object(userid) }, {$set:{"username":username, "useraccountstatus":accountstatus, "usertype":priviledge, "password":password}});
             return { success: true, res };
