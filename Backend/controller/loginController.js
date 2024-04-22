@@ -5,6 +5,10 @@ import DAO from '../model/dao.js';
 import Citizen from '../model/user-Citizen.js';
 
 export const loginOrLogout = async (req, res) => {
+    const userExists = await DAO.getInstance().getUserByName(req.body.username);
+    if (userExists && userExists.useraccountstatus == "Inactive") {
+        return res.status(401).send({message: "User is inactive"});
+    }
     const isOnline = req.body.isOnline
     if (isOnline) {
         login(req, res);
@@ -20,7 +24,7 @@ export const login = async (req, res) => {
         await DAO.getInstance().updateUserOnline(user.username);
         const users = await DAO.getInstance().getAllUsers();
         io.emit('updateUserList', users);
-        res.status(200).send({ token: "Bearer " + jwtToken });
+        res.status(200).send({ token: "Bearer " + jwtToken, userid: user._id.toString()});
     } else {
         res.status(404).send({ message: 'User not found' });
     }
@@ -43,8 +47,11 @@ export const logout = async (req, res) => {
 export const registerUserSocket = async (req, res) => {
     const username = req.params.username;
     const user = await DAO.getInstance().getUserByName(username);
+    
     if (user) {
-        await addActiveUser(username, req.body.socketId, req.body.esp?true:false);
+        const userid = user._id.toString();
+        await addActiveUser(userid, username, req.body.socketId, req.body.esp?true:false);
+        console.log("active user added");
         await DAO.getInstance().updateUserOnline(username);
         const users = await DAO.getInstance().getAllUsers();
         io.emit('updateUserList', users );
@@ -81,8 +88,8 @@ export const getUsers = async (req, res) => {
 
 export const getUser = async (req, res) => {
     try{
-        const citizen = await Citizen.retrieveUserByUsername(req.params.username);
-        res.status(200).send(citizen.getSchemaObject());
+        const user = await DAO.getInstance().getUserByName(req.params.username);
+        res.status(200).send(user);
     } catch (error) {
         res.status(404).send(error.message);
     }

@@ -1,5 +1,9 @@
 import mongoose from 'mongoose'
 const activeUserSchema = new mongoose.Schema({
+    userid:{
+        type: String,
+        required: true
+    },
     username:{
         type: String,
         required: true
@@ -17,9 +21,9 @@ const activeUserSchema = new mongoose.Schema({
 const ActiveUser = mongoose.model('ActiveUser', activeUserSchema)
 
 
-export async function addActiveUser(username, socketid, esp){
+export async function addActiveUser(userid,username, socketid, esp){
     
-    const activeuser = await ActiveUser.insertMany({username: username, socketId:socketid, esp: esp});
+    const activeuser = await ActiveUser.insertMany({userid:userid,username: username, socketId:socketid, esp: esp});
     return activeuser;
 }
 
@@ -45,8 +49,8 @@ export const deActivateUser = async (username) => {
     await ActiveUser.deleteMany({username: username});
 }
 
-export const getSocketIds = async (username) => {
-    const activeUsers = await ActiveUser.find({username: username});
+export const getSocketIds = async (userid) => {
+    const activeUsers = await ActiveUser.find({userid: userid});
     if (activeUsers.length > 0) {
         return activeUsers.map((activeUser)=>activeUser.socketId);
     }

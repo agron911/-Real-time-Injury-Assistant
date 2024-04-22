@@ -6,6 +6,7 @@ class Administrator extends User {
         // Additional initialization for NormalCitizen
     }
     
+    
 }
 
 export default Administrator;

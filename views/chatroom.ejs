@@ -5,17 +5,19 @@
   <%- include ('partials/header'); %>
   <%- include ('partials/overlay'); %>
   <div id="main">
-  <div class="notification-icon" onclick="handleAlertClick()">
+  <!-- <div class="notification-icon" onclick="handleAlertClick()">
     <i class="la la-bell"></i>
     <span class="notification-dot"></span>
-  </div>
+  </div> -->
   <div class="container-fluid container-max-height" style="padding-top: 2em">
     <!-- Adjust top padding to avoid overlap with fixed navbar -->
     <div id="liveAlertPlaceholder" class="live-alert-placeholder"></div>
+    <%- include ('partials/logoutModal'); %>
     <%- include ('partials/alertMessageModal'); %>
     <%- include ('partials/speedTestModal'); %>
     <%- include ('partials/editGroupMessageModal'); %>
     <%- include ('partials/deleteGroupMessageModal'); %>
+    <%- include ('partials/editProfileModal'); %>
     <div class="row row-container">
       <div class="col-md-3 users-container" id="user-container">
         <%- include ('partials/userContainer'); %>
@@ -26,9 +28,11 @@
     </div>
   </div>
 </div>
-  <%- include ('partials/actionsDropdown'); %>
+  <!-- <%- include ('partials/actionsDropdown'); %> -->
   <script src="https://cdn.socket.io/4.7.3/socket.io.min.js"></script>
+  <script src="/js/user-config.js"></script>
   <script src="/js/speedTest.js"></script>
+  <script src="/js/adminProfile.js"></script>
   <script src="/js/chatroom.js"></script>
 </body>
 

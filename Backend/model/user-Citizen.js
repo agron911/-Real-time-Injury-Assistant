@@ -14,20 +14,13 @@ class Citizen extends User {
 
     static async retrieveUserByUsername(username) {
         const userSchemaObj = await User.retrieve(username);
+        ////
         if(!userSchemaObj) throw new Error("User not found");
         const citizen = new Citizen(userSchemaObj.username, userSchemaObj.password, userSchemaObj.status, userSchemaObj.esp);
         return citizen;
     }
     
 
-    // getSchemaObject(){
-    //     return {
-    //         username: this.username,
-    //         status: this.status,
-    //         usertype: this.usertype, 
-    //         esp: this.esp,
-    //     }
-    // }
 }
 
 export default Citizen;

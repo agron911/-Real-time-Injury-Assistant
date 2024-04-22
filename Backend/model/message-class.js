@@ -1,8 +1,10 @@
 import { v4 as uuidv4 } from 'uuid'
 
 class MessageObj {
-    constructor(username, content, timestamp, status, receiver){
+    constructor(userid, receiverid, username, content, timestamp, status, receiver){
         this.obj = {
+            userid: userid,
+            receiverid:receiverid,
             username: username,
             content: content,
             timestamp: timestamp,

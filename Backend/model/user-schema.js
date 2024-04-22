@@ -31,9 +31,15 @@ const UserSchema = new mongoose.Schema({
         required: true,
         enum: ['Citizen', 'Administrator', 'Coordinator'],
     },
+    useraccountstatus:{
+        type: String,
+        required: true,
+        enum: ['Active', 'Inactive'],
+    },
     esp: {
         type: Boolean,
         required: true,
+        default: false,
     },
     waitlistRole: {
         type: String,

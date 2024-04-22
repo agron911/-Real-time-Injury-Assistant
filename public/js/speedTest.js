@@ -124,12 +124,19 @@ const stopSpeedTest = async () => {
     
 };
 
-const showSpeedTestModal = () => {
+const showSpeedTestModal = async() => {
+    const userid = localStorage.getItem('userid');
+    const privilege = await checkPrivilege(userid);
+    if(privilege != "Administrator"){
+        alert("You do not have the privilege to run a speed test");
+        return;
+    }
+
     if(SUSPEND_NORMAL_OPERATION) return;
-    const speedTestModal = new bootstrap.Modal('#speedTestModal');
+    const speedTestModal = await new bootstrap.Modal('#speedTestModal');
     // const modal = document.getElementById('speedTestModal');
     // 
-    speedTestModal.show();
+    await speedTestModal.show();
 }
 
 const showSpinner = (show) => {

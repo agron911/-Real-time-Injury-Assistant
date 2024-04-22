@@ -81,7 +81,7 @@ class DAO {
     createUser = async (username, hashed_password, status, usertype, esp, waitlistRole, specialist) => {
         try {
             const userSchemaObject = UserFactory.createUser(usertype, username, hashed_password, status, esp, waitlistRole, specialist).toSchemaObject();
-            // console.log('userSchemaObject', userSchemaObject);
+            // 
             const user = await userCollection.create(userSchemaObject);
             const injury = await injuryCollection.create({ username: username, reported: false });
             if (specialist) {
@@ -91,7 +91,7 @@ class DAO {
             }
             return user;
         } catch (err) {
-            console.error("insert failed", err.message);
+            console.error("insert failed", err);
             throw new Error("Insert failed :", err);
         }
     }
@@ -99,6 +99,14 @@ class DAO {
     getUserByName = async (username) => {
         try {
             const user = await userCollection.findOne({ username: username.toLowerCase() });
+            return user;
+        } catch (err) {
+            throw new Error("User not found: ", err);
+        }
+    }
+    getUserById = async (userid) => {
+        try {
+            const user = await userCollection.findOne({ "_id": Object(userid)});
             return user;
         } catch (err) {
             throw new Error("User not found: ", err);
@@ -230,11 +238,13 @@ class DAO {
             throw new Error("Update user esp error: ", err.message);
         }
     }
-    createMessage = async (username, content, timestamp, status, receiver, viewed) => {
+    createMessage = async (userid, receiverid, username, content, timestamp, status, receiver, viewed) => {
         try {
-            const msg = await messageCollection.insertMany({ username: username, content: content, timestamp: timestamp, status: status, receiver: receiver, viewed: viewed });
+            
+            const msg = await messageCollection.insertMany({ userid: userid, receiverid:receiverid, username: username, content: content, timestamp: timestamp, status: status, receiver: receiver, viewed: viewed });
             return msg;
         } catch (err) {
+            
             throw new Error("Create message error: ", err);
         }
 
@@ -255,30 +265,44 @@ class DAO {
         }
     };
 
+    getInactiveUsers = async () => {
+        const users = await userCollection.find({useraccountstatus: "Inactive"});
+        return users.map((user) =>user._id);
+    }
 
-
+    removeInactiveUserMessages = async (messages) =>{
+        if(messages.length<=0) return [];
+        let inActiveUsers = await this.getInactiveUsers();
+        inActiveUsers = inActiveUsers.map((userid) => userid.toString());
+        console.log('inActiveUsers', inActiveUsers, inActiveUsers.includes(messages[0].userid), inActiveUsers.includes(messages[0].receiverid));
+        messages = messages.filter(message => !(inActiveUsers.includes(message.userid.toString())||inActiveUsers.includes(message.receiverid.toString())));
+        return messages;
+    }
 
     getAllMessages = async (receiver) => {
         try {
             const msgs = await messageCollection.find({ receiver: receiver });
-            return msgs;
+            return await this.removeInactiveUserMessages(msgs);
         } catch (err) {
             throw new Error("Get all messages error: ", err);
         }
     }
-    getAllPrivateMessages = async (username, receiver) => {
+    getAllPrivateMessages = async (userid, receiverid) => {
         try {
-            const msgs = await messageCollection.find({
+            let msgs = await messageCollection.find({
                 $or: [
-                    { username: username, receiver: receiver },
-                    { username: receiver, receiver: username }
+                    { userid: userid, receiverid: receiverid },
+                    { userid: receiverid, receiverid: userid }
                 ]
             }).sort({ timestamp: 1 });
+            console.log('1',msgs.length, msgs, userid, receiverid);
+            msgs = msgs?await this.removeInactiveUserMessages(msgs):[];
+            console.log('2',msgs.length);
             return msgs;
         } catch (err) {
+            console.log("err", err);
             throw new Error("Get all private messages error: ", err);
         }
-
     }
 
     getUnreadMessages = async (username) => {
@@ -288,11 +312,21 @@ class DAO {
             for (const msg of msgs) {
                 this.updateMessageById(msg._id, { viewed: true });
             }
+            msgs = await this.removeInactiveUserMessages(msgs);
         }catch(err){
             
         }
-        
         return msgs;
+    }
+
+    changeUserInfo = async(userid, accountstatus, username, priveledge, password)=>{
+        try{
+            
+            let res = await userCollection.updateOne({"_id":Object(userid) }, {$set:{"username":username, "useraccountstatus":accountstatus, "usertype":priveledge, "password":password}});
+            //
+        }catch(error){
+            
+        }
     }
 
     CheckGroupConfirmation = async (group, username) => {
@@ -321,7 +355,8 @@ class DAO {
 
     getAllGroupMessages = async (group) => {
         try {
-            const msgs = await messageCollection.find({ receiver: group });
+            let msgs = await messageCollection.find({ receiver: group });
+            msgs = await this.removeInactiveUserMessages(msgs);
             return msgs;
         } catch (err) {
             console.error("Get all group messages error:", err.message);
@@ -363,9 +398,9 @@ class DAO {
             return false;
         }
     }
-    createGroupMessage = async (username, content, timestamp, status, receiver, viewed, group) => {
+    createGroupMessage = async (userid, username, content, timestamp, status, receiver, viewed, group) => {
         try {
-            const msg = await messageCollection.insertMany({ username: username, content: content, timestamp: timestamp, status: status, receiver: receiver, viewed: viewed, group: group });
+            const msg = await messageCollection.insertMany({ userid:userid, username: username, content: content, timestamp: timestamp, status: status, receiver: receiver, viewed: viewed, group: group, receiverid:"1" });
             return msg;
         } catch (err) {
             throw new Error("Create message error: ", err);
@@ -584,9 +619,9 @@ class DAO {
             return false;
         }
     }
-    createGroupMessage = async (username, content, timestamp, status, receiver, viewed, group) => {
+    createGroupMessage = async (userid, username, content, timestamp, status, receiver, viewed, group) => {
         try {
-            const msg = await messageCollection.insertMany({ username: username, content: content, timestamp: timestamp, status: status, receiver: receiver, viewed: viewed, group: group });
+            const msg = await messageCollection.insertMany({userid:userid, username: username, content: content, timestamp: timestamp, status: status, receiver: receiver, viewed: viewed, group: group, receiverid:"1"});
             return msg;
         } catch (err) {
             throw new Error("Create message error: ", err);
@@ -735,6 +770,25 @@ class DAO {
             await notificationCollection.findByIdAndDelete(new mongoose.Types.ObjectId(id));
         } catch (err) {
             console.error(err);
+        }
+    }
+
+    changeMessageUsername = async(userid, newusername)=>{
+        try{
+            let res = await messageCollection.updateMany({"userid":userid}, {$set:{"username": newusername}});
+            let res2 = await messageCollection.updateMany({"receiverid":userid}, {$set:{"receiver":newusername}});
+            return
+        }catch(er){
+            
+        }
+    }
+
+    getAdministrators = async () => {
+        try {
+            const administrators = await userCollection.find({ usertype: "Administrator" });
+            return administrators;
+        } catch (err) {
+            throw new Error("Get administrators error: ", err);
         }
     }
 

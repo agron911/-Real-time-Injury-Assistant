@@ -1,9 +1,10 @@
 <!--header.ejs-->
 <header class="navbar navbar-expand-lg navbar-light navbar-parent">
-    <div class="container-fluid nav-bar-container">
-        <a class="navbar-brand" href="/chatroom">FSE Chat Room</a>
+    <div class="container-fluid nav-bar-container">            
+        <%- include ('./actionsDropdown'); %>
+        <a class="navbar-brand header-title" href="/chatroom">CHAT ROOM</a>
         <div class="options-container">
-            <div class="dropdown dropdown-fse dropstart">
+            <div class="dropdown dropdown-fse">
                 <button id="status-button" class="btn btn-secondary dropdown-toggle status-button" type="button"
                     data-bs-toggle="dropdown" aria-expanded="false">
                     Status
@@ -50,5 +51,9 @@
                 <button class="btn btn-outline-primary" onclick="logout(); closeNavbar() " id="toggle-btn">Logout</button>
             </div>
         </div>
+        <div class="notification-icon" onclick="handleAlertClick()">
+            <i class="la la-bell"></i>
+            <span class="notification-dot"></span>
+          </div>
     </div>
 </header>
