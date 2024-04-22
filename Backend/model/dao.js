@@ -321,13 +321,31 @@ class DAO {
         return msgs;
     }
 
-    changeUserInfo = async(userid, accountstatus, username, priveledge, password)=>{
+    changeUserInfo = async(userid, accountstatus, username, priviledge, password)=>{
         try{
-            
-            let res = await userCollection.updateOne({"_id":Object(userid) }, {$set:{"username":username, "useraccountstatus":accountstatus, "usertype":priveledge, "password":password}});
-            //
+            let user = await this.getUserById(userid);
+            if (!user) {
+                return { success: false, message: "User not found" };
+            }
+            if (username.toLowerCase() !== user.username.toLowerCase()) {
+                username = username.toLowerCase();
+            }
+            if (password !== "") {
+                password = await hashPassword(password);
+            } else {
+                password = user.password;
+            }
+            if ((priviledge !== 'Administrator' && user.usertype === 'Administrator') || (priviledge === 'Administrator' && accountstatus === 'Inactive')) {
+                const administrators = await this.getAdministrators();
+                if (administrators.length <= 1) {
+                    return { success: false, message: "There must be at least one administrator active." };
+                }
+            }
+            let res = await userCollection.updateOne({_id:Object(userid) }, {$set:{"username":username, "useraccountstatus":accountstatus, "usertype":priviledge, "password":password}});
+            return { success: true, res };
         }catch(error){
-            
+            console.error("Error updating user info:", error);
+            return { success: false, message: error.message };
         }
     }
 
@@ -793,6 +811,7 @@ class DAO {
             throw new Error("Get administrators error: ", err);
         }
     }
+
 
 }
     

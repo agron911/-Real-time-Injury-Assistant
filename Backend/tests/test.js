@@ -10,6 +10,8 @@ import e from 'express';
  */
 beforeAll(async () =>  await connect());
 
+beforeEach(async () => await DAO.getInstance().createUser("esnadmin".toLowerCase(),  await hashPassword('admin'), "ok", 'administrator', false, 'undefined', []));
+
 /**
  * Clear all test data after every test.
  */
@@ -766,7 +768,56 @@ describe("Counsel Group Operations", () => {
         messages = await DAO.getInstance().getAllGroupMessages(group)
         expect(messages[0].content).toBe("new content");
     });
+})
 
-    
 
+
+describe("Admin Profile Operations", () => {
+    test('Last admin cannot lower his admin privileges', async () => {
+        const user = await DAO.getInstance().getUserByName('esnadmin');
+ 
+        let username = 'esnadmin';
+        let password = '';
+        let id = user._id.toString();
+        let status = '';
+        let usertype = 'Citizen';
+        const result = await DAO.getInstance().changeUserInfo(id, status, username, usertype, password);
+        expect(result.success).toBe(false);
+        expect(result.message).toBe('There must be at least one administrator active.');
+    });
+
+    test('Initial Admin is created', async () => {
+        const user = await DAO.getInstance().getUserByName('esnadmin');
+        expect(user.username).toBe('esnadmin');
+        let passwordresult =  await comparePassword(user.password, 'admin');
+        expect(passwordresult).toBe(true);
+        expect(user.status).toBe('ok');
+        expect(user.usertype).toBe('Administrator');
+    });
+
+    test('Admin can change Citizen account status to inactive', async () => {
+        let user = await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok', 'Citizen', false, 'undefined', [])
+        let username = 'agron';
+        let password = '1234';
+        let id = user._id.toString();
+        let status = 'Inactive';
+        let usertype = 'Citizen';
+        const result = await DAO.getInstance().changeUserInfo(id, status, username, usertype, password);
+        
+        user = await DAO.getInstance().getUserByName(username);
+        expect(user.useraccountstatus).toBe('Inactive');
+    });
+
+    test('Admin can change Citizen priviledge level to others', async () => {
+        let user = await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok', 'Citizen', false, 'undefined', [])
+        let username = 'agron';
+        let password = '1234';
+        let id = user._id.toString();
+        let status = 'Inactive';
+        let usertype = 'Administrator';
+        const result = await DAO.getInstance().changeUserInfo(id, status, username, usertype, password);
+        
+        user = await DAO.getInstance().getUserByName(username);
+        expect(user.usertype).toBe('Administrator');
+    });
 })
