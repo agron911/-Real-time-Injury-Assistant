@@ -79,7 +79,7 @@ export const receiveGroupMessage = async (req, res) => {
     }
     catch (err) {
         if (!res.headersSent) {
-            res.status(500).send({ error: "An error occurred."+err.message   });
+            res.status(500).send({ error: "Receive Group Message error." });
         }
     }
 

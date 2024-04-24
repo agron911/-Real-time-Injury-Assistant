@@ -321,10 +321,10 @@ class DAO {
                 this.updateMessageById(msg._id, { viewed: true });
             }
             msgs = await this.removeInactiveUserMessages(msgs);
+            return msgs;
         }catch(err){
-            
+            return null;
         }
-        return msgs;
     }
 
     changeUserInfo = async(userid, accountstatus, username, priviledge, password, actionerid)=>{

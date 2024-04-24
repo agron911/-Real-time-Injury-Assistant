@@ -4,8 +4,8 @@ import { io } from "../utils/socketSetup.js";
 import { isUserActive, getSocketIds } from '../model/ActiveUser.js';
 
 export const loadUnreadMessages = async(req, res) => {
-    const messages = await DAO.getInstance().getUnreadMessages(req.query.username);
     try{
+        const messages = await DAO.getInstance().getUnreadMessages(req.query.username);
         res.status(200).send({archive:messages});
     }catch(err){
         res.status(400).send({message: "Error in loading unread messages"});
@@ -63,7 +63,7 @@ export const loadPrivateMessages = async(req, res) => {
         // console.log("messages", messages);
         res.status(200).send({archive: messages})
     }catch(err){
-        res.status(400).send({message: "Error in loading all private messages", "message": err.stack});
+        res.status(400).send({message: "Error in loading all private messages"});
     }
     // console.log("herrrr");
 }
