@@ -111,7 +111,7 @@ export const UserJoin = async (req, res) => {
     const userExists = await DAO.getInstance().getUserByName(data.username);
     if (userExists) {
         const hashed_password = await hashPassword(data.password);
-        console.log("userExists: ", userExists, hashed_password, await comparePassword(userExists.password, data.password));
+        // console.log("userExists: ", userExists, hashed_password, await comparePassword(userExists.password, data.password));
         const isPasswordCorrect = await comparePassword(userExists.password, data.password, hashed_password);
         if (isPasswordCorrect) {
             res.status(206).send({message: "Join successful"});

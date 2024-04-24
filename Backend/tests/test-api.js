@@ -5,6 +5,7 @@ import request from 'supertest';
 import DAO from '../model/dao.js';
 import { hashPassword, comparePassword } from "../utils/passwordUtils.js";
 import {jest} from '@jest/globals';
+import { use } from 'passport';
 
 /**
  * Connect to a new in-memory database before running any tests.
@@ -355,20 +356,16 @@ describe('Test Search Info API', () => {
             receiver: 'taige',
             userid: user1._id.toString(),
         }
-        console.log("here5")
-
         await request(Server.instance.app).post("/messages/private").send(data);
-        console.log("here4")
 
         const response = (await request(Server.instance.app).get("/messages/private/search?receiver=" + data.username + "&sender=" + data.receiver + "&content=A_send&limit=1"));
-        console.log("here3")
         let msg = response.body.search_result.filter(msg => msg.username === data.username)
         expect(response.statusCode).toBe(200);
         expect(msg[0].content).toContain('A_send');
-        console.log("here");
+
         jest.spyOn(DAO.getInstance(), 'search_by_private_messages').mockImplementation(() => { throw new Error() });
         const response2 = (await request(Server.instance.app).get("/messages/private/search?receiver=" + data.username + "&sender=" + data.receiver + "&content=A_send&limit=1"));
-        console.log("here2");
+
         expect(response2.statusCode).toBe(400);
         expect(response2.body.message).toBe('search_by_private_messages failure');
 
@@ -517,6 +514,11 @@ describe("Facilities operations tests", ()=>{
 
 })
 describe("Test First Aid API", () => {
+    test('/Get First Aid inital html page', async () => {
+        const response = await request(Server.instance.app).get("/firstaid");
+        expect(response.statusCode).toBe(200);
+    })
+
     test('/Get Injuries with injury in torso', async () => {
         let username = 'dummy';
         let reported = true;
@@ -531,26 +533,98 @@ describe("Test First Aid API", () => {
         expect(response.body.injury.username).toBe(username);
     })
 
-    test('/Get Injuries when no injuries are identified', async () => {
+    test('/Post update injuries for existing user', async () => {
+        let username = 'dummy';
+        let reported = true;
+        let timestamp = new Date().toString();
+        let parts = 'torso';
+        let bleeding = true;
+        let numbness = false;
+        let conscious = true;
+        await DAO.getInstance().createInjury(username, reported, timestamp, parts, bleeding, numbness, conscious)
+        let data = {
+            timestamp: new Date().toString(), 
+            parts: "head", 
+            bleeding: false, 
+            numbness: false, 
+            conscious: false
+        }
+
+        const response = await request(Server.instance.app).post("/injuries/" + username).send(data);
+        expect(response.statusCode).toBe(200);
+        const response2 = await DAO.getInstance().getInjuryByUser(username);
+        expect(response2.username).toBe(username);
+        expect(response2.parts).toBe("head");
+    })
+
+    test('/Get database failure for non existing user', async () => {
         jest.spyOn(DAO.getInstance(), 'getInjuryByUser').mockImplementation(() => { throw new Error() });
-        const response = await request(Server.instance.app).get("/injuries/" + `username`);
+        let data = { body : {
+                timestamp: new Date().toString(), 
+                parts: "head", 
+                bleeding: false, 
+                numbness: false, 
+                conscious: false
+            }   
+        }
+        const response = await request(Server.instance.app).get("/injuries/" + "dummy").send(data);
         expect(response.statusCode).toBe(400);
     })
 
+    test('/Post update injury database failure mock', async () => {
+        jest.spyOn(DAO.getInstance(), 'updateInjury').mockImplementation(() => { throw new Error() });
+        const response = await request(Server.instance.app).post("/injuries/" + "dummy");
+        expect(response.statusCode).toBe(400);
+    })
 
-
+    test('Chat gpt message create and fetching error', async () => {
+        let username = 'dummy';
+        let reported = true;
+        let timestamp = new Date().toString();
+        let parts = 'torso';
+        let bleeding = true;
+        let numbness = false;
+        let conscious = true;
+        await DAO.getInstance().createInjury(username, reported, timestamp, parts, bleeding, numbness, conscious)
+        const response = await request(Server.instance.app).get("/injuries/instructions/" + username);
+        expect(response.statusCode).toBe(400);
+    })
 })
 
 describe("Test Waitlists API", () => {
-    test('/Get Waitlist citizens', async () => {
-        let medname = 'dummy';
-        let description = 'dummy description';
-        await DAO.getInstance().createWaitlist(medname, description)
-        const response = await request(Server.instance.app).get("/waitlists/citizens/:username" + `username`);
+
+    test('/Get waitlist elect page', async () => {
+        const response = await request(Server.instance.app).get("/waitlists");
         expect(response.statusCode).toBe(200);
     })
 
-    test('/Get Waitlist citizens with created users', async () => {
+    test('/Get waitlist citizen page', async () => {
+        const response = await request(Server.instance.app).get("/waitlists/citizens");
+        expect(response.statusCode).toBe(200);
+    })
+
+    test('/Get waitlist providers page', async () => {
+        const response = await request(Server.instance.app).get("/waitlists/providers");
+        expect(response.statusCode).toBe(200);
+    })
+
+    test('/Get Waitlist citizens role - initialization', async () => {
+        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok', 'Citizen', false, 'undefined', [])
+        const response = await request(Server.instance.app).get("/waitlists/role/agron");
+        expect(response.statusCode).toBe(200);
+        expect(response.body.role).toBe('undefined');
+    })
+
+    test('/Get Waitlist citizens role - update to citizen', async () => {
+        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok', 'Citizen', false, 'undefined', [])
+        const response = await request(Server.instance.app).post("/waitlists/role").send({username: 'agron', role: 'Citizen'});
+        const response2 = await request(Server.instance.app).get("/waitlists/role/agron");
+        expect(response2.statusCode).toBe(200);
+        expect(response2.body.role).toBe('Citizen');
+    })
+
+
+    test('/Get Waitlist citizens with user who is not in any waitlists', async () => {
         let medname = 'dummy';
         let description = 'dummy description';
         await DAO.getInstance().createWaitlist(medname, description)
@@ -558,21 +632,186 @@ describe("Test Waitlists API", () => {
         expect(response.body.waitlists[0].name).toBe(medname);
     })
 
-    test('/Get Waitlist citizens ', async () => {
+    test('/Get Waitlist citizens database failure', async () => {
         jest.spyOn(DAO.getInstance(), 'getWaitlist').mockImplementation(() => { throw new Error() });
-        const response = await request(Server.instance.app).get("/waitlists/citizens/:username" + `username`);
+        const response = await request(Server.instance.app).get("/waitlists/citizens/" + `username`);
         expect(response.statusCode).toBe(400);
+    });
+
+    test('/Post Waitlist citizens with user joining waitlists', async () => {
+        let medname = 'dummy';
+        let description = 'dummy description';
+        await DAO.getInstance().createWaitlist(medname, description)
+        const response = await request(Server.instance.app).post("/waitlists/citizens").send({ medname: medname, username: 'agron' });
+        expect(response.statusCode).toBe(200);
+        const data = await DAO.getInstance().getWaitlistByName(medname);
+        expect(data.citizens[0].username).toBe('agron');
     })
 
-    test('/Post create waitlist', async () => {
+    test('/Delete Citizen leaving selected waitlists', async () => {
+        let medname = 'dummy';
+        let description = 'dummy description';
+        await DAO.getInstance().createWaitlist(medname, description)
+        const response = await request(Server.instance.app).post("/waitlists/citizens").send({ medname: medname, username: 'agron' });
+        expect(response.statusCode).toBe(200);
+        const response2 = await request(Server.instance.app).delete("/waitlists/citizens/agron/" + medname);
+        const data = await DAO.getInstance().getWaitlistByName(medname);
+        expect(data.citizens.length).toBe(0);
+    })
+
+    test('/Post manange waitlist stock supplies on 0 supply', async () => {
+        let medname = 'dummy';
+        let description = 'dummy description';
+        await DAO.getInstance().createWaitlist(medname, description)
+        const response = await request(Server.instance.app).post("/waitlists/citizens/stock").send({ medname: medname, description: description });
+        expect(response.statusCode).toBe(400);
+        expect(response.body.message).toBe('Error! No stock available');
+    })
+
+    test('/Post create new waitlist by providers', async () => {
         let medname = 'dummy';
         let description = 'dummy description';
         const response = await request(Server.instance.app).post("/waitlists/providers").send({ medname: medname, description: description });
         expect(response.statusCode).toBe(200);
+        const data = await DAO.getInstance().getWaitlistByName(medname);
+        expect(data.name).toBe(medname);
+    })
+
+    test('/Post providers increase waitlist supplies', async () => {
+        let medname = 'dummy';
+        let description = 'dummy description';
+        await DAO.getInstance().createWaitlist(medname, description)
+        const response = await request(Server.instance.app).post("/waitlists/providers/supplies").send({ medname: medname, num: 10 });
+        expect(response.statusCode).toBe(200);
+        const data = await DAO.getInstance().getWaitlistByName(medname);
+        expect(data.name).toBe(medname);
+        expect(data.count).toBe(10);
+    })
+
+    test('/Post manange waitlist stock supplies no supplier', async () => {
+        let medname = 'dummy';
+        let description = 'dummy description';
+        await DAO.getInstance().createWaitlist(medname, description)
+        await DAO.getInstance().updateCountByName(medname, 10);
+        const response = await request(Server.instance.app).post("/waitlists/citizens/stock").send({ medname: medname, description: description });
+        expect(response.statusCode).toBe(400);
+        expect(response.body.message).toBe('Error! No supplier available');
+    })
+
+    test('/Post manange waitlist with suppliers and count but no user', async () => {
+        let medname = 'dummy';
+        let description = 'dummy description';
+        await DAO.getInstance().createWaitlist(medname, description)
+        await DAO.getInstance().updateCountByName(medname, 10);
+        await DAO.getInstance().addSupplierToWaitlist(medname, 'agron', 10);
+        const response = await request(Server.instance.app).post("/waitlists/citizens/stock").send({ medname: medname, description: description });
+        expect(response.statusCode).toBe(200);
+    })
+
+    test('/Post manange waitlist with suppliers and count with waiting users', async () => {
+        let medname = 'dummy';
+        let description = 'dummy description';
+        await DAO.getInstance().createWaitlist(medname, description)
+        await DAO.getInstance().updateCountByName(medname, 10);
+        await DAO.getInstance().addSupplierToWaitlist(medname, 'agron', 10);
+        await DAO.getInstance().addCitizenToWaitlist(medname, 'agronhelp', new Date().toString());
+        const response = await request(Server.instance.app).post("/waitlists/providers/supplies").send({ medname: medname, num: 10 });
+        expect(response.statusCode).toBe(200);
+    })
+
+    test('/Get Notifications by username with 0 notifications', async () => {
+        await DAO.getInstance().createUser('agron', await hashPassword('1234'), 'ok', 'Citizen', false, 'undefined', [])
+        const response = await request(Server.instance.app).get("/waitlists/notifications/agron");
+        expect(response.statusCode).toBe(200);
+        expect(response.body.notifications.length).toBe(0);
+    })
+
+    test('/Post Notifications by username', async () => {
+        const response = await request(Server.instance.app).post("/waitlists/notifications").send({ username: 'agron', supplier:'provider', medname: 'dummy', timestamp: new Date().toString()});
+        expect(response.statusCode).toBe(200);
+        const response2 = await request(Server.instance.app).get("/waitlists/notifications/agron");
+        expect(response2.body.notifications.length).toBe(1);
+    })
+
+    test('/Delete Notifications by id', async () => {
+        const response = await request(Server.instance.app).post("/waitlists/notifications").send({ username: 'agron', supplier:'provider', medname: 'dummy', timestamp: new Date().toString()});
+        expect(response.statusCode).toBe(200);
+        const response2 = await request(Server.instance.app).get("/waitlists/notifications/agron");
+        expect(response2.body.notifications.length).toBe(1);
+        const response3 = await request(Server.instance.app).delete("/waitlists/notifications/" + response2.body.notifications[0]._id.toString());
+        expect(response3.statusCode).toBe(200);
+        const response4 = await request(Server.instance.app).get("/waitlists/notifications/agron");
+        expect(response4.body.notifications.length).toBe(0);
     })
 
 
-})
+
+
+        
+
+
+
+    // test('/Post create waitlist with missing data', async () => {
+    //     const response = await request(Server.instance.app).post("/waitlists/providers").send({});
+    //     expect(response.statusCode).toBe(400);
+    // });
+
+    // test('/Post create waitlist database failure', async () => {
+    //     jest.spyOn(DAO.getInstance(), 'createWaitlist').mockImplementation(() => { throw new Error() });
+    //     const response = await request(Server.instance.app).post("/waitlists/providers").send({ medname: 'dummy', description: 'dummy' });
+    //     expect(response.statusCode).toBe(400);
+    // });
+
+    // test('/Get waitlist by name', async () => {
+    //     let medname = 'dummy';
+    //     let description = 'dummy description';
+    //     await DAO.getInstance().createWaitlist(medname, description);
+    //     const response = await request(Server.instance.app).get(`/waitlists/providers/details/${medname}`);
+    //     expect(response.statusCode).toBe(200);
+    //     expect(response.body.name).toBe(medname);
+    // });
+
+    // test('/Get waitlist by name database failure', async () => {
+    //     jest.spyOn(DAO.getInstance(), 'getWaitlistByName').mockImplementation(() => { throw new Error() });
+    //     const response = await request(Server.instance.app).get(`/waitlists/providers/details/dummy`);
+    //     expect(response.statusCode).toBe(400);
+    // });
+
+    // test('/Post add citizen to waitlist', async () => {
+    //     let medname = 'dummy';
+    //     let description = 'dummy description';
+    //     await DAO.getInstance().createWaitlist(medname, description);
+    //     let username = 'testuser';
+    //     await DAO.getInstance().createUser(username, '1234', 'ok', 'Citizen', false);
+    //     const response = await request(Server.instance.app).post("/waitlists/citizens").send({ medname: medname, username: username });
+    //     expect(response.statusCode).toBe(200);
+    // });
+
+    // test('/Post add citizen to waitlist database failure', async () => {
+    //     jest.spyOn(DAO.getInstance(), 'addCitizenToWaitlist').mockImplementation(() => { throw new Error() });
+    //     const response = await request(Server.instance.app).post("/waitlists/citizens").send({ medname: 'dummy', username: 'testuser' });
+    //     expect(response.statusCode).toBe(400);
+    // });
+
+    // test('/Delete citizen from waitlist', async () => {
+    //     let medname = 'dummy';
+    //     let description = 'dummy description';
+    //     await DAO.getInstance().createWaitlist(medname, description);
+    //     let username = 'testuser';
+    //     await DAO.getInstance().createUser(username, '1234', 'ok', 'Citizen', false);
+    //     await DAO.getInstance().addCitizenToWaitlist(medname, username, new Date().toString());
+    //     const response = await request(Server.instance.app).delete(`/waitlists/citizens/${username}/${medname}`);
+    //     expect(response.statusCode).toBe(200);
+    // });
+
+    // test('/Delete citizen from waitlist database failure', async () => {
+    //     jest.spyOn(DAO.getInstance(), 'removeCitizenFromWaitlist').mockImplementation(() => { throw new Error() });
+    //     const response = await request(Server.instance.app).delete(`/waitlists/citizens/testuser/dummy`);
+    //     expect(response.statusCode).toBe(400);
+    // });
+});
+
+
 describe('Emergency services', ()=>{
     
     test("/Get emergencyServices", async () => {
@@ -770,4 +1009,6 @@ describe("Counsel Group API", () => {
         const del_message = await request(Server.instance.app).get(`/chatrooms/${data.receiver}`);
         
     });
+
+
 });
