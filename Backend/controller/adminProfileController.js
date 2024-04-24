@@ -4,16 +4,15 @@ import { io } from "../utils/socketSetup.js";
 import User from "../model/user-class.js";
 import { getSocketIds } from '../model/ActiveUser.js';
 
-export const getUserId = async (req, res) => {
-    try {
-        const user = await DAO.getInstance().getUserByName(req.params.username);
-        const userid = user._id.toString();
-        res.status(200).send({ result: userid })
-    } catch (err) {
-        res.status(400).send();
-    }
-
-}
+// export const getUserId = async (req, res) => {
+//     try {
+//         const user = await DAO.getInstance().getUserByName(req.params.username);
+//         const userid = user._id.toString();
+//         res.status(200).send({ result: userid })
+//     } catch (err) {
+//         res.status(400).send();
+//     }
+// }
 
 export const changeUserInfo = async (req, res) => {
     let username = req.body.username.toLowerCase();
@@ -43,8 +42,8 @@ export const changeUserInfo = async (req, res) => {
             username = username.toLowerCase();
         }
         if (newPassword !== "") {
-            if(actioner && actioner.usertype != 'Administrator' ){
-                res.status(400).send({message: "Only administrator can change username"});
+            if(actioner && actioner.id !== user.id && actioner.usertype != 'Administrator' ){
+                res.status(400).send({message: "Only user or administrator can change password"});
                 return;
             }
             newPassword = await hashPassword(newPassword);
