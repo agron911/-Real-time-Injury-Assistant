@@ -698,6 +698,7 @@ class DAO {
 
     updateInjury = async (username, timestamp, parts, bleeding, numbness, conscious) => {
         try {
+            // console.log("update injury", username, timestamp, parts, bleeding, numbness, conscious);
             await injuryCollection.findOneAndUpdate({ username: username }, { reported: true, timestamp: timestamp, parts: parts, bleeding: bleeding, numbness: numbness, conscious: conscious });
         } catch (err) {
             console.error("Update injury error: ", err);
@@ -796,7 +797,7 @@ class DAO {
             const notification = await notificationCollection.create({ username: username, supplier: supplier, medname: medname, timestamp: timestamp, viewed: false });
             return notification;
         } catch (err) {
-            console.error("Insert failed for create notification", err);
+            // console.error("Insert failed for create notification", err);
             return new Error("Insert failed :", err);
         }
     }
